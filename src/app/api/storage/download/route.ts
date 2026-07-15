@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { getStorageDir } from '@/lib/storage';
+import JSZip from 'jszip';
+import { prisma } from '@/lib/prisma';
+import { getStorageDir, getFileBuffer } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
@@ -44,6 +46,64 @@ export async function GET(req: NextRequest) {
     }
 
     if (!fs.existsSync(resolvedPath)) {
+      // Dynamic ZIP generation fallback for Vercel Serverless ephemeral /tmp storage
+      if (key.startsWith('deliveries/')) {
+        const parts = key.split('/');
+        const eventId = parts[1];
+        if (eventId) {
+          const event = await prisma.event.findUnique({ where: { id: eventId } });
+          const photos = await prisma.photo.findMany({
+            where: { eventId, status: 'APPROVED', deletedAt: null },
+          });
+
+          if (event && photos.length > 0) {
+            const zip = new JSZip();
+            const cleanBride = event.brideName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+            const cleanGroom = event.groomName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+            const folderName = `${cleanBride}-${cleanGroom}-Dugun-Fotograflari`;
+            const rootFolder = zip.folder(folderName);
+            const allPhotosFolder = rootFolder?.folder('Tum-Fotograflar');
+            const highlightsFolder = rootFolder?.folder('One-Cikanlar');
+
+            for (const photo of photos) {
+              try {
+                const fileBuffer = await getFileBuffer(photo.originalUrl);
+                const safeName = `${photo.id}_${photo.originalFilename}`;
+                allPhotosFolder?.file(safeName, fileBuffer);
+                if (photo.isSelectedForDelivery) {
+                  highlightsFolder?.file(safeName, fileBuffer);
+                }
+              } catch (fileErr) {}
+            }
+
+            let csvContent = '\ufeffMisafir Adi;Mesaj;Dosya Adi;Yukleme Tarihi\n';
+            photos.forEach((photo: any) => {
+              const name = (photo.guestName || 'Anonim').replace(/"/g, '""');
+              const msg = (photo.guestMessage || '').replace(/"/g, '""').replace(/\n/g, ' ');
+              const filename = photo.originalFilename.replace(/"/g, '""');
+              const date = new Date(photo.uploadedAt).toLocaleString('tr-TR');
+              csvContent += `"${name}";"${msg}";"${filename}";"${date}"\n`;
+            });
+            rootFolder?.file('Misafir-Mesajlari.csv', csvContent);
+
+            const zipBuffer = await zip.generateAsync({
+              type: 'nodebuffer',
+              compression: 'DEFLATE',
+              compressionOptions: { level: 5 },
+            });
+
+            return new Response(new Uint8Array(zipBuffer), {
+              status: 200,
+              headers: {
+                'Content-Type': 'application/zip',
+                'Content-Length': zipBuffer.length.toString(),
+                'Content-Disposition': `attachment; filename="${cleanBride}-${cleanGroom}-Dugun-Fotograflari.zip"`,
+              },
+            });
+          }
+        }
+      }
+
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
 
@@ -58,7 +118,7 @@ export async function GET(req: NextRequest) {
     else if (key.endsWith('.zip')) contentType = 'application/zip';
     else if (key.endsWith('.csv')) contentType = 'text/csv';
 
-    return new Response(fileBuffer, {
+    return new Response(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
         'Content-Type': contentType,

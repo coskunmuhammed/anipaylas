@@ -127,8 +127,13 @@ export async function getSignedDownloadUrl(
       .update(`${storageKey}:${expires}`)
       .digest('hex');
     
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return `${appUrl}/api/storage/download?key=${encodeURIComponent(
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+    if (!baseUrl && process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    }
+    baseUrl = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+
+    return `${baseUrl}/api/storage/download?key=${encodeURIComponent(
       storageKey
     )}&expires=${expires}&signature=${signature}`;
   }
