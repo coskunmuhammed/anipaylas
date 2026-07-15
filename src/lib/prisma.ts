@@ -6,7 +6,18 @@ import bcrypt from 'bcryptjs';
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 const connectionString = process.env.DATABASE_URL || 'postgresql://wedding_admin:wedding_password@localhost:5433/wedding_db?schema=public';
-const pool = new Pool({ connectionString });
+
+const needsSsl = process.env.NODE_ENV === 'production' || 
+  !!process.env.VERCEL || 
+  connectionString.includes('sslmode=') || 
+  connectionString.includes('supabase') || 
+  connectionString.includes('neon') ||
+  connectionString.includes('cockroach');
+
+const pool = new Pool({ 
+  connectionString,
+  ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
+});
 const adapter = new PrismaPg(pool);
 
 export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });

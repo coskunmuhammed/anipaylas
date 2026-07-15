@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
+import { prisma, seedAdmin } from '@/lib/prisma';
 import { encryptSession } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'E-posta ve şifre gereklidir.' }, { status: 400 });
     }
 
-    const admin = await prisma.adminUser.findUnique({
+    // Ensure initial admin user exists
+    await seedAdmin().catch(() => {});
+
+    let admin = await prisma.adminUser.findUnique({
       where: { email },
     });
 
@@ -55,6 +58,10 @@ export async function POST(req: NextRequest) {
     return response;
   } catch (error: any) {
     console.error('Login error:', error);
-    return NextResponse.json({ error: 'Sunucu hatası oluştu.' }, { status: 500 });
+    const isDbConfigError = !process.env.DATABASE_URL || error?.message?.includes('DATABASE_URL') || error?.code === 'P1001';
+    const errorMsg = isDbConfigError
+      ? 'Veritabanı bağlantı hatası. Vercel ayarlarında DATABASE_URL değişkenini ekleyin ve veritabanı sunucusunun aktif olduğundan emin olun.'
+      : 'Sunucu hatası oluştu.';
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
