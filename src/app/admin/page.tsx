@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
   const { getSignedDownloadUrl } = await import('@/lib/storage');
 
   const recentPhotos = await Promise.all(
-    recentPhotosRaw.map(async (photo) => {
+    recentPhotosRaw.map(async (photo: any) => {
       const signedThumbnailUrl = photo.thumbnailUrl.startsWith('http')
         ? photo.thumbnailUrl
         : await getSignedDownloadUrl(photo.thumbnailUrl);
