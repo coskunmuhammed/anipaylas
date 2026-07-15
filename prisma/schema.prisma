@@ -1,0 +1,199 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum EventStatus {
+  DRAFT
+  PLANNED
+  ACTIVE
+  CLOSED_FOR_UPLOAD
+  ALBUM_PREPARATION
+  READY_FOR_DOWNLOAD
+  ARCHIVED
+  DELETED
+}
+
+enum PhotoStatus {
+  UPLOADING
+  PROCESSING
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  DELETED
+  ARCHIVED
+}
+
+enum PackageStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  DELETED
+}
+
+model AdminUser {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         String     @default("ADMIN")
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model Event {
+  id                   String            @id @default(uuid())
+  title                String
+  slug                 String            @unique
+  shortCode            String            @unique
+  brideName            String
+  groomName            String
+  eventDate            DateTime
+  startTime            String
+  endTime              String
+  venueName            String
+  city                 String
+  district             String
+  welcomeTitle         String
+  welcomeMessage       String
+  coverImageUrl        String?
+  theme                String            @default("default")
+  status               EventStatus       @default(DRAFT)
+  uploadStartsAt       DateTime
+  uploadEndsAt         DateTime
+  moderationEnabled    Boolean           @default(true)
+  guestNameRequired    Boolean           @default(false)
+  guestMessageEnabled  Boolean           @default(true)
+  maxPhotosPerGuest    Int               @default(50)
+  maxPhotoSizeBytes    Int               @default(15728640) // 15MB
+  maxTotalPhotos       Int               @default(1000)
+  maxStorageBytes      Int               @default(10737418240) // 10GB
+  currentPhotoCount    Int               @default(0)
+  currentStorageBytes  BigInt            @default(0)
+  archiveAt            DateTime?
+  deleteAt             DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  photos               Photo[]
+  uploadSessions       UploadSession[]
+  qrScans              QrScan[]
+  deliveryPackages     DeliveryPackage[]
+  downloadLinks        DownloadLink[]
+  consentLogs          ConsentLog[]
+}
+
+model Photo {
+  id                    String      @id @default(uuid())
+  eventId               String
+  event                 Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guestName             String?
+  guestMessage          String?
+  originalUrl           String
+  galleryUrl            String
+  thumbnailUrl          String
+  originalFilename      String
+  storageKey            String
+  mimeType              String
+  fileSize              Int
+  width                 Int?
+  height                Int?
+  status                PhotoStatus @default(PENDING_APPROVAL)
+  isSelectedForDelivery Boolean     @default(false)
+  uploadedAt            DateTime    @default(now())
+  deletedAt             DateTime?
+}
+
+model UploadSession {
+  id                 String       @id @default(uuid())
+  eventId            String
+  event              Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sessionToken       String       @unique
+  visitorHash        String
+  guestName          String?
+  uploadedPhotoCount Int          @default(0)
+  uploadedBytes      BigInt       @default(0)
+  status             String       @default("ACTIVE")
+  expiresAt          DateTime
+  createdAt          DateTime     @default(now())
+  consentLogs        ConsentLog[]
+}
+
+model QrScan {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  visitorHash String
+  userAgent   String?
+  deviceType  String?
+  createdAt   DateTime @default(now())
+}
+
+model DeliveryPackage {
+  id                String        @id @default(uuid())
+  eventId           String
+  event             Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status            PackageStatus @default(PENDING)
+  photoCount        Int
+  archiveStorageKey String?
+  archiveSizeBytes  BigInt?
+  createdAt         DateTime      @default(now())
+  completedAt       DateTime?
+  deletedAt         DateTime?
+  downloadLinks     DownloadLink[]
+}
+
+model DownloadLink {
+  id                   String        @id @default(uuid())
+  eventId              String
+  event                Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  deliveryPackageId    String
+  deliveryPackage      DeliveryPackage @relation(fields: [deliveryPackageId], references: [id], onDelete: Cascade)
+  tokenHash            String        @unique
+  passwordHash         String?
+  isActive             Boolean       @default(true)
+  expiresAt            DateTime
+  maxDownloadCount     Int           @default(10)
+  currentDownloadCount Int           @default(0)
+  lastDownloadedAt     DateTime?
+  createdAt            DateTime      @default(now())
+  revokedAt            DateTime?
+  downloadLogs         DownloadLog[]
+}
+
+model DownloadLog {
+  id             String       @id @default(uuid())
+  downloadLinkId String
+  downloadLink   DownloadLink @relation(fields: [downloadLinkId], references: [id], onDelete: Cascade)
+  visitorHash    String
+  userAgent      String?
+  downloadedAt   DateTime     @default(now())
+  success        Boolean
+}
+
+model ConsentLog {
+  id                String        @id @default(uuid())
+  eventId           String
+  event             Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  uploadSessionId   String
+  uploadSession     UploadSession @relation(fields: [uploadSessionId], references: [id], onDelete: Cascade)
+  consentTextVersion String
+  visitorHash       String
+  createdAt         DateTime      @default(now())
+}
+
+model AuditLog {
+  id          String     @id @default(uuid())
+  adminUserId String?
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+  action      String
+  entityType  String
+  entityId    String?
+  metadata    String?
+  createdAt   DateTime   @default(now())
+}

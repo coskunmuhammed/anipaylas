@@ -1,0 +1,431 @@
+/* Guest Portal - Mobile First Styling CSS */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+:root {
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  
+  /* Default Slate Theme colors */
+  --g-bg: #090d16;
+  --g-card: #111726;
+  --g-text: #f3f4f6;
+  --g-text-muted: #9ca3af;
+  --g-primary: #6366f1;
+  --g-primary-hover: #4f46e5;
+  --g-primary-light: rgba(99, 102, 241, 0.12);
+  --g-border: rgba(255, 255, 255, 0.08);
+  --g-success: #10b981;
+  --g-danger: #ef4444;
+}
+
+/* Romantic Theme overrides */
+.theme-romantic {
+  --g-bg: #1f1218;
+  --g-card: #2e1b24;
+  --g-text: #faebf0;
+  --g-text-muted: #dca7bc;
+  --g-primary: #ec4899;
+  --g-primary-hover: #db2777;
+  --g-primary-light: rgba(236, 72, 153, 0.15);
+  --g-border: rgba(236, 72, 153, 0.15);
+}
+
+/* Elegant Theme overrides */
+.theme-elegant {
+  --g-bg: #fdfbf7;
+  --g-card: #ffffff;
+  --g-text: #1c1917;
+  --g-text-muted: #78716c;
+  --g-primary: #b45309; /* Warm Amber/Gold */
+  --g-primary-hover: #92400e;
+  --g-primary-light: rgba(180, 83, 9, 0.1);
+  --g-border: #e7e5e4;
+}
+
+/* Modern Theme overrides */
+.theme-modern {
+  --g-bg: #ffffff;
+  --g-card: #ffffff;
+  --g-text: #000000;
+  --g-text-muted: #666666;
+  --g-primary: #000000;
+  --g-primary-hover: #333333;
+  --g-primary-light: rgba(0, 0, 0, 0.05);
+  --g-border: #e5e5e5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+.guest-wrapper {
+  background-color: var(--g-bg);
+  color: var(--g-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 40px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.guest-container {
+  width: 100%;
+  max-width: 480px; /* Locked mobile viewport on desktop */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Cover Image banner */
+.guest-cover {
+  width: 100%;
+  height: 220px;
+  position: relative;
+  background-color: var(--g-card);
+  overflow: hidden;
+}
+
+.guest-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.guest-cover::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: linear-gradient(to top, var(--g-bg) 0%, transparent 100%);
+}
+
+/* Header names styling */
+.guest-header {
+  padding: 20px 24px;
+  text-align: center;
+  margin-top: -40px;
+  z-index: 10;
+}
+
+.couple-names {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.wedding-date {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--g-primary);
+  margin-bottom: 12px;
+}
+
+.welcome-box {
+  background-color: var(--g-card);
+  border: 1px solid var(--g-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 10px 20px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.welcome-desc {
+  font-size: 0.85rem;
+  color: var(--g-text-muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Blocks / Cards */
+.guest-card {
+  background-color: var(--g-card);
+  border: 1px solid var(--g-border);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 0 20px 20px;
+}
+
+/* Consent checkboxes styling */
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--g-text-muted);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  margin-top: 2px;
+}
+
+/* Inputs and Forms */
+.g-form-group {
+  margin-bottom: 16px;
+}
+
+.g-form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--g-text);
+}
+
+.g-control {
+  width: 100%;
+  padding: 12px 14px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--g-border);
+  border-radius: 10px;
+  color: var(--g-text);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.g-control:focus {
+  outline: none;
+  border-color: var(--g-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Buttons */
+.g-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.g-btn-primary {
+  background-color: var(--g-primary);
+  color: #fff;
+}
+
+.g-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Photo Upload Elements */
+.upload-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--g-border);
+  border-radius: 16px;
+  padding: 36px 20px;
+  background-color: rgba(255, 255, 255, 0.01);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-btn-container:hover {
+  border-color: var(--g-primary);
+  background-color: var(--g-primary-light);
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--g-primary-light);
+  color: var(--g-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+/* Photo Previews */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.preview-item {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--g-border);
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+/* Upload Queue Items */
+.upload-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.queue-item {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--g-border);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.queue-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.queue-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.queue-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.queue-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queue-progress {
+  width: 100%;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.queue-progress-bar {
+  height: 100%;
+  background-color: var(--g-primary);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.queue-status {
+  font-size: 0.7rem;
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.queue-status.success { color: var(--g-success); }
+.queue-status.error { color: var(--g-danger); }
+
+/* Block Screen (Passive state) */
+.blocked-screen {
+  text-align: center;
+  padding: 60px 30px;
+  margin: 30px 20px;
+  background-color: var(--g-card);
+  border: 1px solid var(--g-border);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.blocked-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--g-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Success Card */
+.success-screen {
+  text-align: center;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--g-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
