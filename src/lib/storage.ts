@@ -128,10 +128,10 @@ export async function getSignedDownloadUrl(
       .digest('hex');
     
     let baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
-    if (!baseUrl && process.env.VERCEL_URL) {
-      baseUrl = `https://${process.env.VERCEL_URL}`;
+    if (process.env.VERCEL || baseUrl.includes('localhost') || !baseUrl) {
+      baseUrl = 'https://anipaylas-eight.vercel.app';
     }
-    baseUrl = baseUrl ? baseUrl.replace(/\/$/, '') : '';
+    baseUrl = baseUrl.replace(/\/$/, '');
 
     return `${baseUrl}/api/storage/download?key=${encodeURIComponent(
       storageKey
