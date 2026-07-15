@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { getStorageDir } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,8 +32,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    // Resolve file path
-    const localDir = process.env.LOCAL_STORAGE_DIR || path.join(process.cwd(), 'storage');
+    // Resolve file path safely
+    const localDir = getStorageDir();
     const filePath = path.join(localDir, key);
 
     // Prevent path traversal

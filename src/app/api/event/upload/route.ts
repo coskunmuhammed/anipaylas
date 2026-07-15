@@ -151,6 +151,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, photoId: photo.id });
   } catch (error: any) {
     console.error('Error uploading photo:', error);
-    return NextResponse.json({ error: 'Yükleme sırasında sunucu hatası oluştu.' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || 'Yükleme sırasında sunucu hatası oluştu.' }, { status: 500 });
   }
 }

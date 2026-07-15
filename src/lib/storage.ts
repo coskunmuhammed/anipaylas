@@ -3,8 +3,15 @@ import path from 'path';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+export function getStorageDir(): string {
+  if (process.env.VERCEL) {
+    return '/tmp/storage';
+  }
+  return process.env.LOCAL_STORAGE_DIR || path.join(process.cwd(), 'storage');
+}
+
 const PROVIDER = process.env.STORAGE_PROVIDER || 'local';
-const LOCAL_DIR = process.env.LOCAL_STORAGE_DIR || (process.env.VERCEL ? '/tmp/storage' : path.join(process.cwd(), 'storage'));
+const LOCAL_DIR = getStorageDir();
 
 // Ensure local directory exists safely
 if (PROVIDER === 'local') {
