@@ -55,7 +55,7 @@ export default function NewEventPage() {
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
   
   // Settings & Rules
-  const [status, setStatus] = useState('DRAFT');
+  const [status, setStatus] = useState('ACTIVE');
   const [moderationEnabled, setModerationEnabled] = useState(true);
   const [guestNameRequired, setGuestNameRequired] = useState(false);
   const [guestMessageEnabled, setGuestMessageEnabled] = useState(true);

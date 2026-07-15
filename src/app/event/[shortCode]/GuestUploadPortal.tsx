@@ -179,65 +179,142 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     });
   };
 
+// Helper function to compress large camera photos on the client side to bypass serverless payload limits
+async function compressImageForUpload(file: File): Promise<File> {
+  // If file is already small (< 1.5 MB) and not HEIC, send as is
+  const isHeic = file.name.match(/\.(heic|heif)$/i);
+  if (file.size <= 1.5 * 1024 * 1024 && !isHeic) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(file);
+
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 2048; // Max 2048px for high resolution print quality
+
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return resolve(file);
+          const compressedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          });
+          resolve(compressedFile);
+        },
+        'image/jpeg',
+        0.88
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+
+    img.src = url;
+  });
+}
+
   // XML Http Request to handle file upload with progress bar
-  const uploadFile = (id: string) => {
+  const uploadFile = async (id: string) => {
     const queueItem = filesQueue.find((x) => x.id === id);
     if (!queueItem || !sessionToken) return;
 
     // Update state to uploading
     setFilesQueue((prev) =>
-      prev.map((x) => (x.id === id ? { ...x, status: 'uploading', progress: 0 } : x))
+      prev.map((x) => (x.id === id ? { ...x, status: 'uploading', progress: 5 } : x))
     );
 
-    const formData = new FormData();
-    formData.append('photo', queueItem.file);
-    formData.append('sessionToken', sessionToken);
-    formData.append('guestName', guestName.trim() || 'Anonim Misafir');
-    formData.append('guestMessage', guestMessage.trim());
+    try {
+      // Compress image on client side to bypass Vercel 4.5MB Serverless limit
+      const fileToSend = await compressImageForUpload(queueItem.file);
 
-    const xhr = new XMLHttpRequest();
-    
-    // Track progress
-    xhr.upload.addEventListener('progress', (e) => {
-      if (e.lengthComputable) {
-        const percentage = Math.round((e.loaded / e.total) * 100);
-        setFilesQueue((prev) =>
-          prev.map((x) => (x.id === id ? { ...x, progress: percentage } : x))
-        );
-      }
-    });
+      const formData = new FormData();
+      formData.append('photo', fileToSend);
+      formData.append('sessionToken', sessionToken);
+      formData.append('guestName', guestName.trim() || 'Anonim Misafir');
+      formData.append('guestMessage', guestMessage.trim());
 
-    // Handle load completion
-    xhr.addEventListener('load', () => {
-      const response = xhr.status >= 200 && xhr.status < 300 ? JSON.parse(xhr.responseText) : null;
+      const xhr = new XMLHttpRequest();
       
-      if (xhr.status >= 200 && xhr.status < 300 && response?.success) {
-        setFilesQueue((prev) =>
-          prev.map((x) => (x.id === id ? { ...x, status: 'success', progress: 100 } : x))
-        );
-        checkAllUploadsFinished();
-      } else {
-        const errorMsg = response?.error || 'Yüklenemedi';
-        setFilesQueue((prev) =>
-          prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg } : x))
-        );
-      }
-    });
+      // Track progress
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percentage = Math.round((e.loaded / e.total) * 100);
+          setFilesQueue((prev) =>
+            prev.map((x) => (x.id === id ? { ...x, progress: Math.max(10, percentage) } : x))
+          );
+        }
+      });
 
-    // Handle error
-    xhr.addEventListener('error', () => {
+      // Handle load completion
+      xhr.addEventListener('load', () => {
+        let response: any = null;
+        try {
+          response = JSON.parse(xhr.responseText);
+        } catch {}
+        
+        if (xhr.status >= 200 && xhr.status < 300 && response?.success) {
+          setFilesQueue((prev) =>
+            prev.map((x) => (x.id === id ? { ...x, status: 'success', progress: 100 } : x))
+          );
+          checkAllUploadsFinished();
+        } else {
+          let errorMsg = response?.error;
+          if (!errorMsg) {
+            if (xhr.status === 413) errorMsg = 'Dosya boyutu sunucu sınırını aşıyor.';
+            else if (xhr.status === 403) errorMsg = 'Yükleme kapalı.';
+            else errorMsg = 'Yükleme başarısız.';
+          }
+          setFilesQueue((prev) =>
+            prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg } : x))
+          );
+        }
+      });
+
+      // Handle network error
+      xhr.addEventListener('error', () => {
+        setFilesQueue((prev) =>
+          prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg: 'Bağlantı hatası.' } : x))
+        );
+      });
+
+      xhr.open('POST', '/api/event/upload');
+      xhr.send(formData);
+
+      // Keep XHR instance reference to cancel if needed
       setFilesQueue((prev) =>
-        prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg: 'Ağ hatası.' } : x))
+        prev.map((x) => (x.id === id ? { ...x, xhr } : x))
       );
-    });
-
-    xhr.open('POST', '/api/event/upload');
-    xhr.send(formData);
-
-    // Keep XHR instance reference to cancel if needed
-    setFilesQueue((prev) =>
-      prev.map((x) => (x.id === id ? { ...x, xhr } : x))
-    );
+    } catch (err: any) {
+      console.error('File prep error:', err);
+      setFilesQueue((prev) =>
+        prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg: 'Görsel hazırlanamadı.' } : x))
+      );
+    }
   };
 
   const retryUpload = (id: string) => {

@@ -30,8 +30,16 @@ export async function POST(req: NextRequest) {
     }
 
     const event = session.event;
-    if (event.status !== 'ACTIVE') {
+    const now = new Date();
+    const isWithinUploadWindow = (!event.uploadStartsAt || now >= new Date(event.uploadStartsAt)) &&
+                                 (!event.uploadEndsAt || now <= new Date(event.uploadEndsAt));
+
+    if (event.status !== 'ACTIVE' && event.status !== 'PLANNED') {
       return NextResponse.json({ error: 'Etkinlik şu anda aktif değil veya fotoğraf yüklemeye kapalı.' }, { status: 403 });
+    }
+
+    if (!isWithinUploadWindow) {
+      return NextResponse.json({ error: 'Fotoğraf yükleme zaman aralığı dışında.' }, { status: 403 });
     }
 
     // 2. Validate limits
