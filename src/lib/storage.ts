@@ -4,11 +4,17 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } fro
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const PROVIDER = process.env.STORAGE_PROVIDER || 'local';
-const LOCAL_DIR = process.env.LOCAL_STORAGE_DIR || path.join(process.cwd(), 'storage');
+const LOCAL_DIR = process.env.LOCAL_STORAGE_DIR || (process.env.VERCEL ? '/tmp/storage' : path.join(process.cwd(), 'storage'));
 
-// Ensure local directory exists
-if (PROVIDER === 'local' && !fs.existsSync(LOCAL_DIR)) {
-  fs.mkdirSync(LOCAL_DIR, { recursive: true });
+// Ensure local directory exists safely
+if (PROVIDER === 'local') {
+  try {
+    if (!fs.existsSync(LOCAL_DIR)) {
+      fs.mkdirSync(LOCAL_DIR, { recursive: true });
+    }
+  } catch (e) {
+    console.warn('Local storage dir warning:', e);
+  }
 }
 
 // S3 Client configuration
