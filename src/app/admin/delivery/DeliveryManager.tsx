@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   PackageOpen, 
@@ -45,6 +45,17 @@ export default function DeliveryManager({ events, selectedEvent, packages, stats
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Auto-refresh when any package is in PROCESSING state
+  useEffect(() => {
+    const hasProcessing = packages.some((p) => p.status === 'PROCESSING');
+    if (hasProcessing) {
+      const timer = setInterval(() => {
+        router.refresh();
+      }, 3000);
+      return () => clearInterval(timer);
+    }
+  }, [packages, router]);
   
   // Modal states
   const [showLinkModal, setShowLinkModal] = useState<PackageItem | null>(null);

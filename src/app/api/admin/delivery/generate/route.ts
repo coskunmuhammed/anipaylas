@@ -149,8 +149,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Run ZIP generation in background
-    runZipGeneration(deliveryPackage.id, eventId);
+    // Run ZIP generation and await completion for Vercel Serverless environment
+    await runZipGeneration(deliveryPackage.id, eventId);
 
     return NextResponse.json({ success: true, packageId: deliveryPackage.id });
   } catch (error: any) {
