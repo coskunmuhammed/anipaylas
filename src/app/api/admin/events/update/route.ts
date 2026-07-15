@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const maxPhotosPerGuest = parseInt(formData.get('maxPhotosPerGuest') as string, 10);
     const maxPhotoSizeBytes = parseInt(formData.get('maxPhotoSizeBytes') as string, 10);
     const maxTotalPhotos = parseInt(formData.get('maxTotalPhotos') as string, 10);
-    const maxStorageBytes = parseInt(formData.get('maxStorageBytes') as string, 10);
+    const maxStorageBytes = BigInt(formData.get('maxStorageBytes') as string || '10737418240');
 
     const coverImageFile = formData.get('coverImage') as File | null;
 

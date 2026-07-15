@@ -73,7 +73,7 @@ model Event {
   maxPhotosPerGuest    Int               @default(50)
   maxPhotoSizeBytes    Int               @default(15728640) // 15MB
   maxTotalPhotos       Int               @default(1000)
-  maxStorageBytes      Int               @default(10737418240) // 10GB
+  maxStorageBytes      BigInt            @default(10737418240) // 10GB
   currentPhotoCount    Int               @default(0)
   currentStorageBytes  BigInt            @default(0)
   archiveAt            DateTime?
