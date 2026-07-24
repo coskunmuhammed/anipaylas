@@ -25,17 +25,16 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: 'Sunucu geçersiz yanıt döndürdü.' }));
 
       if (!res.ok) {
         setError(data.error || 'Giriş yapılamadı.');
       } else {
-        router.push('/admin');
-        router.refresh();
+        window.location.href = '/admin';
       }
-    } catch (err) {
-      console.error(err);
-      setError('Bir bağlantı hatası oluştu.');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err?.message || 'Bir bağlantı hatası oluştu.');
     } finally {
       setLoading(false);
     }
