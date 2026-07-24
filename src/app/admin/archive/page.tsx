@@ -15,8 +15,11 @@ export default async function AdminArchivePage() {
   const serializedEvents = events.map((event: any) => ({
     id: event.id,
     title: event.title,
+    eventType: event.eventType,
+    subjectType: event.subjectType,
     brideName: event.brideName,
     groomName: event.groomName,
+    hostName: event.hostName,
     eventDate: event.eventDate.toLocaleDateString('tr-TR'),
     currentPhotoCount: event.currentPhotoCount,
   }));

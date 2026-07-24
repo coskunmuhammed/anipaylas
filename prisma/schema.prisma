@@ -6,6 +6,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum EventType {
+  WEDDING
+  ENGAGEMENT
+  HENNA
+  BIRTHDAY
+  GRADUATION
+  BABY_SHOWER
+  PROMISE
+  CORPORATE
+  PARTY
+  OTHER
+}
+
+enum SubjectType {
+  COUPLE
+  PERSON
+  ORGANIZATION
+}
+
 enum EventStatus {
   DRAFT
   PLANNED
@@ -52,8 +71,12 @@ model Event {
   title                String
   slug                 String            @unique
   shortCode            String            @unique
-  brideName            String
-  groomName            String
+  eventType            EventType         @default(WEDDING)
+  subjectType          SubjectType       @default(COUPLE)
+  hostName             String?
+  instagramUsername    String?
+  brideName            String?
+  groomName            String?
   eventDate            DateTime
   startTime            String
   endTime              String
@@ -155,6 +178,7 @@ model DownloadLink {
   deliveryPackageId    String
   deliveryPackage      DeliveryPackage @relation(fields: [deliveryPackageId], references: [id], onDelete: Cascade)
   tokenHash            String        @unique
+  tokenEncrypted       String?
   passwordHash         String?
   isActive             Boolean       @default(true)
   expiresAt            DateTime

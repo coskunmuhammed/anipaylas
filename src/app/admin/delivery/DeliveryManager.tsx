@@ -367,7 +367,7 @@ export default function DeliveryManager({ events, selectedEvent, packages, stats
 
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Link2 size={20} style={{ color: 'var(--primary)' }} />
-              <span>Gelin & Damat İndirme Bağlantısı</span>
+              <span>Albüm İndirme Bağlantısı Oluştur</span>
             </h3>
 
             {generatedLink ? (
@@ -377,7 +377,7 @@ export default function DeliveryManager({ events, selectedEvent, packages, stats
                 
                 <h4 style={{ fontWeight: 700 }}>Bağlantı Başarıyla Oluşturuldu!</h4>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                  Aşağıdaki güvenli bağlantıyı kopyalayarak gelin ve damada WhatsApp veya SMS üzerinden iletebilirsiniz.
+                  Aşağıdaki güvenli bağlantıyı kopyalayarak etkinlik sahibine WhatsApp veya SMS üzerinden iletebilirsiniz.
                 </p>
 
                 <div 

@@ -50,8 +50,12 @@ export default async function GuestEventPage({ params }: PageProps) {
   const serializedEvent = {
     id: event.id,
     title: event.title,
+    eventType: event.eventType,
+    subjectType: event.subjectType,
     brideName: event.brideName,
     groomName: event.groomName,
+    hostName: event.hostName,
+    instagramUsername: event.instagramUsername,
     eventDate: event.eventDate.toLocaleDateString('tr-TR'),
     welcomeTitle: event.welcomeTitle,
     welcomeMessage: event.welcomeMessage,

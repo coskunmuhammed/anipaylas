@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import crypto from 'crypto';
+import { hashToken } from '@/lib/crypto';
+import { getEventDisplayName } from '@/lib/eventUtils';
 import { getSignedDownloadUrl } from '@/lib/storage';
 import DownloadPortal from './DownloadPortal';
 import '@/app/download/download.css';
@@ -11,11 +12,11 @@ interface PageProps {
   params: Promise<{ token: string }>;
 }
 
-export default async function BrideGroomDownloadPage({ params }: PageProps) {
+export default async function DownloadPage({ params }: PageProps) {
   const { token } = await params;
 
-  // Hash token
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  // Compute standardized SHA-256 token hash
+  const tokenHash = hashToken(token);
 
   // Query database
   const link = await prisma.downloadLink.findUnique({
@@ -45,13 +46,13 @@ export default async function BrideGroomDownloadPage({ params }: PageProps) {
     statusMessage = 'Bu bağlantı için maksimum indirme limitine ulaşılmıştır. Yeniden erişim talep etmek için bizimle iletişime geçebilirsiniz.';
     isExpired = true;
   } else if (link.deliveryPackage.status !== 'COMPLETED') {
-    statusMessage = 'Düğün albüm dosyası henüz hazır değil veya silinmiş. Lütfen daha sonra tekrar deneyin.';
+    statusMessage = 'Etkinlik albüm dosyası henüz hazır değil veya silinmiş. Lütfen daha sonra tekrar deneyin.';
     isExpired = true;
   }
 
   // Calculate remaining days
   const remainingTime = link.expiresAt.getTime() - now.getTime();
-  const remainingDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
+  const remainingDays = Math.max(0, Math.ceil(remainingTime / (1000 * 60 * 60 * 24)));
 
   let signedCoverImageUrl: string | null = null;
   if (link.event.coverImageUrl) {
@@ -62,8 +63,7 @@ export default async function BrideGroomDownloadPage({ params }: PageProps) {
 
   const serializedData = {
     token,
-    brideName: link.event.brideName,
-    groomName: link.event.groomName,
+    displayName: getEventDisplayName(link.event),
     eventDate: link.event.eventDate.toLocaleDateString('tr-TR'),
     coverImageUrl: signedCoverImageUrl,
     photoCount: link.deliveryPackage.photoCount,

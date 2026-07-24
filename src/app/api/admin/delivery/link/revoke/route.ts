@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Revoke the link
-    const updatedLink = await prisma.downloadLink.update({
+    await prisma.downloadLink.update({
       where: { id: linkId },
       data: {
         isActive: false,
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error revoking link:', error);
     return NextResponse.json({ error: 'Sunucu hatası oluştu.' }, { status: 500 });
   }

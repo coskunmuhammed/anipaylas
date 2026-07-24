@@ -3,12 +3,16 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Archive, RotateCcw, Trash2 } from 'lucide-react';
+import { getEventDisplayName } from '@/lib/eventUtils';
 
 interface ArchivedEvent {
   id: string;
   title: string;
-  brideName: string;
-  groomName: string;
+  eventType?: string;
+  subjectType?: string;
+  brideName?: string | null;
+  groomName?: string | null;
+  hostName?: string | null;
   eventDate: string;
   currentPhotoCount: number;
 }
@@ -24,7 +28,7 @@ export default function ArchiveList({ events }: ArchiveListProps) {
   const handleAction = async (eventId: string, action: 'reactivate' | 'delete') => {
     const confirmMsg = action === 'reactivate' 
       ? 'Bu etkinliği yeniden aktif hale getirmek istiyor musunuz? Misafirler tekrar fotoğraf yükleyebilir.'
-      : 'Bu etkinliği tamamen silmek istediğinize emin misiniz? Düğün kaydı çöp kutusuna atılacaktır.';
+      : 'Bu etkinliği tamamen silmek istediğinize emin misiniz? Kayıt silinecektir.';
       
     if (!confirm(confirmMsg)) return;
 
@@ -54,13 +58,13 @@ export default function ArchiveList({ events }: ArchiveListProps) {
     <div>
       <div className="section-card">
         <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '20px' }}>
-          Arşivlenen Düğün Albümleri
+          Arşivlenen Etkinlik Albümleri
         </h3>
 
         {events.length === 0 ? (
           <div className="empty-state">
             <Archive size={48} />
-            <p>Arşivde kayıtlı düğün albümü bulunmamaktadır.</p>
+            <p>Arşivde kayıtlı etkinlik albümü bulunmamaktadır.</p>
           </div>
         ) : (
           <div className="data-table-wrapper">
@@ -68,7 +72,7 @@ export default function ArchiveList({ events }: ArchiveListProps) {
               <thead>
                 <tr>
                   <th>Etkinlik Adı</th>
-                  <th>Gelin & Damat</th>
+                  <th>Etkinlik Sahibi / Özne</th>
                   <th>Tarih</th>
                   <th>Fotoğraf Sayısı</th>
                   <th style={{ textAlign: 'right' }}>İşlemler</th>
@@ -80,7 +84,7 @@ export default function ArchiveList({ events }: ArchiveListProps) {
                     <td>
                       <div style={{ fontWeight: 600 }}>{event.title}</div>
                     </td>
-                    <td>👰 {event.brideName} & 🤵 {event.groomName}</td>
+                    <td>👤 {getEventDisplayName(event)}</td>
                     <td>{event.eventDate}</td>
                     <td>{event.currentPhotoCount} adet fotoğraf</td>
                     <td style={{ textAlign: 'right' }}>

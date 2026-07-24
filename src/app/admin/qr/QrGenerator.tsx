@@ -22,6 +22,7 @@ import {
 interface EventOption {
   id: string;
   title: string;
+  displayName?: string;
   shortCode: string;
 }
 

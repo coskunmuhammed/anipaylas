@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import Link from 'next/link';
+import { getEventDisplayName } from '@/lib/eventUtils';
 import { 
   Calendar, 
   Image as ImageIcon, 
@@ -280,7 +281,7 @@ export default async function AdminDashboardPage() {
                   </div>
                   
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <div>👰 {event.brideName} & 🤵 {event.groomName}</div>
+                    <div>👤 {getEventDisplayName(event)}</div>
                     <div>📅 {new Date(event.eventDate).toLocaleDateString('tr-TR')}</div>
                     <div>📍 {event.venueName}, {event.city}</div>
                   </div>

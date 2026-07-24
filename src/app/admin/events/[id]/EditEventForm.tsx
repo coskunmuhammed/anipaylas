@@ -4,6 +4,27 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Save, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { getDefaultSubjectType } from '@/lib/eventUtils';
+import { EventType, SubjectType } from '@prisma/client';
+
+const EVENT_TYPE_OPTIONS: { value: EventType; label: string }[] = [
+  { value: 'WEDDING', label: 'Düğün' },
+  { value: 'ENGAGEMENT', label: 'Nişan' },
+  { value: 'HENNA', label: 'Kına Gecesi' },
+  { value: 'BIRTHDAY', label: 'Doğum Günü' },
+  { value: 'GRADUATION', label: 'Mezuniyet' },
+  { value: 'BABY_SHOWER', label: 'Baby Shower' },
+  { value: 'PROMISE', label: 'Söz' },
+  { value: 'CORPORATE', label: 'Kurumsal Organizasyon' },
+  { value: 'PARTY', label: 'Parti' },
+  { value: 'OTHER', label: 'Diğer' },
+];
+
+const SUBJECT_TYPE_OPTIONS: { value: SubjectType; label: string }[] = [
+  { value: 'COUPLE', label: 'Çift (Gelin & Damat)' },
+  { value: 'PERSON', label: 'Kişi / Etkinlik Sahibi' },
+  { value: 'ORGANIZATION', label: 'Kurum / Organizasyon' },
+];
 
 interface EditEventFormProps {
   event: {
@@ -11,8 +32,12 @@ interface EditEventFormProps {
     title: string;
     slug: string;
     shortCode: string;
+    eventType: EventType | string;
+    subjectType: SubjectType | string;
     brideName: string;
     groomName: string;
+    hostName: string;
+    instagramUsername: string;
     eventDate: string;
     startTime: string;
     endTime: string;
@@ -44,8 +69,14 @@ export default function EditEventForm({ event }: EditEventFormProps) {
 
   // Form State initialized with existing event data
   const [title, setTitle] = useState(event.title);
-  const [brideName, setBrideName] = useState(event.brideName);
-  const [groomName, setGroomName] = useState(event.groomName);
+  const [eventType, setEventType] = useState<EventType>((event.eventType as EventType) || 'WEDDING');
+  const [subjectType, setSubjectType] = useState<SubjectType>((event.subjectType as SubjectType) || 'COUPLE');
+  
+  const [brideName, setBrideName] = useState(event.brideName || '');
+  const [groomName, setGroomName] = useState(event.groomName || '');
+  const [hostName, setHostName] = useState(event.hostName || '');
+  const [instagramUsername, setInstagramUsername] = useState(event.instagramUsername || '');
+
   const [eventDate, setEventDate] = useState(event.eventDate);
   const [startTime, setStartTime] = useState(event.startTime);
   const [endTime, setEndTime] = useState(event.endTime);
@@ -74,6 +105,11 @@ export default function EditEventForm({ event }: EditEventFormProps) {
   const [maxTotalPhotos, setMaxTotalPhotos] = useState(event.maxTotalPhotos);
   const [maxStorageGB, setMaxStorageGB] = useState(event.maxStorageBytes / 1024 / 1024 / 1024);
 
+  const handleEventTypeChange = (newType: EventType) => {
+    setEventType(newType);
+    setSubjectType(getDefaultSubjectType(newType));
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -92,8 +128,12 @@ export default function EditEventForm({ event }: EditEventFormProps) {
       const formData = new FormData();
       formData.append('id', event.id);
       formData.append('title', title);
+      formData.append('eventType', eventType);
+      formData.append('subjectType', subjectType);
       formData.append('brideName', brideName);
       formData.append('groomName', groomName);
+      formData.append('hostName', hostName);
+      formData.append('instagramUsername', instagramUsername);
       formData.append('eventDate', eventDate);
       formData.append('startTime', startTime);
       formData.append('endTime', endTime);
@@ -104,21 +144,19 @@ export default function EditEventForm({ event }: EditEventFormProps) {
       formData.append('welcomeMessage', welcomeMessage);
       formData.append('theme', theme);
       formData.append('status', status);
-      formData.append('moderationEnabled', String(moderationEnabled));
-      formData.append('guestNameRequired', String(guestNameRequired));
-      formData.append('guestMessageEnabled', String(guestMessageEnabled));
       
-      const startDateTime = uploadStartsAt ? new Date(uploadStartsAt).toISOString() : new Date(eventDate + 'T' + startTime).toISOString();
-      const endDateTime = uploadEndsAt ? new Date(uploadEndsAt).toISOString() : new Date(new Date(eventDate + 'T' + endTime).getTime() + 24 * 60 * 60 * 1000).toISOString();
+      formData.append('moderationEnabled', moderationEnabled.toString());
+      formData.append('guestNameRequired', guestNameRequired.toString());
+      formData.append('guestMessageEnabled', guestMessageEnabled.toString());
       
-      formData.append('uploadStartsAt', startDateTime);
-      formData.append('uploadEndsAt', endDateTime);
+      formData.append('uploadStartsAt', uploadStartsAt);
+      formData.append('uploadEndsAt', uploadEndsAt);
       
-      formData.append('maxPhotosPerGuest', String(maxPhotosPerGuest));
-      formData.append('maxPhotoSizeBytes', String(maxPhotoSizeMB * 1024 * 1024));
-      formData.append('maxTotalPhotos', String(maxTotalPhotos));
-      formData.append('maxStorageBytes', String(maxStorageGB * 1024 * 1024 * 1024));
-      
+      formData.append('maxPhotosPerGuest', maxPhotosPerGuest.toString());
+      formData.append('maxPhotoSizeBytes', (maxPhotoSizeMB * 1024 * 1024).toString());
+      formData.append('maxTotalPhotos', maxTotalPhotos.toString());
+      formData.append('maxStorageBytes', (maxStorageGB * 1024 * 1024 * 1024).toString());
+
       if (coverImage) {
         formData.append('coverImage', coverImage);
       }
@@ -131,15 +169,14 @@ export default function EditEventForm({ event }: EditEventFormProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Etkinlik güncellenirken bir hata oluştu.');
+        setError(data.error || 'Etkinlik güncellenemedi.');
       } else {
         setSuccess('Etkinlik başarıyla güncellendi.');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
         router.refresh();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Ağ hatası oluştu.');
+      setError('Ağ hatası veya sunucuya erişilemiyor.');
     } finally {
       setLoading(false);
     }
@@ -147,42 +184,74 @@ export default function EditEventForm({ event }: EditEventFormProps) {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex-between mb-20">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link href="/admin/events" className="btn btn-secondary btn-sm" style={{ padding: '8px' }}>
-            <ArrowLeft size={16} />
-          </Link>
-          <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Etkinliği Düzenle</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              Düzenlediğiniz etkinlik: <strong style={{ color: '#fff' }}>{event.title}</strong> (Kısa Kod: {event.shortCode})
-            </p>
-          </div>
+        <div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Etkinlik Düzenle: {event.title}</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            Kısa Kod: <strong>{event.shortCode}</strong> | Slug: <code>{event.slug}</code>
+          </p>
         </div>
+        <Link href="/admin/events" className="btn btn-secondary">
+          <ArrowLeft size={16} />
+          <span>Etkinlik Listesine Dön</span>
+        </Link>
       </div>
-
-      {error && <div className="login-error">{error}</div>}
-      {success && (
-        <div 
-          className="login-error" 
-          style={{ 
-            backgroundColor: 'var(--success-light)', 
-            borderColor: 'rgba(16, 185, 129, 0.2)', 
-            color: 'var(--success)' 
-          }}
-        >
-          {success}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
+        {error && (
+          <div style={{ padding: '12px 16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-md)', color: 'var(--danger)', fontSize: '0.9rem' }}>
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div style={{ padding: '12px 16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid var(--success)', borderRadius: 'var(--radius-md)', color: 'var(--success)', fontSize: '0.9rem' }}>
+            {success}
+          </div>
+        )}
+
         {/* Section 1: Temel Bilgiler */}
         <div className="section-card">
           <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-            Düğün Temel Bilgileri
+            Etkinlik Temel Bilgileri
           </h3>
-          
+
+          <div className="form-row" style={{ marginBottom: '16px' }}>
+            <div className="form-group">
+              <label htmlFor="eventType">Etkinlik Türü</label>
+              <select
+                id="eventType"
+                className="form-control"
+                value={eventType}
+                onChange={(e) => handleEventTypeChange(e.target.value as EventType)}
+              >
+                {EVENT_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="subjectType">Özne Yapısı</label>
+              <select
+                id="subjectType"
+                className="form-control"
+                value={subjectType}
+                onChange={(e) => setSubjectType(e.target.value as SubjectType)}
+              >
+                {SUBJECT_TYPE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="form-group">
             <label htmlFor="title">Etkinlik Adı</label>
             <input
@@ -195,29 +264,72 @@ export default function EditEventForm({ event }: EditEventFormProps) {
             />
           </div>
 
-          <div className="form-row">
+          {/* Dynamic Inputs based on subjectType */}
+          {subjectType === 'COUPLE' && (
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="brideName">Gelin Adı</label>
+                <input
+                  id="brideName"
+                  type="text"
+                  className="form-control"
+                  value={brideName}
+                  onChange={(e) => setBrideName(e.target.value)}
+                  required={subjectType === 'COUPLE'}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="groomName">Damat Adı</label>
+                <input
+                  id="groomName"
+                  type="text"
+                  className="form-control"
+                  value={groomName}
+                  onChange={(e) => setGroomName(e.target.value)}
+                  required={subjectType === 'COUPLE'}
+                />
+              </div>
+            </div>
+          )}
+
+          {subjectType === 'PERSON' && (
             <div className="form-group">
-              <label htmlFor="brideName">Gelin Adı</label>
+              <label htmlFor="hostName">Etkinlik Sahibi (Kişi Adı)</label>
               <input
-                id="brideName"
+                id="hostName"
                 type="text"
                 className="form-control"
-                value={brideName}
-                onChange={(e) => setBrideName(e.target.value)}
-                required
+                value={hostName}
+                onChange={(e) => setHostName(e.target.value)}
+                required={subjectType === 'PERSON'}
               />
             </div>
+          )}
+
+          {subjectType === 'ORGANIZATION' && (
             <div className="form-group">
-              <label htmlFor="groomName">Damat Adı</label>
+              <label htmlFor="hostName">Kurum / Organizasyon Adı</label>
               <input
-                id="groomName"
+                id="hostName"
                 type="text"
                 className="form-control"
-                value={groomName}
-                onChange={(e) => setGroomName(e.target.value)}
-                required
+                value={hostName}
+                onChange={(e) => setHostName(e.target.value)}
+                required={subjectType === 'ORGANIZATION'}
               />
             </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="instagramUsername">Instagram Kullanıcı Adı (İsteğe Bağlı)</label>
+            <input
+              id="instagramUsername"
+              type="text"
+              className="form-control"
+              placeholder="@firmaadi"
+              value={instagramUsername}
+              onChange={(e) => setInstagramUsername(e.target.value)}
+            />
           </div>
 
           <div className="form-row">
@@ -258,23 +370,21 @@ export default function EditEventForm({ event }: EditEventFormProps) {
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group" style={{ gridColumn: 'span 2 / span 2' }}>
-              <label htmlFor="venueName">Düğün Salonu / Mekân Adı</label>
-              <input
-                id="venueName"
-                type="text"
-                className="form-control"
-                value={venueName}
-                onChange={(e) => setVenueName(e.target.value)}
-                required
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="venueName">Mekân Adı / Salon</label>
+            <input
+              id="venueName"
+              type="text"
+              className="form-control"
+              value={venueName}
+              onChange={(e) => setVenueName(e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="city">Şehir</label>
+              <label htmlFor="city">İl</label>
               <input
                 id="city"
                 type="text"
@@ -298,10 +408,10 @@ export default function EditEventForm({ event }: EditEventFormProps) {
           </div>
         </div>
 
-        {/* Section 2: Karşılama ve Tema Ayarları */}
+        {/* Section 2: Görsel & Karşılama Ayarları */}
         <div className="section-card">
           <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-            Misafir Karşılama Sayfası Ayarları
+            Karşılama Sayfası ve Görsel Tasarımı
           </h3>
 
           <div className="form-group">
@@ -321,7 +431,7 @@ export default function EditEventForm({ event }: EditEventFormProps) {
             <textarea
               id="welcomeMessage"
               className="form-control"
-              rows={4}
+              rows={3}
               value={welcomeMessage}
               onChange={(e) => setWelcomeMessage(e.target.value)}
               required
@@ -330,218 +440,153 @@ export default function EditEventForm({ event }: EditEventFormProps) {
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="theme">Arayüz Teması</label>
+              <label htmlFor="theme">Renk Teması</label>
               <select
                 id="theme"
                 className="form-control"
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
               >
-                <option value="default">Premium Koyu Slate (Varsayılan)</option>
-                <option value="romantic">Gül Rengi Romantik</option>
-                <option value="elegant">Zarif Altın & Krem</option>
-                <option value="modern">Modern Minimal Beyaz</option>
+                <option value="default">Varsayılan (Altın & Koyu Mor)</option>
+                <option value="romantic">Romantik (Gül & Pudra Pembe)</option>
+                <option value="elegant">Zarif (Zümrüt Yeşili & Bronz)</option>
+                <option value="modern">Modern (Gece Mavisi & Gümüş)</option>
               </select>
             </div>
 
             <div className="form-group">
-              <label>Kapak Fotoğrafı</label>
-              <div 
-                style={{ 
-                  display: 'flex', 
-                  gap: '15px', 
-                  alignItems: 'center',
-                  backgroundColor: 'var(--bg-tertiary)',
-                  padding: '12px',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px dashed var(--border-color)'
-                }}
-              >
-                <div 
-                  style={{ 
-                    width: '60px', 
-                    height: '60px', 
-                    borderRadius: 'var(--radius-sm)', 
-                    backgroundColor: 'rgba(255,255,255,0.02)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {coverImagePreview ? (
-                    <img 
-                      src={coverImagePreview}
-                      alt="Preview" 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    />
-                  ) : (
-                    <ImageIcon size={24} style={{ color: 'var(--text-muted)' }} />
-                  )}
-                </div>
-                <div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    style={{ fontSize: '0.8rem' }}
-                  />
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>PNG, JPG, WebP. Maks 5MB.</p>
-                </div>
-              </div>
+              <label>Kapak Görselini Değiştir</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="form-control"
+              />
             </div>
           </div>
 
-          <div className="form-row" style={{ marginTop: '10px' }}>
-            <div className="form-switch">
-              <div>
-                <div style={{ fontWeight: 600 }}>Fotoğraf Moderasyonu</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Fotoğraflar onayınızdan sonra albüme eklenir.</div>
-              </div>
+          {coverImagePreview && (
+            <div style={{ marginTop: '12px', width: '100%', maxHeight: '180px', overflow: 'hidden', borderRadius: 'var(--radius-sm)' }}>
+              <img src={coverImagePreview} alt="cover preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
+        </div>
+
+        {/* Section 3: Kurallar ve İzinler */}
+        <div className="section-card">
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+            Kurallar ve İzinler
+          </h3>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="status">Etkinlik Durumu</label>
+              <select
+                id="status"
+                className="form-control"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="DRAFT">Taslak</option>
+                <option value="PLANNED">Planlandı</option>
+                <option value="ACTIVE">Aktif (Fotoğraf Yüklemeye Açık)</option>
+                <option value="CLOSED_FOR_UPLOAD">Yüklemeye Kapalı</option>
+                <option value="ALBUM_PREPARATION">Albüm Hazırlanıyor</option>
+                <option value="READY_FOR_DOWNLOAD">İndirmeye Hazır</option>
+                <option value="ARCHIVED">Arşivlendi</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginTop: '12px' }}>
+            <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={moderationEnabled}
                 onChange={(e) => setModerationEnabled(e.target.checked)}
               />
-            </div>
+              <span>Fotoğraflar Onay Kuyruğuna Düşsün (Moderasyon)</span>
+            </label>
 
-            <div className="form-switch">
-              <div>
-                <div style={{ fontWeight: 600 }}>Misafir İsmi Zorunlu</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Ziyaretçiler fotoğraf yüklerken adını yazmalıdır.</div>
-              </div>
+            <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={guestNameRequired}
                 onChange={(e) => setGuestNameRequired(e.target.checked)}
               />
-            </div>
-          </div>
+              <span>Misafir İsmi Zorunlu Olsun</span>
+            </label>
 
-          <div className="form-row" style={{ marginTop: '10px' }}>
-            <div className="form-switch" style={{ gridColumn: 'span 1' }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>Misafir Mesajı</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Ziyaretçiler tebrik mesajı bırakabilirler.</div>
-              </div>
+            <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={guestMessageEnabled}
                 onChange={(e) => setGuestMessageEnabled(e.target.checked)}
               />
-            </div>
+              <span>Misafir Tebrik Mesajı Yazabilsin</span>
+            </label>
           </div>
         </div>
 
-        {/* Section 3: Sınırlar ve Limitler */}
+        {/* Section 4: Limitler */}
         <div className="section-card">
           <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-            Fotoğraf Yükleme Limitleri & Kota
+            Limit ve Kotalar
           </h3>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="maxPhotosPerGuest">Tek Misafir Maksimum Fotoğraf Sayısı</label>
+              <label htmlFor="maxPhotosPerGuest">Misafir Başına Maks Fotoğraf</label>
               <input
                 id="maxPhotosPerGuest"
                 type="number"
                 className="form-control"
                 value={maxPhotosPerGuest}
-                onChange={(e) => setMaxPhotosPerGuest(parseInt(e.target.value) || 0)}
-                required
+                onChange={(e) => setMaxPhotosPerGuest(parseInt(e.target.value, 10) || 1)}
               />
             </div>
+
             <div className="form-group">
-              <label htmlFor="maxPhotoSizeMB">Tek Fotoğraf Maksimum Boyutu (MB)</label>
+              <label htmlFor="maxPhotoSizeMB">Tek Fotoğraf Maks Boyut (MB)</label>
               <input
                 id="maxPhotoSizeMB"
                 type="number"
                 className="form-control"
                 value={maxPhotoSizeMB}
-                onChange={(e) => setMaxPhotoSizeMB(parseInt(e.target.value) || 0)}
-                required
+                onChange={(e) => setMaxPhotoSizeMB(parseInt(e.target.value, 10) || 1)}
               />
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="maxTotalPhotos">Düğün İçin Toplam Fotoğraf Sınırı</label>
+              <label htmlFor="maxTotalPhotos">Toplam Etkinlik Fotoğraf Limiti</label>
               <input
                 id="maxTotalPhotos"
                 type="number"
                 className="form-control"
                 value={maxTotalPhotos}
-                onChange={(e) => setMaxTotalPhotos(parseInt(e.target.value) || 0)}
-                required
+                onChange={(e) => setMaxTotalPhotos(parseInt(e.target.value, 10) || 100)}
               />
             </div>
+
             <div className="form-group">
-              <label htmlFor="maxStorageGB">Düğün Toplam Depolama Kotası (GB)</label>
+              <label htmlFor="maxStorageGB">Toplam Depolama Kotası (GB)</label>
               <input
                 id="maxStorageGB"
                 type="number"
                 className="form-control"
                 value={maxStorageGB}
-                onChange={(e) => setMaxStorageGB(parseInt(e.target.value) || 0)}
-                required
+                onChange={(e) => setMaxStorageGB(parseInt(e.target.value, 10) || 1)}
               />
             </div>
           </div>
         </div>
 
-        {/* Section 4: Zamanlama & Yayın Durumu */}
-        <div className="section-card">
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
-            Zamanlama ve Etkinlik Durumu
-          </h3>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="uploadStartsAt">Yükleme Başlangıç Tarih & Saati</label>
-              <input
-                id="uploadStartsAt"
-                type="datetime-local"
-                className="form-control"
-                value={uploadStartsAt}
-                onChange={(e) => setUploadStartsAt(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="uploadEndsAt">Yükleme Bitiş Tarih & Saati</label>
-              <input
-                id="uploadEndsAt"
-                type="datetime-local"
-                className="form-control"
-                value={uploadEndsAt}
-                onChange={(e) => setUploadEndsAt(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="status">Etkinlik Durumu</label>
-            <select
-              id="status"
-              className="form-control"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="DRAFT">Taslak (Yükleme yapılamaz)</option>
-              <option value="PLANNED">Planlandı (Zamanı geldiğinde aktifleşir)</option>
-              <option value="ACTIVE">Aktif (Yükleme yapılabilir)</option>
-              <option value="CLOSED_FOR_UPLOAD">Fotoğraf Yüklemeye Kapalı</option>
-              <option value="ALBUM_PREPARATION">Albüm Hazırlanıyor</option>
-              <option value="READY_FOR_DOWNLOAD">İndirmeye Hazır</option>
-              <option value="ARCHIVED">Arşivlendi</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Save Button */}
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginBottom: '40px' }}>
+        {/* Submit */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
           <Link href="/admin/events" className="btn btn-secondary">
-            Geri Dön
+            İptal
           </Link>
           <button type="submit" className="btn btn-primary" disabled={loading}>
             <Save size={16} />

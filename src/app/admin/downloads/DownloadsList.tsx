@@ -4,21 +4,21 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Link2, 
-  AlertTriangle, 
   CheckCircle2, 
-  XCircle, 
   Trash2, 
-  Clock, 
   Download,
-  Copy
+  Copy,
+  ExternalLink,
+  RefreshCw,
+  Info,
+  X
 } from 'lucide-react';
 
 interface LinkItem {
   id: string;
   eventId: string;
   eventTitle: string;
-  brideName: string;
-  groomName: string;
+  displayName: string;
   packageId: string;
   photoCount: number;
   packageSize: number;
@@ -29,6 +29,8 @@ interface LinkItem {
   lastDownloadedAt: string | null;
   createdAt: string;
   revokedAt: string | null;
+  rawToken: string | null;
+  needsRegeneration: boolean;
 }
 
 interface DownloadsListProps {
@@ -38,9 +40,21 @@ interface DownloadsListProps {
 export default function DownloadsList({ links }: DownloadsListProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [selectedDetailLink, setSelectedDetailLink] = useState<LinkItem | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   const getStatus = (link: LinkItem) => {
+    if (link.needsRegeneration) {
+      return { label: 'Yeniden Oluşturulması Gerekiyor', class: 'prep' };
+    }
+
     const now = new Date();
     const expires = new Date(link.expiresAt);
     
@@ -50,8 +64,67 @@ export default function DownloadsList({ links }: DownloadsListProps) {
     return { label: 'Aktif', class: 'active' };
   };
 
+  const getRemainingDays = (expiresAtStr: string) => {
+    const now = new Date().getTime();
+    const expires = new Date(expiresAtStr).getTime();
+    const diff = expires - now;
+    if (diff <= 0) return 0;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const handleCopyLink = (link: LinkItem) => {
+    if (link.needsRegeneration || !link.rawToken) {
+      alert('Bu indirme bağlantısı eski formattadır. Lütfen kopyalamadan önce "Yeni Link Oluştur" butonuna basın.');
+      return;
+    }
+
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const fullUrl = `${origin}/download/${link.rawToken}`;
+    navigator.clipboard.writeText(fullUrl);
+    showToast('Bağlantı panoya kopyalandı.');
+  };
+
+  const handleOpenLink = (link: LinkItem) => {
+    if (link.needsRegeneration || !link.rawToken) {
+      alert('Bu indirme bağlantısı eski formattadır. Lütfen açmadan önce "Yeni Link Oluştur" butonuna basın.');
+      return;
+    }
+
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const fullUrl = `${origin}/download/${link.rawToken}`;
+    window.open(fullUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleRegenerate = async (link: LinkItem) => {
+    if (!confirm('Yeni bir indirme bağlantısı oluşturmak istediğinize emin misiniz? Eski bağlantı iptal edilecek ve çalışmayacaktır.')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/delivery/link/regenerate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ linkId: link.id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Yeni bağlantı oluşturulamadı.');
+      } else {
+        showToast('Yeni indirme bağlantısı oluşturuldu.');
+        router.refresh();
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Ağ hatası oluştu.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRevoke = async (linkId: string) => {
-    if (!confirm('Bu indirme bağlantısını manuel olarak iptal etmek istediğinize emin misiniz? Gelin ve damat artık bu linkten dosya indiremeyecektir.')) {
+    if (!confirm('Bu indirme bağlantısını manuel olarak pasif yapmak istediğinize emin misiniz? Etkinlik sahibi artık bu linkten dosya indiremeyecektir.')) {
       return;
     }
 
@@ -67,6 +140,7 @@ export default function DownloadsList({ links }: DownloadsListProps) {
       if (!res.ok) {
         alert(data.error || 'Bağlantı iptal edilemedi.');
       } else {
+        showToast('Bağlantı pasif hale getirildi.');
         router.refresh();
       }
     } catch (err) {
@@ -77,25 +151,35 @@ export default function DownloadsList({ links }: DownloadsListProps) {
     }
   };
 
-  const copyLink = (link: LinkItem) => {
-    const fullLink = `${window.location.origin}/download/${link.id}`; // Wait! In real app it resolves from token, but in our design the route takes /download/[token] where token is raw token.
-    // Wait! The token we generate is random, but in the DB we saved its hash.
-    // The admin list link doesn't store the RAW token (to protect it). 
-    // Wait! Can the admin copy the link from here?
-    // Since token is hashed in DB, we cannot reconstruct the raw token from the hashed value.
-    // Therefore, the administrator must copy the link immediately when it is generated in the modal.
-    // However, for debugging or if they want to copy, they can either request a new link,
-    // or we can allow copying the ID (which in a mock environment we could use, but for security, re-generating a link is preferred if lost).
-    // Let's explain this to the user in a tooltip, or show a warning.
-    // Yes! Let's display a message "Kopyalamak için yeni link oluşturun veya gizlilik için sadece takibini yapın."
-  };
-
   const formatSize = (bytes: number) => {
     return `${(bytes / 1048576).toFixed(2)} MB`;
   };
 
   return (
     <div>
+      {/* Toast Banner */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          backgroundColor: 'var(--success)',
+          color: '#ffffff',
+          padding: '12px 20px',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontWeight: 600,
+          zIndex: 9999,
+          animation: 'fadeIn 0.3s ease'
+        }}>
+          <CheckCircle2 size={18} />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       <div className="section-card">
         <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '20px' }}>
           Tüm Albüm İndirme Bağlantıları
@@ -111,8 +195,8 @@ export default function DownloadsList({ links }: DownloadsListProps) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Gelin & Damat</th>
-                  <th>Etkinlik</th>
+                  <th>Etkinlik Sahibi / Özne</th>
+                  <th>Etkinlik Başlığı</th>
                   <th>Geçerlilik Tarihi</th>
                   <th>İndirme Sayısı</th>
                   <th>ZIP Boyutu</th>
@@ -126,14 +210,13 @@ export default function DownloadsList({ links }: DownloadsListProps) {
                   return (
                     <tr key={link.id}>
                       <td>
-                        <div style={{ fontWeight: 600 }}>👰 {link.brideName}</div>
-                        <div style={{ fontWeight: 600, marginTop: '2px' }}>🤵 {link.groomName}</div>
+                        <div style={{ fontWeight: 600 }}>👤 {link.displayName}</div>
                       </td>
                       <td>{link.eventTitle}</td>
                       <td>
                         <div>{new Date(link.expiresAt).toLocaleDateString('tr-TR')}</div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          Süre Sonu
+                          {getRemainingDays(link.expiresAt)} gün kaldı
                         </div>
                       </td>
                       <td>
@@ -160,18 +243,64 @@ export default function DownloadsList({ links }: DownloadsListProps) {
                         </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        {link.isActive && !link.revokedAt && (
-                          <button 
-                            onClick={() => handleRevoke(link.id)}
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          
+                          {/* Detay Butonu */}
+                          <button
+                            onClick={() => setSelectedDetailLink(link)}
                             className="btn btn-secondary btn-sm"
-                            style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)' }}
-                            disabled={loading}
-                            title="Bağlantıyı İptal Et"
+                            title="Bağlantı Detayları"
                           >
-                            <Trash2 size={14} />
-                            <span>İptal Et</span>
+                            <Info size={14} />
                           </button>
-                        )}
+
+                          {/* Kopyala */}
+                          <button 
+                            onClick={() => handleCopyLink(link)}
+                            className="btn btn-secondary btn-sm"
+                            disabled={link.needsRegeneration}
+                            title="Bağlantıyı Kopyala"
+                          >
+                            <Copy size={14} />
+                            <span>Kopyala</span>
+                          </button>
+
+                          {/* Aç */}
+                          <button 
+                            onClick={() => handleOpenLink(link)}
+                            className="btn btn-secondary btn-sm"
+                            disabled={link.needsRegeneration}
+                            title="Bağlantıyı Aç"
+                          >
+                            <ExternalLink size={14} />
+                            <span>Aç</span>
+                          </button>
+
+                          {/* Yeniden Oluştur */}
+                          <button 
+                            onClick={() => handleRegenerate(link)}
+                            className="btn btn-secondary btn-sm"
+                            disabled={loading}
+                            title="Yeni Link Oluştur"
+                          >
+                            <RefreshCw size={14} />
+                            <span>Yeni Link</span>
+                          </button>
+
+                          {/* Pasif Yap */}
+                          {link.isActive && !link.revokedAt && (
+                            <button 
+                              onClick={() => handleRevoke(link.id)}
+                              className="btn btn-secondary btn-sm"
+                              style={{ color: 'var(--danger)', borderColor: 'var(--danger-light)' }}
+                              disabled={loading}
+                              title="Bağlantıyı Pasif Yap"
+                            >
+                              <Trash2 size={14} />
+                              <span>Pasif Yap</span>
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -181,6 +310,101 @@ export default function DownloadsList({ links }: DownloadsListProps) {
           </div>
         )}
       </div>
+
+      {/* Download Link Detail Modal (Requirement 10) */}
+      {selectedDetailLink && (
+        <div className="modal-backdrop" style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          padding: '20px'
+        }}>
+          <div className="modal-content section-card" style={{ maxWidth: '520px', width: '100%', position: 'relative' }}>
+            <button
+              onClick={() => setSelectedDetailLink(null)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+              İndirme Bağlantısı Detayları
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Etkinlik: </span>
+                <strong>{selectedDetailLink.eventTitle}</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Etkinlik Sahibi: </span>
+                <strong>{selectedDetailLink.displayName}</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Oluşturulma Tarihi: </span>
+                <span>{new Date(selectedDetailLink.createdAt).toLocaleString('tr-TR')}</span>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Son Kullanma Tarihi: </span>
+                <span>{new Date(selectedDetailLink.expiresAt).toLocaleString('tr-TR')}</span>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Kalan Gün Süresi: </span>
+                <span className="badge active">{getRemainingDays(selectedDetailLink.expiresAt)} Gün</span>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Toplam Fotoğraf Sayısı: </span>
+                <strong>{selectedDetailLink.photoCount} Fotoğraf</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>ZIP Dosya Boyutu: </span>
+                <strong>{formatSize(selectedDetailLink.packageSize)}</strong>
+              </div>
+              <div>
+                <span style={{ color: 'var(--text-muted)' }}>Kaç Defa İndirildi: </span>
+                <strong>{selectedDetailLink.currentDownloadCount} / {selectedDetailLink.maxDownloadCount} İndirme</strong>
+              </div>
+              {selectedDetailLink.lastDownloadedAt && (
+                <div>
+                  <span style={{ color: 'var(--text-muted)' }}>Son İndirme Tarihi: </span>
+                  <span>{new Date(selectedDetailLink.lastDownloadedAt).toLocaleString('tr-TR')}</span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button 
+                onClick={() => {
+                  handleCopyLink(selectedDetailLink);
+                }} 
+                className="btn btn-primary"
+                disabled={selectedDetailLink.needsRegeneration}
+              >
+                <Copy size={16} />
+                <span>Bağlantıyı Kopyala</span>
+              </button>
+              <button 
+                onClick={() => setSelectedDetailLink(null)} 
+                className="btn btn-secondary"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

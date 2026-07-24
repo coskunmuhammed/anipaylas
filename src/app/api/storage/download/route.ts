@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import JSZip from 'jszip';
 import { prisma } from '@/lib/prisma';
 import { getStorageDir, getFileBuffer } from '@/lib/storage';
+import { getEventDisplayName } from '@/lib/eventUtils';
 
 export async function GET(req: NextRequest) {
   try {
@@ -58,9 +59,9 @@ export async function GET(req: NextRequest) {
 
           if (event && photos.length > 0) {
             const zip = new JSZip();
-            const cleanBride = event.brideName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-            const cleanGroom = event.groomName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-            const folderName = `${cleanBride}-${cleanGroom}-Dugun-Fotograflari`;
+            const displayName = getEventDisplayName(event);
+            const cleanDisplayName = displayName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '') || 'Etkinlik';
+            const folderName = `${cleanDisplayName}-Fotograflari`;
             const rootFolder = zip.folder(folderName);
             const allPhotosFolder = rootFolder?.folder('Tum-Fotograflar');
             const highlightsFolder = rootFolder?.folder('One-Cikanlar');
@@ -97,7 +98,7 @@ export async function GET(req: NextRequest) {
               headers: {
                 'Content-Type': 'application/zip',
                 'Content-Length': zipBuffer.length.toString(),
-                'Content-Disposition': `attachment; filename="${cleanBride}-${cleanGroom}-Dugun-Fotograflari.zip"`,
+                'Content-Disposition': `attachment; filename="${cleanDisplayName}-Fotograflari.zip"`,
               },
             });
           }

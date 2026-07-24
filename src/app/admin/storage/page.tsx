@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import CleanupButton from './CleanupButton';
+import { getEventDisplayName } from '@/lib/eventUtils';
 import { Database, AlertTriangle, Trash2, FolderArchive, Server } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -122,7 +123,7 @@ export default async function AdminStoragePage() {
                     <tr key={event.id}>
                       <td>
                         <div style={{ fontWeight: 600 }}>{event.title}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{event.brideName} & {event.groomName}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{getEventDisplayName(event)}</div>
                       </td>
                       <td>{event.currentPhotoCount} adet</td>
                       <td>{formatSize(storageUsedBytes)}</td>

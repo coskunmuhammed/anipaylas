@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import Link from 'next/link';
 import { Plus, Edit2, ImageIcon, QrCode, Trash2, Calendar } from 'lucide-react';
+import { getEventDisplayName } from '@/lib/eventUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,9 +44,9 @@ export default async function AdminEventsPage() {
     <div>
       <div className="flex-between mb-20">
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Düğün Etkinlikleri</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Etkinlik Yönetimi</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Sistemdeki tüm düğün etkinliklerini yönetin, düzenleyin ve durumlarını takip edin.
+            Sistemdeki tüm etkinlikleri yönetin, düzenleyin ve durumlarını takip edin.
           </p>
         </div>
         <Link href="/admin/events/new" className="btn btn-primary">
@@ -59,7 +60,7 @@ export default async function AdminEventsPage() {
           <div className="empty-state">
             <Calendar size={48} />
             <h3>Henüz Etkinlik Yok</h3>
-            <p style={{ marginTop: '8px' }}>Düğün salonlarında QR kodla fotoğraf toplamak için ilk etkinliği oluşturun.</p>
+            <p style={{ marginTop: '8px' }}>QR kodla fotoğraf toplamak için ilk etkinliği oluşturun.</p>
             <Link href="/admin/events/new" className="btn btn-primary mt-20">
               <Plus size={16} />
               <span>İlk Etkinliği Oluştur</span>
@@ -71,7 +72,7 @@ export default async function AdminEventsPage() {
               <thead>
                 <tr>
                   <th>Etkinlik Adı</th>
-                  <th>Gelin & Damat</th>
+                  <th>Etkinlik Sahibi / Özne</th>
                   <th>Tarih / Saat</th>
                   <th>Mekân</th>
                   <th>Durum</th>
@@ -83,6 +84,7 @@ export default async function AdminEventsPage() {
               <tbody>
                 {events.map((event: any) => {
                   const storageMB = (Number(event.currentStorageBytes) / 1048576).toFixed(2);
+                  const displayName = getEventDisplayName(event);
                   return (
                     <tr key={event.id}>
                       <td>
@@ -92,11 +94,8 @@ export default async function AdminEventsPage() {
                         </div>
                       </td>
                       <td>
-                        <div style={{ fontSize: '0.9rem' }}>
-                          👰 {event.brideName}
-                        </div>
-                        <div style={{ fontSize: '0.9rem', marginTop: '2px' }}>
-                          🤵 {event.groomName}
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+                          {displayName}
                         </div>
                       </td>
                       <td>

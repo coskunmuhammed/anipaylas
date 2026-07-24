@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import { saveFile, getFileBuffer } from '@/lib/storage';
+import { getEventDisplayName } from '@/lib/eventUtils';
 import JSZip from 'jszip';
 
 // Background ZIP builder function running asynchronously
@@ -27,9 +28,9 @@ async function runZipGeneration(packageId: string, eventId: string) {
     const zip = new JSZip();
     
     // Clean names to form safe directories
-    const cleanBride = event.brideName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-    const cleanGroom = event.groomName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-    const folderName = `${cleanBride}-${cleanGroom}-Dugun-Fotograflari`;
+    const displayName = getEventDisplayName(event);
+    const cleanDisplayName = displayName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '') || 'Etkinlik';
+    const folderName = `${cleanDisplayName}-Fotograflari`;
     const rootFolder = zip.folder(folderName);
     if (!rootFolder) throw new Error('Failed to create root folder in ZIP');
 

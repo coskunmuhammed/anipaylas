@@ -8,14 +8,29 @@ import {
   AlertCircle, 
   X, 
   RefreshCw, 
-  FileText 
+  ArrowRight
 } from 'lucide-react';
+import { getEventDisplayName } from '@/lib/eventUtils';
+
+function InstagramIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+    </svg>
+  );
+}
 
 interface EventData {
   id: string;
   title: string;
-  brideName: string;
-  groomName: string;
+  eventType?: string;
+  subjectType?: string;
+  brideName?: string | null;
+  groomName?: string | null;
+  hostName?: string | null;
+  instagramUsername?: string | null;
   eventDate: string;
   welcomeTitle: string;
   welcomeMessage: string;
@@ -65,6 +80,8 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     if (theme === 'modern') return 'theme-modern';
     return 'theme-default';
   };
+
+  const displayName = getEventDisplayName(event);
 
   // Step 1: Submit Consent & Create Session
   const handleProceedToUpload = async (e: React.FormEvent) => {
@@ -129,13 +146,12 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
       }
 
       // Check format
-      // Accepted format: JPG, JPEG, PNG, WEBP, HEIC, HEIF
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
       const fileExt = file.name.split('.').pop()?.toLowerCase();
       const isHeic = fileExt === 'heic' || fileExt === 'heif';
       
       if (!validTypes.includes(file.type) && !isHeic) {
-        return; // Skip invalid format (e.g. video files)
+        return; // Skip invalid format
       }
 
       newItems.push({
@@ -167,11 +183,7 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
   // Step 3: Trigger uploads
   const startUploads = () => {
     if (filesQueue.length === 0) return;
-    
-    // Limit total guest uploads checks can also be performed, but we'll queue them
     setStage('upload');
-    
-    // Start uploading pending files
     filesQueue.forEach((item) => {
       if (item.status === 'pending' || item.status === 'error') {
         uploadFile(item.id);
@@ -179,77 +191,73 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     });
   };
 
-// Helper function to compress large camera photos on the client side to bypass serverless payload limits
-async function compressImageForUpload(file: File): Promise<File> {
-  // If file is already small (< 1.5 MB) and not HEIC, send as is
-  const isHeic = file.name.match(/\.(heic|heif)$/i);
-  if (file.size <= 1.5 * 1024 * 1024 && !isHeic) {
-    return file;
+  // Helper function to compress image
+  async function compressImageForUpload(file: File): Promise<File> {
+    const isHeic = file.name.match(/\.(heic|heif)$/i);
+    if (file.size <= 1.5 * 1024 * 1024 && !isHeic) {
+      return file;
+    }
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(file);
+
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 2048;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return resolve(file);
+            const compressedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          'image/jpeg',
+          0.88
+        );
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+
+      img.src = url;
+    });
   }
 
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return resolve(file);
-
-      let width = img.width;
-      let height = img.height;
-      const maxDim = 2048; // Max 2048px for high resolution print quality
-
-      if (width > maxDim || height > maxDim) {
-        if (width > height) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        } else {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return resolve(file);
-          const compressedFile = new File([blob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
-            type: 'image/jpeg',
-            lastModified: Date.now(),
-          });
-          resolve(compressedFile);
-        },
-        'image/jpeg',
-        0.88
-      );
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve(file);
-    };
-
-    img.src = url;
-  });
-}
-
-  // XML Http Request to handle file upload with progress bar
   const uploadFile = async (id: string) => {
     const queueItem = filesQueue.find((x) => x.id === id);
     if (!queueItem || !sessionToken) return;
 
-    // Update state to uploading
     setFilesQueue((prev) =>
       prev.map((x) => (x.id === id ? { ...x, status: 'uploading', progress: 5 } : x))
     );
 
     try {
-      // Compress image on client side to bypass Vercel 4.5MB Serverless limit
       const fileToSend = await compressImageForUpload(queueItem.file);
 
       const formData = new FormData();
@@ -260,7 +268,6 @@ async function compressImageForUpload(file: File): Promise<File> {
 
       const xhr = new XMLHttpRequest();
       
-      // Track progress
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const percentage = Math.round((e.loaded / e.total) * 100);
@@ -270,9 +277,8 @@ async function compressImageForUpload(file: File): Promise<File> {
         }
       });
 
-      // Handle load completion
       xhr.addEventListener('load', () => {
-        let response: any = null;
+        let response: { success?: boolean; error?: string } | null = null;
         try {
           response = JSON.parse(xhr.responseText);
         } catch {}
@@ -295,7 +301,6 @@ async function compressImageForUpload(file: File): Promise<File> {
         }
       });
 
-      // Handle network error
       xhr.addEventListener('error', () => {
         setFilesQueue((prev) =>
           prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg: 'Bağlantı hatası.' } : x))
@@ -305,11 +310,10 @@ async function compressImageForUpload(file: File): Promise<File> {
       xhr.open('POST', '/api/event/upload');
       xhr.send(formData);
 
-      // Keep XHR instance reference to cancel if needed
       setFilesQueue((prev) =>
         prev.map((x) => (x.id === id ? { ...x, xhr } : x))
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('File prep error:', err);
       setFilesQueue((prev) =>
         prev.map((x) => (x.id === id ? { ...x, status: 'error', errorMsg: 'Görsel hazırlanamadı.' } : x))
@@ -321,9 +325,7 @@ async function compressImageForUpload(file: File): Promise<File> {
     uploadFile(id);
   };
 
-  // Helper to check if queue is done
   const checkAllUploadsFinished = () => {
-    // We defer the check briefly to let the state update
     setTimeout(() => {
       setFilesQueue((currentQueue) => {
         const hasActive = currentQueue.some((x) => x.status === 'uploading' || x.status === 'pending');
@@ -339,9 +341,13 @@ async function compressImageForUpload(file: File): Promise<File> {
   };
 
   const handleUploadMore = () => {
-    // Clear success uploads, keep failures to retry or let them upload new
     setFilesQueue([]);
     setStage('select');
+  };
+
+  const handleResetToLanding = () => {
+    setFilesQueue([]);
+    setStage('consent');
   };
 
   // Blocked Event layout
@@ -353,12 +359,12 @@ async function compressImageForUpload(file: File): Promise<File> {
             {event.coverImageUrl && (
               <img 
                 src={event.coverImageUrl}
-                alt="wedding cover" 
+                alt="event cover" 
               />
             )}
           </div>
           <div className="guest-header">
-            <h1 className="couple-names">{event.brideName} & {event.groomName}</h1>
+            <h1 className="couple-names">{displayName}</h1>
             <div className="wedding-date">{event.eventDate}</div>
           </div>
           <div className="blocked-screen">
@@ -391,7 +397,7 @@ async function compressImageForUpload(file: File): Promise<File> {
 
         {/* Header Names */}
         <div className="guest-header">
-          <h1 className="couple-names">{event.brideName} & {event.groomName}</h1>
+          <h1 className="couple-names">{displayName}</h1>
           <div className="wedding-date">{event.eventDate}</div>
         </div>
 
@@ -426,7 +432,7 @@ async function compressImageForUpload(file: File): Promise<File> {
                     <textarea
                       id="g-msg"
                       className="g-control"
-                      placeholder="Gelin ve damada güzel dileklerinizi yazın..."
+                      placeholder="Güzel dileklerinizi yazın..."
                       rows={3}
                       value={guestMessage}
                       onChange={(e) => setGuestMessage(e.target.value)}
@@ -443,7 +449,7 @@ async function compressImageForUpload(file: File): Promise<File> {
                       required
                     />
                     <span>
-                      Düğün albümüne yükleyeceğim fotoğrafların platform yöneticisi tarafından onaylanmasını, gelin ve damada indirme paketi olarak sunulmasını ve KVKK kapsamında işlenmesini onaylıyorum.
+                      Etkinlik albümüne yükleyeceğim fotoğrafların platform yöneticisi tarafından onaylanmasını, indirme paketi olarak sunulmasını ve KVKK kapsamında işlenmesini onaylıyorum.
                     </span>
                   </label>
                 </div>
@@ -579,7 +585,6 @@ async function compressImageForUpload(file: File): Promise<File> {
               ))}
             </div>
 
-            {/* If there are errors, show a button to retry or continue */}
             {filesQueue.some(x => x.status === 'error') && !filesQueue.some(x => x.status === 'uploading') && (
               <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <button 
@@ -602,30 +607,86 @@ async function compressImageForUpload(file: File): Promise<File> {
                 </button>
               </div>
             )}
-
           </div>
         )}
 
-        {/* Stage 4: Success Complete Screen */}
+        {/* Stage 4: Success Complete Screen (Updated Requirement 1 & 2) */}
         {stage === 'complete' && (
-          <div className="guest-card success-screen">
-            <div className="success-icon">
-              <CheckCircle size={36} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Primary Success Card */}
+            <div className="guest-card success-screen">
+              <div className="success-icon">
+                <CheckCircle size={36} />
+              </div>
+              
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>🎉 Fotoğraflarınız başarıyla yüklendi!</h2>
+              
+              <p style={{ fontSize: '0.85rem', color: 'var(--g-text-muted)', lineHeight: '1.5', marginTop: '8px' }}>
+                Bu özel günün en güzel anılarını bizimle paylaştığınız için teşekkür ederiz. Yüklediğiniz fotoğraflar güvenli bir şekilde etkinlik albümüne eklendi.
+              </p>
             </div>
-            
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Tebrikler, Yüklendi!</h2>
-            
-            <p style={{ fontSize: '0.85rem', color: 'var(--g-text-muted)', lineHeight: '1.5' }}>
-              Fotoğraflarınız başarıyla düğün albümüne gönderildi. Bu mutlu güne katkıda bulunduğunuz için gelin ve damat adına teşekkür ederiz! ✨
-            </p>
 
-            <button 
-              onClick={handleUploadMore} 
-              className="g-btn g-btn-primary"
-              style={{ marginTop: '20px' }}
-            >
-              Daha Fazla Fotoğraf Yükle
-            </button>
+            {/* Secondary Action Card */}
+            <div className="guest-card" style={{ textAlign: 'center' }}>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>
+                📷 Daha fazla fotoğrafın var mı?
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--g-text-muted)', marginBottom: '16px' }}>
+                Gün boyunca çektiğin diğer güzel kareleri de bizimle paylaşabilirsin.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button 
+                  onClick={handleUploadMore} 
+                  className="g-btn g-btn-primary"
+                >
+                  Yeni Fotoğraf Yükle
+                </button>
+                <button 
+                  onClick={handleResetToLanding} 
+                  className="g-btn"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--g-text)' }}
+                >
+                  Etkinlik Sayfasına Dön
+                </button>
+              </div>
+            </div>
+
+            {/* Optional Instagram Card (Requirement 2 & 5) */}
+            {event.instagramUsername && (
+              <div className="guest-card" style={{ textAlign: 'center', background: 'linear-gradient(135deg, rgba(225, 48, 108, 0.08) 0%, rgba(131, 58, 180, 0.08) 100%)', border: '1px solid rgba(225, 48, 108, 0.2)' }}>
+                <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)', color: '#fff', marginBottom: '10px' }}>
+                  <InstagramIcon size={24} />
+                </div>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>
+                  📲 Instagram&apos;da bizi takip etmeyi unutmayın.
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--g-text-muted)', marginBottom: '14px' }}>
+                  @{event.instagramUsername} hesabını takip edin.
+                </p>
+
+                <a 
+                  href={`https://instagram.com/${event.instagramUsername}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="g-btn"
+                  style={{ 
+                    background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <span>Instagram&apos;a Git</span>
+                  <ArrowRight size={16} />
+                </a>
+              </div>
+            )}
+
           </div>
         )}
 

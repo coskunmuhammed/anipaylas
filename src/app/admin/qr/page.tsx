@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
+import { getEventDisplayName } from '@/lib/eventUtils';
 import QrGenerator from './QrGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -88,8 +89,8 @@ export default async function AdminQrPage({ searchParams }: PageProps) {
 
   return (
     <QrGenerator 
-      events={events.map((e: any) => ({ id: e.id, title: e.title, shortCode: e.shortCode }))}
-      selectedEvent={selectedEvent ? { id: selectedEvent.id, title: selectedEvent.title, shortCode: selectedEvent.shortCode } : null}
+      events={events.map((e: any) => ({ id: e.id, title: e.title, displayName: getEventDisplayName(e), shortCode: e.shortCode }))}
+      selectedEvent={selectedEvent ? { id: selectedEvent.id, title: selectedEvent.title, displayName: getEventDisplayName(selectedEvent), shortCode: selectedEvent.shortCode } : null}
       stats={stats}
       appUrl={appUrl}
     />

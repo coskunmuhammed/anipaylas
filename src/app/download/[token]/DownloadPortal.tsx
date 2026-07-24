@@ -5,8 +5,7 @@ import { Download, AlertCircle, HelpCircle, Lock } from 'lucide-react';
 
 interface DownloadData {
   token: string;
-  brideName: string;
-  groomName: string;
+  displayName: string;
   eventDate: string;
   coverImageUrl: string | null;
   photoCount: number;
@@ -47,10 +46,10 @@ export default function DownloadPortal({ data, isExpired, statusMessage }: Downl
       if (!res.ok) {
         setError(responseData.error || 'İndirme işlemi başarısız.');
       } else {
-        // Trigger file download immediately
+        const cleanName = data.displayName.replace(/\s+/g, '-').replace(/[^\w\-]/g, '') || 'Etkinlik';
         const link = document.createElement('a');
         link.href = responseData.downloadUrl;
-        link.download = `${data.brideName}-${data.groomName}-Dugun-Fotograflari.zip`;
+        link.download = `${cleanName}-Fotograflari.zip`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -76,14 +75,14 @@ export default function DownloadPortal({ data, isExpired, statusMessage }: Downl
           {data.coverImageUrl && (
             <img 
               src={data.coverImageUrl}
-              alt="wedding cover banner" 
+              alt="event cover banner" 
             />
           )}
         </div>
 
         <div className="dl-content">
-          <h1 className="dl-title">{data.brideName} & {data.groomName}</h1>
-          <div className="dl-wedding-date">Düğün Fotoğraf Arşivi</div>
+          <h1 className="dl-title">{data.displayName}</h1>
+          <div className="dl-wedding-date">Etkinlik Fotoğraf Arşivi</div>
 
           {isExpired ? (
             /* Expired Link Layout */
@@ -118,7 +117,7 @@ export default function DownloadPortal({ data, isExpired, statusMessage }: Downl
             /* Active Link Layout */
             <div>
               <p className="dl-message">
-                Düğününüzde misafirleriniz tarafından paylaşılan tüm fotoğraflar hazırlandı ve tek bir albüm paketinde toplandı. 
+                Etkinliğinizde misafirleriniz tarafından paylaşılan tüm fotoğraflar hazırlandı ve tek bir albüm paketinde toplandı. 
                 Albümünüzü <strong>{data.expiresAt}</strong> tarihine kadar ({data.remainingDays} gün kaldı) indirebilirsiniz.
               </p>
 

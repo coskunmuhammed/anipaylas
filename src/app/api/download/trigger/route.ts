@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSignedDownloadUrl } from '@/lib/storage';
+import { hashToken } from '@/lib/crypto';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
@@ -16,8 +17,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Bağlantı tokeni eksik.' }, { status: 400 });
     }
 
-    // Hash token
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    // Standardized SHA-256 token hash
+    const tokenHash = hashToken(token);
 
     // Find link
     const link = await prisma.downloadLink.findUnique({
