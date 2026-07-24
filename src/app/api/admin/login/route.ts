@@ -46,10 +46,12 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({ success: true, user: { name: admin.name, email: admin.email } });
 
+    const isHttps = req.headers.get('x-forwarded-proto') === 'https' || req.nextUrl.protocol === 'https:';
+
     // Set cookie
     response.cookies.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isHttps,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24, // 1 day
       path: '/',
