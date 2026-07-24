@@ -1,17 +1,32 @@
 version: '3.8'
+
 services:
   postgres:
-    image: postgres:15
-    container_name: wedding_postgres
+    image: postgres:15-alpine
+    container_name: anipaylas_postgres
     restart: always
     environment:
       POSTGRES_USER: wedding_admin
       POSTGRES_PASSWORD: wedding_password
       POSTGRES_DB: wedding_db
     ports:
-      - "5433:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: anipaylas_app
+    restart: always
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: "postgresql://wedding_admin:wedding_password@postgres:5432/wedding_db?schema=public"
+      DOWNLOAD_TOKEN_ENCRYPTION_KEY: "change_this_to_32_byte_secret_key_prod!"
+      JWT_SECRET: "change_this_jwt_secret_prod"
+      NEXT_PUBLIC_APP_URL: "http://169.58.43.155:3000"
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:
