@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'wedding_secret_token_123456_super_secure_key!';
@@ -30,17 +31,38 @@ export async function getSession(): Promise<AdminSession | null> {
   return decryptSession(token);
 }
 
+/**
+ * For Server Components & Pages under /admin:
+ * Redirects to /admin/login if unauthenticated.
+ */
 export async function requireAdmin(): Promise<AdminSession> {
   const session = await getSession();
   if (!session) {
-    throw new Error('Unauthorized');
+    redirect('/admin/login');
   }
-  // Double check if admin is active
   const admin = await prisma.adminUser.findUnique({
     where: { id: session.userId },
   });
   if (!admin || !admin.isActive) {
-    throw new Error('Unauthorized');
+    redirect('/admin/login');
+  }
+  return session;
+}
+
+/**
+ * For API Route Handlers:
+ * Throws an explicit error that API route handlers can catch and return 401 JSON.
+ */
+export async function requireAdminApi(): Promise<AdminSession> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error('UNAUTHORIZED_API');
+  }
+  const admin = await prisma.adminUser.findUnique({
+    where: { id: session.userId },
+  });
+  if (!admin || !admin.isActive) {
+    throw new Error('UNAUTHORIZED_API');
   }
   return session;
 }
