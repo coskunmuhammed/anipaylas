@@ -1,17 +1,18 @@
+import React from 'react';
 import { getSession } from '@/lib/auth';
-import '@/app/admin/admin.css';
+import { redirect } from 'next/navigation';
+import './admin.css';
 import AdminNavigation from './AdminNavigation';
 
-export default async function AdminLayout({
+export default async function AdminPanelLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await getSession();
 
-  // If there is no session, render the children directly (e.g. login page)
   if (!session) {
-    return <>{children}</>;
+    redirect('/admin/login');
   }
 
   return (
