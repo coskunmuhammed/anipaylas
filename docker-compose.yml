@@ -19,12 +19,15 @@ services:
     ports:
       - '3000:3000'
     environment:
-      DATABASE_URL: "postgresql://wedding_admin:wedding_password@postgres:5432/wedding_db?sslmode=disable"
-      DOWNLOAD_TOKEN_ENCRYPTION_KEY: "change_this_to_32_byte_secret_key_prod!"
-      JWT_SECRET: "change_this_jwt_secret_prod"
-      NEXT_PUBLIC_APP_URL: "http://169.58.43.155:3000"
+      DATABASE_URL: "${DATABASE_URL:-postgresql://wedding_admin:wedding_password@postgres:5432/wedding_db?sslmode=disable}"
+      DOWNLOAD_TOKEN_ENCRYPTION_KEY: "${DOWNLOAD_TOKEN_ENCRYPTION_KEY:-change_this_to_32_byte_secret_key_prod!}"
+      JWT_SECRET: "${JWT_SECRET:-change_this_jwt_secret_prod}"
+      NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://169.58.43.155:3000}"
+    volumes:
+      - storage_data:/app/storage
     depends_on:
       - postgres
 
 volumes:
   postgres_data:
+  storage_data:
