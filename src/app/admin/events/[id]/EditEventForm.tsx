@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Save, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { getDefaultSubjectType } from '@/lib/eventUtils';
+import { getEventLandingUrl, getEventUploadUrl } from '@/lib/urlUtils';
 import { EventType, SubjectType } from '@prisma/client';
 
 const EVENT_TYPE_OPTIONS: { value: EventType; label: string }[] = [
@@ -185,17 +186,45 @@ export default function EditEventForm({ event }: EditEventFormProps) {
   return (
     <div>
       {/* Header */}
-      <div className="flex-between mb-20">
+      <div className="flex-between mb-20" style={{ flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Etkinlik Düzenle: {event.title}</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
             Kısa Kod: <strong>{event.shortCode}</strong> | Slug: <code>{event.slug}</code>
           </p>
         </div>
-        <Link href="/admin/events" className="btn btn-secondary">
-          <ArrowLeft size={16} />
-          <span>Etkinlik Listesine Dön</span>
-        </Link>
+        
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <a
+            href={getEventLandingUrl(event.shortCode)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+            style={{ backgroundColor: 'var(--palm-dark-green, #183D35)', color: '#F8F6F1' }}
+          >
+            <span>Karşılama Sayfasını Ön İzle</span>
+          </a>
+          <Link href="/admin/events" className="btn btn-secondary">
+            <ArrowLeft size={16} />
+            <span>Etkinlik Listesine Dön</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Palm Stüdyo Links Box */}
+      <div style={{ padding: '16px 20px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '20px', fontSize: '0.88rem' }}>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem', fontWeight: 600 }}>MİSAFİR KARŞILAMA LİNKİ (VARSAYILAN / QR)</span>
+          <a href={getEventLandingUrl(event.shortCode)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color, #6366f1)', fontWeight: 600 }}>
+            {getEventLandingUrl(event.shortCode)}
+          </a>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', display: 'block', fontSize: '0.75rem', fontWeight: 600 }}>DOĞRUDAN FOTOĞRAF YÜKLEME LİNKİ</span>
+          <a href={getEventUploadUrl(event.shortCode)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color, #6366f1)', fontWeight: 600 }}>
+            {getEventUploadUrl(event.shortCode)}
+          </a>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

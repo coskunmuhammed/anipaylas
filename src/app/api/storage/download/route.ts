@@ -99,6 +99,7 @@ export async function GET(req: NextRequest) {
                 'Content-Type': 'application/zip',
                 'Content-Length': zipBuffer.length.toString(),
                 'Content-Disposition': `attachment; filename="${cleanDisplayName}-Fotograflari.zip"`,
+                'X-Robots-Tag': 'noindex, nofollow',
               },
             });
           }

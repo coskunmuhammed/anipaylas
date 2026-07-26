@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, { params }: RouteProps) {
   try {
     const { shortCode } = await params;
 
-    // Find the event
+    // 1. Find the event
     const event = await prisma.event.findUnique({
       where: { shortCode },
     });
@@ -19,11 +19,11 @@ export async function GET(req: NextRequest, { params }: RouteProps) {
       return new Response('Etkinlik bulunamadı.', { status: 404 });
     }
 
-    // Track visitor hash cookie
+    // 2. Track visitor hash cookie
     let visitorHash = req.cookies.get('visitor_hash')?.value;
     
-    // Redirect to the event upload page
-    const redirectUrl = new URL(`/event/${shortCode}`, req.url);
+    // Target Palm Stüdyo event landing page
+    const redirectUrl = new URL(`/etkinlik/${shortCode}`, req.url);
     const response = NextResponse.redirect(redirectUrl);
 
     if (!visitorHash) {
@@ -35,23 +35,27 @@ export async function GET(req: NextRequest, { params }: RouteProps) {
       });
     }
 
-    // Parse User-Agent for device type
-    const userAgent = req.headers.get('user-agent') || '';
-    let deviceType = 'Masaüstü';
-    if (/iPad|Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
-      deviceType = 'Mobil';
+    // 3. Record scan analytics safely inside try-catch block (prevent DB error from halting scan flow)
+    try {
+      const userAgent = req.headers.get('user-agent') || '';
+      let deviceType = 'Masaüstü';
+      if (/iPad|Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)) {
+        deviceType = 'Mobil';
+      }
+
+      await prisma.qrScan.create({
+        data: {
+          eventId: event.id,
+          visitorHash,
+          userAgent: userAgent.substring(0, 255),
+          deviceType,
+        },
+      });
+    } catch (scanErr) {
+      console.error('Failed to log QrScan analytics:', scanErr);
     }
 
-    // Record the scan analytics asynchronously
-    await prisma.qrScan.create({
-      data: {
-        eventId: event.id,
-        visitorHash,
-        userAgent: userAgent.substring(0, 255),
-        deviceType,
-      },
-    });
-
+    // 4. Return redirect to Palm Stüdyo Event Landing Page
     return response;
   } catch (error) {
     console.error('Error redirecting QR link:', error);

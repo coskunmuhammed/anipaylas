@@ -1,16 +1,23 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSignedDownloadUrl } from '@/lib/storage';
-import GuestUploadPortal from './GuestUploadPortal';
-import '@/app/event/guest.css';
+import GuestUploadPortal from '@/components/upload/GuestUploadPortal';
+import '@/app/guest.css';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface PageProps {
   params: Promise<{ shortCode: string }>;
 }
 
-export default async function GuestEventPage({ params }: PageProps) {
+export default async function EventUploadPage({ params }: PageProps) {
   const { shortCode } = await params;
 
   const event = await prisma.event.findUnique({
@@ -21,6 +28,7 @@ export default async function GuestEventPage({ params }: PageProps) {
     notFound();
   }
 
+  // Server-side active window and limit validation
   const now = new Date();
   let statusMessage = '';
   let isBlocked = false;
@@ -37,6 +45,9 @@ export default async function GuestEventPage({ params }: PageProps) {
   } else if (now > event.uploadEndsAt || event.status === 'CLOSED_FOR_UPLOAD') {
     statusMessage = 'Bu etkinlik için fotoğraf yükleme süresi dolmuştur. İlginiz için teşekkür ederiz.';
     isBlocked = true;
+  } else if (event.currentPhotoCount >= event.maxTotalPhotos || event.currentStorageBytes >= event.maxStorageBytes) {
+    statusMessage = 'Bu etkinlik için maksimum fotoğraf ve depolama sınırına ulaşılmıştır.';
+    isBlocked = true;
   }
 
   let signedCoverImageUrl: string | null = null;
@@ -46,9 +57,10 @@ export default async function GuestEventPage({ params }: PageProps) {
       : await getSignedDownloadUrl(event.coverImageUrl);
   }
 
-  // Format data for client component
+  // Serialize safe public event data
   const serializedEvent = {
     id: event.id,
+    shortCode: event.shortCode,
     title: event.title,
     eventType: event.eventType,
     subjectType: event.subjectType,
@@ -56,7 +68,7 @@ export default async function GuestEventPage({ params }: PageProps) {
     groomName: event.groomName,
     hostName: event.hostName,
     instagramUsername: event.instagramUsername,
-    eventDate: event.eventDate.toLocaleDateString('tr-TR'),
+    eventDate: event.eventDate ? new Date(event.eventDate).toLocaleDateString('tr-TR') : '',
     welcomeTitle: event.welcomeTitle,
     welcomeMessage: event.welcomeMessage,
     coverImageUrl: signedCoverImageUrl,
