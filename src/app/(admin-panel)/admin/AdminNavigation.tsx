@@ -18,7 +18,6 @@ import {
   LogOut,
   Menu,
   X,
-  User
 } from 'lucide-react';
 
 interface AdminNavigationProps {
@@ -83,7 +82,7 @@ export default function AdminNavigation({ session, children }: AdminNavigationPr
         </button>
         
         <div className="sidebar-logo" style={{ marginBottom: 0 }}>
-          <span>✨ AnıPaylaş</span>
+          <span>PALM STUDIO®</span>
         </div>
 
         <div className="avatar" style={{ width: 34, height: 34, fontSize: '0.8rem' }}>
@@ -102,7 +101,7 @@ export default function AdminNavigation({ session, children }: AdminNavigationPr
       {/* Sidebar (Desktop Fixed & Mobile Slide-Over Drawer) */}
       <aside className={`admin-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-logo">
-          <span>✨ AnıPaylaş Admin</span>
+          <span>PALM STUDIO® Admin</span>
           <button 
             className="mobile-drawer-close"
             onClick={() => setMobileMenuOpen(false)}
@@ -132,7 +131,7 @@ export default function AdminNavigation({ session, children }: AdminNavigationPr
         <div className="sidebar-footer">
           <div className="sidebar-user-info mb-20" style={{ padding: '0 8px' }}>
             <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{session.name}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{session.email}</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>{session.email}</div>
           </div>
 
           <form action={handleLogout}>
@@ -148,7 +147,7 @@ export default function AdminNavigation({ session, children }: AdminNavigationPr
       <main className="admin-main">
         <header className="admin-header desktop-only-header">
           <div className="admin-header-title">
-            <span>Kontrol Paneli</span>
+            <span>Palm Stüdyo Admin Kontrol Paneli</span>
           </div>
           
           <div className="admin-user-profile">
