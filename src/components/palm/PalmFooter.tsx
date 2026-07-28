@@ -1,8 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
-import InstagramIcon from '@/components/icons/InstagramIcon';
-import { MessageCircle, Mail, MapPin } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 export default function PalmFooter() {
   const currentYear = new Date().getFullYear();
@@ -11,215 +12,115 @@ export default function PalmFooter() {
   return (
     <footer
       style={{
-        backgroundColor: '#183D35',
-        color: '#F8F6F1',
-        padding: '70px 24px 30px 24px',
-        marginTop: 'auto',
+        backgroundColor: 'var(--palm-black)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        color: 'var(--palm-muted)',
+        fontSize: '0.88rem',
+        padding: '80px 24px 40px 24px',
       }}
     >
       <div
         style={{
-          maxWidth: '1280px',
+          maxWidth: '1440px',
           margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: '48px',
           marginBottom: '60px',
         }}
       >
-        {/* Brand Column */}
+        {/* Col 1: Brand */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                backgroundColor: '#B59A63',
-                color: '#183D35',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 700,
-                fontSize: '1.25rem',
-                fontFamily: 'var(--font-serif)',
-              }}
-            >
-              P
-            </div>
-            <div>
-              <span
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: '1.6rem',
-                  fontWeight: 700,
-                  color: '#F8F6F1',
-                  letterSpacing: '0.04em',
-                  display: 'block',
-                  lineHeight: 1,
-                }}
-              >
-                PALM STÜDYO
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '16px' }}>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.12em', color: '#ffffff' }}>
+              PALM
+            </span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '1.4rem', fontWeight: 300, letterSpacing: '0.12em', color: '#ffffff', position: 'relative' }}>
+              STUDIO
+              <span style={{ fontSize: '0.55rem', position: 'absolute', top: '0px', right: '-10px', color: 'var(--palm-gold)' }}>
+                ®
               </span>
-              <span
-                style={{
-                  fontSize: '0.65rem',
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: '#DCCDBD',
-                  fontWeight: 600,
-                }}
-              >
-                Etkinlik & Tasarım
-              </span>
-            </div>
-          </div>
-          <p style={{ color: '#DCCDBD', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '24px', maxWidth: '320px' }}>
+            </span>
+          </Link>
+          <p style={{ lineHeight: 1.6, color: 'var(--palm-muted)', maxWidth: '300px' }}>
             {siteConfig.description}
           </p>
-          <div style={{ display: 'flex', gap: '14px' }}>
-            <a
-              href={siteConfig.instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.08)',
-                color: '#F8F6F1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'background-color 0.2s',
-              }}
-              aria-label="Palm Stüdyo Instagram"
-            >
-              <InstagramIcon size={18} />
-            </a>
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(255,255,255,0.08)',
-                color: '#25D366',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'background-color 0.2s',
-              }}
-              aria-label="Palm Stüdyo WhatsApp"
-            >
-              <MessageCircle size={18} />
-            </a>
-          </div>
         </div>
 
-        {/* Services Links Column */}
+        {/* Col 2: Keşfet */}
         <div>
-          <h4
-            style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '1.2rem',
-              fontWeight: 600,
-              color: '#B59A63',
-              marginBottom: '20px',
-              letterSpacing: '0.02em',
-            }}
-          >
-            Hizmetlerimiz
+          <h4 style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', color: '#ffffff', textTransform: 'uppercase', marginBottom: '20px' }}>
+            KEŞFET
           </h4>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
-            <li><Link href="/hizmetler/dugun" style={{ color: '#DCCDBD' }}>Düğün Organizasyonu</Link></li>
-            <li><Link href="/hizmetler/kina" style={{ color: '#DCCDBD' }}>Kına Gecesi</Link></li>
-            <li><Link href="/hizmetler/nisan" style={{ color: '#DCCDBD' }}>Nişan & Söz</Link></li>
-            <li><Link href="/hizmetler/dogum-gunu" style={{ color: '#DCCDBD' }}>Doğum Günü & Baby Shower</Link></li>
-            <li><Link href="/hizmetler/kurumsal" style={{ color: '#DCCDBD' }}>Kurumsal Etkinlikler</Link></li>
-            <li><Link href="/hizmetler/dijital-ani-albumu" style={{ color: '#B59A63', fontWeight: 600 }}>Dijital Anı Albümü (Palm Anılar)</Link></li>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <li><Link href="/konseptler" style={{ color: 'var(--palm-muted)', transition: 'color 0.2s' }}>Konseptler</Link></li>
+            <li><Link href="/hizmetler" style={{ color: 'var(--palm-muted)', transition: 'color 0.2s' }}>Hizmetler</Link></li>
+            <li><Link href="/galeri" style={{ color: 'var(--palm-muted)', transition: 'color 0.2s' }}>Galeri & Portföy</Link></li>
+            <li><Link href="/hizmetler/dijital-ani-albumu" style={{ color: 'var(--palm-gold-light)', fontWeight: 600 }}>Dijital Anı Albümü (QR)</Link></li>
           </ul>
         </div>
 
-        {/* Quick Links Column */}
+        {/* Col 3: Kurumsal */}
         <div>
-          <h4
-            style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '1.2rem',
-              fontWeight: 600,
-              color: '#B59A63',
-              marginBottom: '20px',
-              letterSpacing: '0.02em',
-            }}
-          >
-            Kurumsal
+          <h4 style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', color: '#ffffff', textTransform: 'uppercase', marginBottom: '20px' }}>
+            KURUMSAL
           </h4>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem' }}>
-            <li><Link href="/hakkimizda" style={{ color: '#DCCDBD' }}>Hakkımızda</Link></li>
-            <li><Link href="/galeri" style={{ color: '#DCCDBD' }}>Galeri / Portföy</Link></li>
-            <li><Link href="/paketler" style={{ color: '#DCCDBD' }}>Paket Seçenekleri</Link></li>
-            <li><Link href="/iletisim" style={{ color: '#DCCDBD' }}>İletişim & Teklif</Link></li>
-            <li><Link href="/admin" style={{ color: 'rgba(220, 205, 189, 0.5)', fontSize: '0.8rem' }}>Yönetici Girişi</Link></li>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <li><Link href="/hakkimizda" style={{ color: 'var(--palm-muted)' }}>Hakkımızda</Link></li>
+            <li><Link href="/paketler" style={{ color: 'var(--palm-muted)' }}>Paket Seçenekleri</Link></li>
+            <li><Link href="/iletisim" style={{ color: 'var(--palm-muted)' }}>Sıkça Sorulan Sorular</Link></li>
+            <li>
+              <Link href="/admin" style={{ color: 'var(--palm-gold)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Lock size={14} />
+                <span>Yönetici & Admin Girişi</span>
+              </Link>
+            </li>
           </ul>
         </div>
 
-        {/* Contact Info Column */}
+        {/* Col 4: İletişim */}
         <div>
-          <h4
-            style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '1.2rem',
-              fontWeight: 600,
-              color: '#B59A63',
-              marginBottom: '20px',
-              letterSpacing: '0.02em',
-            }}
-          >
-            İletişim
+          <h4 style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', color: '#ffffff', textTransform: 'uppercase', marginBottom: '20px' }}>
+            İLETİŞİM
           </h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.88rem', color: '#DCCDBD' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Mail size={16} style={{ color: '#B59A63' }} />
-              <span>{siteConfig.email}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <InstagramIcon size={16} style={{ color: '#B59A63' }} />
-              <span>@{siteConfig.instagramUsername}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <MapPin size={16} style={{ color: '#B59A63' }} />
-              <span>İstanbul / Türkiye</span>
-            </div>
-          </div>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {siteConfig.phone && (
+              <li><a href={`tel:${siteConfig.phone}`} style={{ color: 'var(--palm-muted)' }}>{siteConfig.phone}</a></li>
+            )}
+            <li><a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--palm-gold-light)', fontWeight: 600 }}>WhatsApp İletişim Hattı</a></li>
+            {siteConfig.email && (
+              <li><a href={`mailto:${siteConfig.email}`} style={{ color: 'var(--palm-muted)' }}>{siteConfig.email}</a></li>
+            )}
+            <li style={{ color: 'var(--palm-muted)' }}>Didim / Aydın, Türkiye</li>
+          </ul>
         </div>
       </div>
 
       {/* Bottom Bar */}
       <div
         style={{
-          maxWidth: '1280px',
+          maxWidth: '1440px',
           margin: '0 auto',
-          paddingTop: '24px',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          paddingTop: '28px',
           display: 'flex',
-          flexWrap: 'wrap',
           justifyContent: 'space-between',
           alignItems: 'center',
+          flexWrap: 'wrap',
           gap: '16px',
           fontSize: '0.8rem',
-          color: 'rgba(220, 205, 189, 0.7)',
+          color: 'rgba(255, 255, 255, 0.5)',
         }}
       >
         <div>
           &copy; {currentYear} {siteConfig.name}. Tüm hakları saklıdır.
         </div>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <span>Gizlilik Politikası</span>
-          <span>KVKK Aydınlatma Metni</span>
-          <span>Kullanım Koşulları</span>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <span>Didim Düğün Fotoğrafçılığı & Etkinlik Stüdyosu</span>
+          <span>·</span>
+          <Link href="/admin" style={{ color: 'var(--palm-gold-light)', fontWeight: 600 }}>
+            Admin Girişi
+          </Link>
         </div>
       </div>
     </footer>

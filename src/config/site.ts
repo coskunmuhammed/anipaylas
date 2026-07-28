@@ -11,12 +11,14 @@ function normalizeWhatsAppNumber(rawNumber: string): string {
 export const siteConfig = {
   name: 'Palm Stüdyo',
   shortName: 'Palm',
-  tagline: 'Premium Etkinlik Tasarımı & Dijital Anı Deneyimi',
+  tagline: 'Didim Düğün Fotoğrafçısı & Premium Etkinlik Stüdyosu',
   description:
-    'Düğün, kına, nişan, söz, doğum günü ve özel organizasyonlarınız için lüks mekan tasarımı, profesyonel etkinlik planlama ve dijital anı albümü hizmetleri.',
+    'Didim merkezli düğün fotoğrafçılığı, sinematik video çekimi, konsept çekim, saç & makyaj, gelinlik, albüm baskı ve dijital anı albümü hizmetleri.',
   logo: '/brand/palm-studio-logo.svg',
   
   // Public contact information
+  phone: process.env.NEXT_PUBLIC_PHONE || '',
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || '',
   instagramUsername: process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'palmstudio',
   instagramUrl: `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'palmstudio'}`,
   
@@ -25,10 +27,11 @@ export const siteConfig = {
     return normalizeWhatsAppNumber(this.rawWhatsAppNumber);
   },
   
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@palmstudio.com',
+  // Testimonials control toggle - hides unverified review sections if false
+  testimonialsEnabled: process.env.NEXT_PUBLIC_TESTIMONIALS_ENABLED === 'true',
   
   // Generate safe normalized WhatsApp link with optional preset message
-  getWhatsAppLink(presetMessage: string = 'Merhaba Palm Stüdyo, etkinlik organizasyonu ve dijital anı albümü hakkında detaylı bilgi almak istiyorum.') {
+  getWhatsAppLink(presetMessage: string = 'Merhaba Palm Stüdyo, Didim düğün & etkinlik çekim paketleriniz ve dijital anı albümü hakkında detaylı bilgi ve teklif almak istiyorum.') {
     const cleanNumber = normalizeWhatsAppNumber(this.rawWhatsAppNumber);
     const encodedMsg = encodeURIComponent(presetMessage);
     return `https://wa.me/${cleanNumber}?text=${encodedMsg}`;

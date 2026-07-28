@@ -1,20 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --palm-dark-green: #183D35;
-  --palm-green: #557A67;
-  --palm-offwhite: #F8F6F1;
-  --palm-sand: #DCCDBD;
-  --palm-gold: #B59A63;
-  --palm-text-dark: #1E2522;
-  --palm-surface-light: #EEE9E1;
-  --palm-border: rgba(24, 61, 53, 0.12);
-  
+  --palm-black: #0d0b09;
+  --palm-deep-brown: #17120e;
+  --palm-surface: #2a211a;
+  --palm-card: #342a22;
+  --palm-border: rgba(255, 255, 255, 0.12);
+  --palm-gold: #c9aa67;
+  --palm-gold-light: #e1c98f;
+  --palm-cream: #f4efe7;
+  --palm-muted: #b8afa4;
+  --palm-white: #ffffff;
+
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  --background: var(--palm-offwhite);
-  --foreground: var(--palm-text-dark);
+  --font-script: 'Alex Brush', cursive;
+
+  --background: var(--palm-black);
+  --foreground: var(--palm-cream);
 }
 
 * {
@@ -26,14 +29,18 @@
 html {
   height: 100%;
   scroll-behavior: smooth;
+  background-color: var(--palm-black);
 }
 
 body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--palm-text-dark);
-  background: var(--palm-offwhite);
+  color: var(--palm-cream);
+  background-color: var(--palm-black);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(201, 170, 103, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(201, 170, 103, 0.04) 0%, transparent 50%);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -57,98 +64,107 @@ button {
   font-family: var(--font-sans);
 }
 
-/* Palm Button Styles */
-.palm-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: var(--palm-dark-green);
-  color: var(--palm-offwhite);
-  padding: 14px 28px;
-  border-radius: 40px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-  transition: all 0.25s ease;
-  border: 1px solid var(--palm-dark-green);
-  cursor: pointer;
+.font-script {
+  font-family: var(--font-script);
 }
 
-.palm-btn-primary:hover {
-  background-color: var(--palm-green);
-  border-color: var(--palm-green);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(24, 61, 53, 0.18);
-}
-
-.palm-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: transparent;
-  color: var(--palm-dark-green);
-  padding: 14px 28px;
-  border-radius: 40px;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-  border: 1.5px solid var(--palm-dark-green);
-  transition: all 0.25s ease;
-  cursor: pointer;
-}
-
-.palm-btn-secondary:hover {
-  background-color: rgba(24, 61, 53, 0.06);
-  transform: translateY(-2px);
-}
-
+/* Gold Pill Primary Button */
 .palm-btn-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  background-color: var(--palm-gold);
-  color: #ffffff;
+  gap: 8px;
+  background: linear-gradient(135deg, #c9aa67 0%, #e1c98f 50%, #b59450 100%);
+  color: #0d0b09 !important;
   padding: 14px 28px;
   border-radius: 40px;
-  font-weight: 600;
+  font-weight: 800 !important;
   font-size: 0.95rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   border: none;
-  transition: all 0.25s ease;
   cursor: pointer;
+  box-shadow: 0 4px 20px rgba(201, 170, 103, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.palm-btn-gold *,
+.palm-btn-gold svg {
+  color: #0d0b09 !important;
 }
 
 .palm-btn-gold:hover {
-  background-color: #a38752;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(181, 154, 99, 0.25);
+  box-shadow: 0 8px 28px rgba(201, 170, 103, 0.45);
+  background: linear-gradient(135deg, #e1c98f 0%, #f4efe7 50%, #c9aa67 100%);
 }
 
-/* Card & Surface Containers */
+.palm-btn-gold:active {
+  transform: scale(0.98);
+}
+
+/* Dark Outlined Secondary Button */
+.palm-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff !important;
+  padding: 14px 28px;
+  border-radius: 40px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(201, 170, 103, 0.4);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.palm-btn-secondary:hover {
+  background-color: rgba(201, 170, 103, 0.15);
+  border-color: var(--palm-gold);
+  color: var(--palm-gold-light) !important;
+  transform: translateY(-2px);
+}
+
+/* Card Containers */
 .palm-card {
-  background-color: #ffffff;
+  background-color: var(--palm-surface);
   border: 1px solid var(--palm-border);
-  border-radius: 20px;
+  border-radius: 24px;
   padding: 32px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .palm-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 32px rgba(24, 61, 53, 0.08);
+  border-color: rgba(201, 170, 103, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
+/* Category Badge */
 .palm-tag {
   display: inline-block;
   padding: 6px 14px;
-  background-color: var(--palm-surface-light);
-  color: var(--palm-dark-green);
+  background-color: rgba(201, 170, 103, 0.12);
+  color: var(--palm-gold-light);
+  border: 1px solid rgba(201, 170, 103, 0.25);
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* Reduced Motion Respect */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
