@@ -150,8 +150,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Run ZIP generation and await completion for Vercel Serverless environment
-    await runZipGeneration(deliveryPackage.id, eventId);
+    // Trigger ZIP generation asynchronously in background to prevent HTTP gateway timeout
+    runZipGeneration(deliveryPackage.id, eventId).catch((err) => {
+      console.error(`Background ZIP generation error for package ${deliveryPackage.id}:`, err);
+    });
 
     return NextResponse.json({ success: true, packageId: deliveryPackage.id });
   } catch (error: any) {

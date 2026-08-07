@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { processImage } from '@/lib/image';
 import { saveFile } from '@/lib/storage';
+import { imageProcessingQueue } from '@/lib/imageQueue';
+import { getStorageHealth } from '@/lib/storageHealth';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -13,6 +15,12 @@ export async function POST(req: NextRequest) {
 
     if (!file || !sessionToken) {
       return NextResponse.json({ error: 'Eksik dosya veya oturum parametresi.' }, { status: 400 });
+    }
+
+    // Disk storage capacity health check
+    const storageHealth = getStorageHealth();
+    if (!storageHealth.isHealthy) {
+      return NextResponse.json({ error: storageHealth.error || 'Sunucu depolama alanı dolmuştur.' }, { status: 507 });
     }
 
     // 1. Validate session
@@ -77,7 +85,9 @@ export async function POST(req: NextRequest) {
 
     let processed;
     try {
-      processed = await processImage(inputBuffer, file.name, file.type);
+      processed = await imageProcessingQueue.add(() =>
+        processImage(inputBuffer, file.name, file.type)
+      );
     } catch (imageErr: any) {
       console.error('Image processing failed:', imageErr);
       return NextResponse.json({ error: imageErr.message || 'Görsel işlenemedi. Dosya bozuk olabilir.' }, { status: 400 });

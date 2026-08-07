@@ -151,70 +151,88 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     setFilesQueue((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Step 3: Start Upload Queue Process
+  const uploadSingleFile = async (item: UploadFileItem) => {
+    if (!sessionToken) return false;
+
+    setFilesQueue((prev) =>
+      prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading', progress: 10, errorMsg: undefined } : f))
+    );
+
+    const formData = new FormData();
+    formData.append('photo', item.file);
+    formData.append('sessionToken', sessionToken);
+    if (guestMessage) formData.append('guestMessage', guestMessage);
+
+    try {
+      const uploadRes = await new Promise<{ success: boolean; error?: string }>((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/event/upload');
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            setFilesQueue((prev) =>
+              prev.map((f) => (f.id === item.id ? { ...f, progress: percent } : f))
+            );
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            resolve({ success: true });
+          } else {
+            try {
+              const parsed = JSON.parse(xhr.responseText);
+              resolve({ success: false, error: parsed.error });
+            } catch {
+              resolve({ success: false, error: 'Yükleme başarısız' });
+            }
+          }
+        };
+
+        xhr.onerror = () => resolve({ success: false, error: 'Ağ hatası' });
+        xhr.send(formData);
+      });
+
+      if (uploadRes.success) {
+        setFilesQueue((prev) =>
+          prev.map((f) => (f.id === item.id ? { ...f, status: 'success', progress: 100 } : f))
+        );
+        return true;
+      } else {
+        setFilesQueue((prev) =>
+          prev.map((f) => (f.id === item.id ? { ...f, status: 'error', errorMsg: uploadRes.error } : f))
+        );
+        return false;
+      }
+    } catch (err) {
+      setFilesQueue((prev) =>
+        prev.map((f) => (f.id === item.id ? { ...f, status: 'error', errorMsg: 'Hata oluştu' } : f))
+      );
+      return false;
+    }
+  };
+
+  // Step 3: Start Batch Upload Process with Parallel Concurrency Pool = 3
   const startBatchUpload = async () => {
     if (!sessionToken) return;
     setStage('upload');
 
-    for (let i = 0; i < filesQueue.length; i++) {
-      const item = filesQueue[i];
-      if (item.status === 'success') continue;
+    const pendingItems = filesQueue.filter((item) => item.status !== 'success');
+    const CONCURRENCY = 3;
+    let index = 0;
 
-      setFilesQueue((prev) =>
-        prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading', progress: 10 } : f))
-      );
-
-      const formData = new FormData();
-      formData.append('photo', item.file);
-      formData.append('sessionToken', sessionToken);
-      if (guestMessage) formData.append('guestMessage', guestMessage);
-
-      try {
-        const uploadRes = await new Promise<{ success: boolean; error?: string }>((resolve) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('POST', '/api/event/upload');
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const percent = Math.round((event.loaded / event.total) * 100);
-              setFilesQueue((prev) =>
-                prev.map((f) => (f.id === item.id ? { ...f, progress: percent } : f))
-              );
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              resolve({ success: true });
-            } else {
-              try {
-                const parsed = JSON.parse(xhr.responseText);
-                resolve({ success: false, error: parsed.error });
-              } catch {
-                resolve({ success: false, error: 'Yükleme başarısız' });
-              }
-            }
-          };
-
-          xhr.onerror = () => resolve({ success: false, error: 'Ağ hatası' });
-          xhr.send(formData);
-        });
-
-        if (uploadRes.success) {
-          setFilesQueue((prev) =>
-            prev.map((f) => (f.id === item.id ? { ...f, status: 'success', progress: 100 } : f))
-          );
-        } else {
-          setFilesQueue((prev) =>
-            prev.map((f) => (f.id === item.id ? { ...f, status: 'error', errorMsg: uploadRes.error } : f))
-          );
+    const worker = async () => {
+      while (index < pendingItems.length) {
+        const item = pendingItems[index++];
+        if (item) {
+          await uploadSingleFile(item);
         }
-      } catch (err) {
-        setFilesQueue((prev) =>
-          prev.map((f) => (f.id === item.id ? { ...f, status: 'error', errorMsg: 'Hata oluştu' } : f))
-        );
       }
-    }
+    };
+
+    const workers = Array.from({ length: Math.min(CONCURRENCY, pendingItems.length) }, () => worker());
+    await Promise.all(workers);
 
     setStage('complete');
   };
@@ -438,12 +456,25 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
             {stage === 'upload' && (
               <div className="palm-card" style={{ textAlign: 'center', backgroundColor: '#ffffff' }}>
                 <RefreshCw size={40} className="animate-spin" style={{ color: '#183D35', margin: '0 auto 16px auto' }} />
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: '#183D35', marginBottom: '12px' }}>
+                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: '#183D35', marginBottom: '8px' }}>
                   Fotoğraflar Yükleniyor...
                 </h2>
-                <p style={{ fontSize: '0.9rem', color: '#4a5568', marginBottom: '24px' }}>
-                  Lütfen tarayıcı penceresini kapatmayın.
+                <p style={{ fontSize: '0.88rem', color: '#557A67', marginBottom: '20px', fontWeight: 600 }}>
+                  Yüklenen: {filesQueue.filter((f) => f.status === 'success').length} / {filesQueue.length}
                 </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', maxHeight: '240px', overflowY: 'auto', padding: '10px', border: '1px solid var(--palm-border)', borderRadius: '12px', marginBottom: '16px' }}>
+                  {filesQueue.map((item) => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.82rem', padding: '6px', backgroundColor: 'var(--palm-offwhite)', borderRadius: '8px' }}>
+                      <img src={item.previewUrl} alt="yükleme" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px' }} />
+                      <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontWeight: 600, color: '#183D35' }}>{item.file.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: item.status === 'error' ? '#b91c1c' : item.status === 'success' ? '#15803d' : '#4a5568' }}>
+                          {item.status === 'uploading' ? `Yükleniyor %${item.progress}...` : item.status === 'success' ? 'Tamamlandı ✓' : item.status === 'error' ? item.errorMsg || 'Hata' : 'Sırada'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
