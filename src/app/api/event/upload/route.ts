@@ -132,25 +132,38 @@ export async function POST(req: NextRequest) {
     // Default photo status depends on moderation setting
     const status = event.moderationEnabled ? 'PENDING_APPROVAL' : 'APPROVED';
 
-    const photo = await prisma.photo.create({
-      data: {
-        id: photoId,
-        eventId: event.id,
-        guestName: session.guestName || 'Anonim Misafir',
-        guestMessage: guestMessage || null,
-        originalUrl: originalKey,
-        galleryUrl: galleryKey,
-        thumbnailUrl: thumbnailKey,
-        originalFilename: file.name,
-        storageKey: originalKey,
-        mimeType: originalMime,
-        fileSize: originalBuffer.length, // store original size
-        width,
-        height,
-        status,
-        clientUploadId: clientUploadId || null,
-      },
-    });
+    let photo;
+    try {
+      photo = await prisma.photo.create({
+        data: {
+          id: photoId,
+          eventId: event.id,
+          guestName: session.guestName || 'Anonim Misafir',
+          guestMessage: guestMessage || null,
+          originalUrl: originalKey,
+          galleryUrl: galleryKey,
+          thumbnailUrl: thumbnailKey,
+          originalFilename: file.name,
+          storageKey: originalKey,
+          mimeType: originalMime,
+          fileSize: originalBuffer.length, // store original size
+          width,
+          height,
+          status,
+          clientUploadId: clientUploadId || null,
+        },
+      });
+    } catch (dbErr: any) {
+      if (dbErr.code === 'P2002' && clientUploadId) {
+        const existing = await prisma.photo.findFirst({
+          where: { eventId: event.id, clientUploadId },
+        });
+        if (existing) {
+          return NextResponse.json({ success: true, photoId: existing.id, deduplicated: true });
+        }
+      }
+      throw dbErr;
+    }
 
     // Update upload session stats
     await prisma.uploadSession.update({

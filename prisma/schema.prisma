@@ -132,7 +132,7 @@ model Photo {
   uploadedAt            DateTime    @default(now())
   deletedAt             DateTime?
 
-  @@index([eventId, clientUploadId])
+  @@unique([eventId, clientUploadId])
 }
 
 model UploadSession {
