@@ -13,9 +13,11 @@ import {
   Send,
   Heart,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Check
 } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { TURKEY_CITIES } from '@/data/turkeyCities';
 
 const SERVICES = [
   'Fotoğraf Çekimi',
@@ -37,15 +39,77 @@ const CONCEPTS = [
 ];
 
 export default function RezervasyonPage() {
-  const [selectedService, setSelectedService] = useState<string>('VIP Tam Paket (Tüm Hizmetler)');
-  const [selectedConcept, setSelectedConcept] = useState<string>('Ege Gün Batımı');
+  const [selectedServices, setSelectedServices] = useState<string[]>(['VIP Tam Paket (Tüm Hizmetler)']);
+  const [selectedConcepts, setSelectedConcepts] = useState<string[]>(['Zamansız Beyaz']);
   const [names, setNames] = useState('');
   const [phone, setPhone] = useState('');
   const [date, setDate] = useState('');
-  const [city, setCity] = useState('Didim / Aydın');
+  
+  // City & District Selection State
+  const [selectedCityName, setSelectedCityName] = useState<string>('Aydın');
+  const [selectedDistrictName, setSelectedDistrictName] = useState<string>('Didim');
+  const [addressDetails, setAddressDetails] = useState('');
+
   const [notes, setNotes] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Active City Data
+  const currentCityObj = TURKEY_CITIES.find(c => c.name === selectedCityName) || TURKEY_CITIES[0];
+
+  const handleCityChange = (cityName: string) => {
+    setSelectedCityName(cityName);
+    const targetCity = TURKEY_CITIES.find(c => c.name === cityName);
+    if (targetCity && targetCity.districts.length > 0) {
+      // Default to Didim if Aydın, otherwise first district
+      if (cityName === 'Aydın' && targetCity.districts.includes('Didim')) {
+        setSelectedDistrictName('Didim');
+      } else {
+        setSelectedDistrictName(targetCity.districts[0]);
+      }
+    } else {
+      setSelectedDistrictName('Merkez');
+    }
+  };
+
+  const handleServiceToggle = (srv: string) => {
+    if (srv === 'VIP Tam Paket (Tüm Hizmetler)') {
+      if (selectedServices.includes(srv)) {
+        setSelectedServices(['Fotoğraf Çekimi']);
+      } else {
+        setSelectedServices(['VIP Tam Paket (Tüm Hizmetler)']);
+      }
+      return;
+    }
+
+    let updated = selectedServices.filter(s => s !== 'VIP Tam Paket (Tüm Hizmetler)');
+    if (updated.includes(srv)) {
+      updated = updated.filter(s => s !== srv);
+    } else {
+      updated.push(srv);
+    }
+
+    if (updated.length === 0) {
+      updated = [srv];
+    }
+    setSelectedServices(updated);
+  };
+
+  const handleConceptToggle = (cpt: string) => {
+    let updated = [...selectedConcepts];
+    if (updated.includes(cpt)) {
+      if (updated.length > 1) {
+        updated = updated.filter(c => c !== cpt);
+      }
+    } else {
+      updated.push(cpt);
+    }
+    setSelectedConcepts(updated);
+  };
+
+  const formattedLocation = `${selectedCityName} / ${selectedDistrictName}${addressDetails ? ` (${addressDetails})` : ''}`;
+  const formattedServicesStr = selectedServices.join(', ');
+  const formattedConceptsStr = selectedConcepts.join(', ');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,9 +126,9 @@ export default function RezervasyonPage() {
           names,
           phone,
           date,
-          city,
-          selectedService,
-          selectedConcept,
+          city: formattedLocation,
+          selectedService: formattedServicesStr,
+          selectedConcept: formattedConceptsStr,
           notes,
         }),
       });
@@ -85,10 +149,10 @@ export default function RezervasyonPage() {
     const text = `Merhaba Palm Stüdyo, Didim çekim rezervasyonu için fiyat teklifi almak istiyorum:
 
 💍 *Çift İsimleri:* ${names || 'Belirtilmedi'}
-✨ *Seçilen Hizmet:* ${selectedService}
-📸 *Konsept:* ${selectedConcept}
+✨ *Seçilen Hizmetler:* ${formattedServicesStr}
+📸 *Konseptler:* ${formattedConceptsStr}
 📅 *Tahmini Tarih:* ${date || 'Belirtilmedi'}
-📍 *Lokasyon:* ${city || 'Didim / Aydın'}
+📍 *Lokasyon:* ${formattedLocation}
 📝 *Notlar:* ${notes || 'Yok'}`;
 
     return siteConfig.getWhatsAppLink(text);
@@ -251,20 +315,23 @@ export default function RezervasyonPage() {
               gap: '32px',
             }}
           >
-            {/* Step 1: Select Service */}
+            {/* Step 1: Select Service (Multi-Select) */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
-                1. İstediğiniz Çekim / Hizmet Türünü Seçin
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
+                  1. İSTEDİĞİNİZ ÇEKİM / HİZMET TÜRÜNÜ SEÇİN
+                </label>
+                <span style={{ fontSize: '0.75rem', color: 'var(--palm-muted)' }}>(Birden fazla seçebilirsiniz)</span>
+              </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {SERVICES.map((srv) => {
-                  const isSelected = selectedService === srv;
+                  const isSelected = selectedServices.includes(srv);
                   return (
                     <button
                       key={srv}
                       type="button"
-                      onClick={() => setSelectedService(srv)}
+                      onClick={() => handleServiceToggle(srv)}
                       style={{
                         fontFamily: 'var(--font-sans)',
                         padding: '10px 18px',
@@ -276,29 +343,36 @@ export default function RezervasyonPage() {
                         border: isSelected ? '1px solid var(--palm-gold)' : '1px solid rgba(255, 255, 255, 0.12)',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
                       }}
                     >
-                      {srv}
+                      {isSelected && <Check size={14} />}
+                      <span>{srv}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Step 2: Select Concept */}
+            {/* Step 2: Select Concept (Multi-Select) */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
-                2. Tercih Ettiğiniz Çekim Konsepti
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
+                  2. TERCİH ETTİĞİNİZ ÇEKİM KONSEPTİ
+                </label>
+                <span style={{ fontSize: '0.75rem', color: 'var(--palm-muted)' }}>(Birden fazla seçebilirsiniz)</span>
+              </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {CONCEPTS.map((cpt) => {
-                  const isSelected = selectedConcept === cpt;
+                  const isSelected = selectedConcepts.includes(cpt);
                   return (
                     <button
                       key={cpt}
                       type="button"
-                      onClick={() => setSelectedConcept(cpt)}
+                      onClick={() => handleConceptToggle(cpt)}
                       style={{
                         fontFamily: 'var(--font-sans)',
                         padding: '10px 18px',
@@ -310,19 +384,23 @@ export default function RezervasyonPage() {
                         border: isSelected ? '1px solid var(--palm-gold)' : '1px solid rgba(255, 255, 255, 0.12)',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
                       }}
                     >
-                      {cpt}
+                      {isSelected && <Check size={14} />}
+                      <span>{cpt}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Step 3: Contact & Couple Information */}
+            {/* Step 3: Contact & Couple Information with Automated Turkey Cities Dropdown */}
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
-                3. Çift & İletişim Bilgileri
+                3. ÇİFT & İLETİŞİM BİLGİLERİ
               </label>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
@@ -360,13 +438,66 @@ export default function RezervasyonPage() {
                   />
                 </div>
 
+                {/* City Selection Dropdown */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Bulunduğunuz Şehir / Çekim İli</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Çekim İli (Şehir Seçin)</label>
+                  <select
+                    value={selectedCityName}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '10px',
+                      backgroundColor: '#1c1611',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#fff',
+                      fontSize: '0.95rem',
+                      fontFamily: 'var(--font-sans)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {TURKEY_CITIES.map((c) => (
+                      <option key={c.name} value={c.name} style={{ backgroundColor: '#1c1611', color: '#fff' }}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* District Selection Dropdown */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>İlçe Seçin</label>
+                  <select
+                    value={selectedDistrictName}
+                    onChange={(e) => setSelectedDistrictName(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '10px',
+                      backgroundColor: '#1c1611',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#fff',
+                      fontSize: '0.95rem',
+                      fontFamily: 'var(--font-sans)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {currentCityObj.districts.map((dst) => (
+                      <option key={dst} value={dst} style={{ backgroundColor: '#1c1611', color: '#fff' }}>
+                        {dst}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Optional Address / Venue Detail Input */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Özel Mekan / Mahalle (Opsiyonel)</label>
                   <input
                     type="text"
-                    placeholder="Örn: Didim / Aydın, İzmir, İstanbul..."
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Örn: Altınkum Sahili, Stüdyo, Kır Bahçesi..."
+                    value={addressDetails}
+                    onChange={(e) => setAddressDetails(e.target.value)}
                     style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)' }}
                   />
                 </div>
