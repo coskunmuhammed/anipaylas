@@ -20,6 +20,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { HomepageContent, DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
+import { getMediaUrl } from '@/lib/mediaUrl';
 
 export default function AdminContentManagementPage() {
   const [content, setContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
@@ -95,6 +96,7 @@ export default function AdminContentManagementPage() {
       setStatusMessage(null);
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('category', 'hero');
       const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
       const json = await res.json();
       if (res.ok && json.success && json.url) {
@@ -127,6 +129,7 @@ export default function AdminContentManagementPage() {
       setStatusMessage(null);
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('category', 'hero');
       const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
       const json = await res.json();
       if (res.ok && json.success && json.url) {
@@ -187,6 +190,7 @@ export default function AdminContentManagementPage() {
 
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('category', section);
 
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
@@ -439,7 +443,7 @@ export default function AdminContentManagementPage() {
                 return (
                   <div key={idx} style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '14px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ width: '70px', height: '90px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#000', border: '1px solid var(--border-color)', flexShrink: 0 }}>
-                      <img src={imgUrl} alt={`Çapraz Görsel ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={getMediaUrl(imgUrl)} alt={`Çapraz Görsel ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--primary)' }}>Çapraz Görsel #{idx + 1}</span>
@@ -502,7 +506,7 @@ export default function AdminContentManagementPage() {
                 return (
                   <div key={item.key} style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ width: '75px', height: '95px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff', padding: '4px 4px 16px 4px', border: '1px solid var(--border-color)', flexShrink: 0, boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>
-                      <img src={imgUrl} alt={item.label} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '3px' }} />
+                      <img src={getMediaUrl(imgUrl)} alt={item.label} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '3px' }} />
                     </div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--primary)' }}>{item.label}</span>
@@ -605,7 +609,7 @@ export default function AdminContentManagementPage() {
                   >
                     {/* Image Preview Thumbnail */}
                     <div style={{ width: '120px', height: '110px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#000', border: '1px solid var(--border-color)' }}>
-                      <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={getMediaUrl(item.image)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
 
                     {/* Fields & Upload Button */}
@@ -797,7 +801,7 @@ export default function AdminContentManagementPage() {
                   >
                     {/* Image Preview Thumbnail */}
                     <div style={{ width: '120px', height: '110px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#000', border: '1px solid var(--border-color)' }}>
-                      <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={getMediaUrl(item.image)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
 
                     {/* Fields */}
@@ -936,7 +940,7 @@ export default function AdminContentManagementPage() {
                   >
                     {/* Image Preview Thumbnail */}
                     <div style={{ width: '120px', height: '110px', borderRadius: '10px', overflow: 'hidden', backgroundColor: '#000', border: '1px solid var(--border-color)' }}>
-                      <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={getMediaUrl(item.image)} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
 
                     {/* Fields */}

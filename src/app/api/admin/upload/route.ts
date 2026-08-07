@@ -3,6 +3,19 @@ import { requireAdmin } from '@/lib/auth';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import sharp from 'sharp';
+import { PALM_MEDIA_ROOT, PALM_CATEGORIES, PalmCategory, ensurePalmStorageDirs } from '@/lib/storage/config';
+
+const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB
+
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+];
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,46 +23,92 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
+    const categoryInput = (formData.get('category') as string) || 'miscellaneous';
 
     if (!file) {
-      return NextResponse.json({ success: false, error: 'Lütfen yüklenecek bir fotoğraf dosyası seçin.' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: 'Lütfen yüklenecek bir fotoğraf dosyası seçin.' },
+        { status: 400 }
+      );
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ success: false, error: 'Sadece fotoğraf (Görsel) dosyaları yüklenebilir.' }, { status: 400 });
+    // MIME type check
+    const mime = file.type.toLowerCase();
+    if (!file.type.startsWith('image/') || !ALLOWED_MIME_TYPES.includes(mime)) {
+      if (mime === 'image/svg+xml') {
+        return NextResponse.json(
+          { success: false, error: 'Güvenlik nedeniyle SVG dosya formatı desteklenmemektedir. Lütfen WebP, JPG veya PNG yükleyin.' },
+          { status: 400 }
+        );
+      }
+      return NextResponse.json(
+        { success: false, error: 'Sadece geçerli görsel dosyaları (JPEG, PNG, WebP, HEIC) yüklenebilir.' },
+        { status: 400 }
+      );
     }
 
-    // 50MB Max file size for CMS images
-    if (file.size > 50 * 1024 * 1024) {
-      return NextResponse.json({ success: false, error: 'Fotoğraf boyutu 50MB sınırını aşamaz.' }, { status: 400 });
+    // Size limit check
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json(
+        { success: false, error: 'Görsel boyutu en fazla 15 MB olabilir.' },
+        { status: 400 }
+      );
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Determine category
+    const category: PalmCategory = (PALM_CATEGORIES as readonly string[]).includes(categoryInput)
+      ? (categoryInput as PalmCategory)
+      : 'miscellaneous';
 
-    // Determine extension
-    const ext = path.extname(file.name) || (file.type.includes('png') ? '.png' : file.type.includes('webp') ? '.webp' : '.jpg');
-    const randomHash = crypto.randomBytes(6).toString('hex');
-    const fileName = `cms-${Date.now()}-${randomHash}${ext}`;
+    ensurePalmStorageDirs();
 
-    // Target upload dir: public/uploads/cms (Served static by Next.js & VPS webservers)
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'cms');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    const inputBuffer = Buffer.from(await file.arrayBuffer());
+
+    // Sharp optimization pipeline
+    const maxWidth = category === 'hero' ? 2400 : 1600;
+    const processedBuffer = await sharp(inputBuffer)
+      .rotate() // Auto orientation from EXIF
+      .resize({
+        width: maxWidth,
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 85 })
+      .toBuffer();
+
+    // Unique filename & key creation
+    const fileUuid = crypto.randomUUID();
+    const fileName = `${fileUuid}.webp`;
+    const storageKey = `palm/${category}/${fileName}`;
+    const targetDir = path.join(PALM_MEDIA_ROOT, category);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
     }
 
-    const filePath = path.join(uploadDir, fileName);
-    await fs.promises.writeFile(filePath, buffer);
+    const filePath = path.join(targetDir, fileName);
+    await fs.promises.writeFile(filePath, processedBuffer);
 
-    const publicUrl = `/uploads/cms/${fileName}`;
+    // Verify written file
+    const stat = await fs.promises.stat(filePath);
+    if (!stat || stat.size === 0) {
+      throw new Error('Dosya disk üzerine yazılamadı (0 bytes).');
+    }
+
+    const publicUrl = `/media/${storageKey}`;
 
     return NextResponse.json({
       success: true,
       url: publicUrl,
-      fileName: fileName,
+      storageKey,
+      fileName,
+      sizeBytes: stat.size,
+      mimeType: 'image/webp',
     });
   } catch (error: any) {
-    console.error('Error uploading CMS file:', error);
-    return NextResponse.json({ success: false, error: error.message || 'Sunucuya yükleme yapılırken hata oluştu.' }, { status: 500 });
+    console.error('Error in Admin CMS upload pipeline:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Sunucuya yükleme yapılırken hata oluştu.' },
+      { status: 500 }
+    );
   }
 }

@@ -5,6 +5,7 @@ import { siteConfig } from '@/config/site';
 import { PhoneCall, Calendar } from 'lucide-react';
 import GoldButton from './GoldButton';
 import { HomepageContent, DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
+import { getMediaUrl } from '@/lib/mediaUrl';
 
 export default function PalmHero() {
   const [heroData, setHeroData] = useState<HomepageContent['hero']>(DEFAULT_HOMEPAGE_CONTENT.hero);
@@ -85,7 +86,7 @@ export default function PalmHero() {
                 flexShrink: 0,
               }}
             >
-              <img src={img} alt="Palm Stüdyo Çekim" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={getMediaUrl(img)} alt="Palm Stüdyo Çekim" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
@@ -112,7 +113,7 @@ export default function PalmHero() {
                 flexShrink: 0,
               }}
             >
-              <img src={img} alt="Palm Stüdyo Düğün" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={getMediaUrl(img)} alt="Palm Stüdyo Düğün" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
@@ -139,7 +140,7 @@ export default function PalmHero() {
                 flexShrink: 0,
               }}
             >
-              <img src={img} alt="Palm Stüdyo Konsept" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={getMediaUrl(img)} alt="Palm Stüdyo Konsept" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>

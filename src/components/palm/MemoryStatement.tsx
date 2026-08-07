@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import GoldButton from './GoldButton';
 import { Calendar } from 'lucide-react';
 import { DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
+import PalmImage from './PalmImage';
 
 export default function MemoryStatement() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -132,11 +133,11 @@ export default function MemoryStatement() {
                 zIndex: 1,
               }}
             >
-              <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
-                <img
+              <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px', position: 'relative' }}>
+                <PalmImage
                   src={photos.photo1 || DEFAULT_HOMEPAGE_CONTENT.memoryStatement.photo1}
                   alt="Düğün Anı Çekimi 1"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  fill
                 />
               </div>
             </div>
@@ -156,11 +157,11 @@ export default function MemoryStatement() {
                 zIndex: 2,
               }}
             >
-              <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
-                <img
+              <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px', position: 'relative' }}>
+                <PalmImage
                   src={photos.photo2 || DEFAULT_HOMEPAGE_CONTENT.memoryStatement.photo2}
                   alt="Düğün Anı Çekimi 2"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  fill
                 />
               </div>
             </div>
@@ -180,11 +181,11 @@ export default function MemoryStatement() {
                 zIndex: 3,
               }}
             >
-              <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
-                <img
+              <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px', position: 'relative' }}>
+                <PalmImage
                   src={photos.photo3 || DEFAULT_HOMEPAGE_CONTENT.memoryStatement.photo3}
                   alt="Didim Düğün Fotoğrafı 3"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  fill
                 />
               </div>
             </div>

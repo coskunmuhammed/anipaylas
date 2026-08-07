@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Play } from 'lucide-react';
+import PalmImage from './PalmImage';
 
 export interface Concept {
   slug: string;
@@ -143,10 +144,10 @@ export default function SignatureConcepts() {
                 border: '1px solid rgba(255, 255, 255, 0.12)',
               }}
             >
-              <img
+              <PalmImage
                 src={concept.image}
                 alt={concept.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                fill
               />
               <div
                 style={{

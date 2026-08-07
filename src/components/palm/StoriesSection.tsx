@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Play } from 'lucide-react';
+import PalmImage from './PalmImage';
 
 export interface StoryItem {
   id: string;
@@ -112,10 +113,10 @@ export default function StoriesSection() {
               }}
             >
               <div style={{ height: '360px', overflow: 'hidden', position: 'relative' }}>
-                <img
+                <PalmImage
                   src={story.image}
                   alt={story.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  fill
                 />
                 <div
                   style={{

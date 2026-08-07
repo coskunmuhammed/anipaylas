@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { businessConfig } from '@/config/business';
 import { ArrowRight, QrCode } from 'lucide-react';
+import PalmImage from './PalmImage';
 
 export const servicesList = [
   {
@@ -139,13 +140,11 @@ export default function ServicesSection() {
             >
               {/* Vertical Image Framing */}
               <div style={{ height: '280px', overflow: 'hidden', position: 'relative' }}>
-                <img
+                <PalmImage
                   src={service.image}
                   alt={service.title}
+                  fill
                   style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
                     transition: 'transform 0.5s ease',
                   }}
                 />
