@@ -12,22 +12,22 @@ export default function PackagesPage() {
   const whatsappLink = siteConfig.getWhatsAppLink();
 
   return (
-    <div style={{ color: '#1E2522' }}>
-      <section style={{ backgroundColor: '#183D35', color: '#F8F6F1', padding: '80px 24px', textAlign: 'center' }}>
+    <div style={{ backgroundColor: 'var(--palm-black)', color: 'var(--palm-cream)', minHeight: '100vh' }}>
+      <section style={{ backgroundColor: 'var(--palm-deep-brown)', borderBottom: '1px solid var(--palm-border)', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <span style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B59A63', fontWeight: 700, marginBottom: '12px', display: 'block' }}>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--palm-gold)', fontWeight: 700, marginBottom: '14px', display: 'block' }}>
             PAKET KAPSAMLARI
           </span>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', fontWeight: 700, color: '#F8F6F1', marginBottom: '20px' }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', fontWeight: 700, color: '#ffffff', marginBottom: '20px', lineHeight: 1.15 }}>
             İhtiyacınıza Özel Çözümler
           </h1>
-          <p style={{ fontSize: '1.1rem', color: '#DCCDBD', lineHeight: '1.7' }}>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '1.1rem', color: 'var(--palm-muted)', lineHeight: '1.7' }}>
             Fiyatlarımız etkinlik mekanı, davetli sayısı ve özel tasarım taleplerinize göre kişiye özel teklif olarak hazırlanır.
           </p>
         </div>
       </section>
 
-      <section style={{ padding: '90px 24px', backgroundColor: '#F8F6F1' }}>
+      <section style={{ padding: '80px 24px', backgroundColor: 'var(--palm-black)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
             {packagesData.map((pkg) => (
@@ -37,36 +37,37 @@ export default function PackagesPage() {
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  border: pkg.isPopular ? '2px solid #B59A63' : '1px solid var(--palm-border)',
+                  border: pkg.isPopular ? '2px solid var(--palm-gold)' : '1px solid var(--palm-border)',
                   position: 'relative',
-                  backgroundColor: '#ffffff',
+                  backgroundColor: 'var(--palm-surface)',
+                  padding: '36px',
                 }}
               >
                 {pkg.badge && (
-                  <div style={{ position: 'absolute', top: '-14px', right: '24px', padding: '4px 16px', backgroundColor: '#B59A63', color: '#ffffff', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700 }}>
+                  <div style={{ position: 'absolute', top: '-14px', right: '24px', padding: '4px 16px', backgroundColor: 'var(--palm-gold)', color: '#0d0b09', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, fontFamily: 'var(--font-sans)' }}>
                     {pkg.badge}
                   </div>
                 )}
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#183D35', marginBottom: '8px' }}>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#ffffff', marginBottom: '8px' }}>
                   {pkg.name}
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: '#557A67', fontWeight: 600, marginBottom: '20px' }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', color: 'var(--palm-gold)', fontWeight: 600, marginBottom: '20px' }}>
                   {pkg.tagline}
                 </p>
-                <p style={{ fontSize: '0.9rem', color: '#4a5568', lineHeight: '1.6', marginBottom: '28px' }}>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.9rem', color: 'var(--palm-muted)', lineHeight: '1.6', marginBottom: '28px' }}>
                   {pkg.description}
                 </p>
 
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '36px', flex: 1 }}>
                   {pkg.features.map((feat, idx) => (
-                    <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.9rem', color: '#1E2522' }}>
-                      <CheckCircle2 size={18} style={{ color: '#557A67', flexShrink: 0, marginTop: '2px' }} />
+                    <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.9rem', color: '#ffffff', fontFamily: 'var(--font-sans)' }}>
+                      <CheckCircle2 size={18} style={{ color: 'var(--palm-gold)', flexShrink: 0, marginTop: '2px' }} />
                       <span>{feat}</span>
                     </li>
                   ))}
                 </ul>
 
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className={pkg.isPopular ? 'palm-btn-gold' : 'palm-btn-primary'} style={{ width: '100%' }}>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className={pkg.isPopular ? 'palm-btn-gold' : 'palm-btn-secondary'} style={{ width: '100%', justifyContent: 'center' }}>
                   <MessageCircle size={18} />
                   <span>Teklif Al</span>
                 </a>

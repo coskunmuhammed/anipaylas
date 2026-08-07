@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play } from 'lucide-react';
 
 export interface Concept {
@@ -57,6 +57,33 @@ export const signatureConceptsList: Concept[] = [
 ];
 
 export default function SignatureConcepts() {
+  const [cmsData, setCmsData] = useState({
+    eyebrow: 'İMZA KONSEPTLER',
+    title: 'Aşkınızı Sanata Dönüştüren Temalar',
+    description: 'Aşk Bahçeleri, Antik Kentsel Miras, Ege Gün Batımı ve Minimal Lüks Stüdyo konseptlerimizle hayalinizdeki kareleri ölümsüzleştiriyoruz.',
+    items: signatureConceptsList,
+  });
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const res = await fetch('/api/content/homepage');
+        const json = await res.json();
+        if (json.success && json.data?.concepts) {
+          setCmsData({
+            eyebrow: json.data.concepts.eyebrow || 'İMZA KONSEPTLER',
+            title: json.data.concepts.title || 'Aşkınızı Sanata Dönüştüren Temalar',
+            description: json.data.concepts.description || 'Aşk Bahçeleri, Antik Kentsel Miras, Ege Gün Batımı ve Minimal Lüks Stüdyo konseptlerimizle hayalinizdeki kareleri ölümsüzleştiriyoruz.',
+            items: json.data.concepts.items && json.data.concepts.items.length > 0 ? json.data.concepts.items : signatureConceptsList,
+          });
+        }
+      } catch (e) {}
+    }
+    loadContent();
+  }, []);
+
+  const activeConcepts = cmsData.items && cmsData.items.length > 0 ? cmsData.items : signatureConceptsList;
+
   return (
     <section
       style={{
@@ -70,28 +97,25 @@ export default function SignatureConcepts() {
         
         {/* Heading */}
         <div style={{ marginBottom: '48px' }}>
-          <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
-            PALM ORIGINAL · İMZA KONSEPTLER
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
+            {cmsData.eyebrow}
           </div>
 
           <h2
             style={{
               fontFamily: 'var(--font-serif)',
-              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+              fontSize: 'clamp(2.3rem, 5vw, 3.8rem)',
               fontWeight: 600,
               color: '#ffffff',
               lineHeight: 1.15,
               marginBottom: '16px',
             }}
           >
-            Bizim tasarladığımız{' '}
-            <span style={{ color: 'var(--palm-gold)', fontStyle: 'italic' }}>
-              imza konseptler.
-            </span>
+            {cmsData.title}
           </h2>
 
-          <p style={{ fontSize: '1.05rem', color: 'var(--palm-muted)', maxWidth: '640px', lineHeight: 1.7 }}>
-            Farklı dönemlerden, sinemadan, doğadan ve zamansız hikâyelerden ilham alan özgün çekim deneyimleri.
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '1.05rem', color: 'var(--palm-muted)', maxWidth: '640px', lineHeight: 1.7 }}>
+            {cmsData.description}
           </p>
         </div>
 
@@ -106,7 +130,7 @@ export default function SignatureConcepts() {
             scrollbarWidth: 'none',
           }}
         >
-          {signatureConceptsList.map((concept) => (
+          {activeConcepts.map((concept) => (
             <div
               key={concept.slug}
               style={{

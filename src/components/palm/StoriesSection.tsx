@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play } from 'lucide-react';
 
 export interface StoryItem {
@@ -33,6 +33,33 @@ export const storiesList: StoryItem[] = [
 ];
 
 export default function StoriesSection() {
+  const [cmsData, setCmsData] = useState({
+    eyebrow: 'HİKÂYELER',
+    title: 'Gerçek Hikâyeler',
+    description: 'Çiftlerin highlight videoları; seçtikleri paket ve konseptle birlikte.',
+    items: storiesList,
+  });
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const res = await fetch('/api/content/homepage');
+        const json = await res.json();
+        if (json.success && json.data?.stories) {
+          setCmsData({
+            eyebrow: json.data.stories.eyebrow || 'HİKÂYELER',
+            title: json.data.stories.title || 'Gerçek Hikâyeler',
+            description: json.data.stories.description || 'Çiftlerin highlight videoları; seçtikleri paket ve konseptle birlikte.',
+            items: json.data.stories.items && json.data.stories.items.length > 0 ? json.data.stories.items : storiesList,
+          });
+        }
+      } catch (e) {}
+    }
+    loadContent();
+  }, []);
+
+  const activeStories = cmsData.items && cmsData.items.length > 0 ? cmsData.items : storiesList;
+
   return (
     <section
       style={{
@@ -43,8 +70,8 @@ export default function StoriesSection() {
     >
       <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
         
-        <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
-          HİKÂYELER
+        <div style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
+          {cmsData.eyebrow}
         </div>
 
         <h2
@@ -56,14 +83,11 @@ export default function StoriesSection() {
             marginBottom: '16px',
           }}
         >
-          Gerçek{' '}
-          <span style={{ color: 'var(--palm-gold)', fontStyle: 'italic' }}>
-            Hikâyler
-          </span>
+          {cmsData.title}
         </h2>
 
-        <p style={{ fontSize: '1.05rem', color: 'var(--palm-muted)', maxWidth: '640px', margin: '0 auto 60px auto' }}>
-          Çiftlerin highlight videoları; seçtikleri paket ve konseptle birlikte.
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '1.05rem', color: 'var(--palm-muted)', maxWidth: '640px', margin: '0 auto 60px auto' }}>
+          {cmsData.description}
         </p>
 
         {/* 3 Story Cards */}
@@ -74,7 +98,7 @@ export default function StoriesSection() {
             gap: '32px',
           }}
         >
-          {storiesList.map((story) => (
+          {activeStories.map((story) => (
             <div
               key={story.id}
               style={{

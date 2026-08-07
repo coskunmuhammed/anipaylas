@@ -1,12 +1,72 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import GoldButton from './GoldButton';
 import { Calendar } from 'lucide-react';
+import { DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
 
 export default function MemoryStatement() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [photos, setPhotos] = useState(DEFAULT_HOMEPAGE_CONTENT.memoryStatement);
+
+  // Fetch CMS content
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const res = await fetch('/api/content/homepage');
+        const json = await res.json();
+        if (json.success && json.data?.memoryStatement) {
+          setPhotos(json.data.memoryStatement);
+        }
+      } catch (e) {}
+    }
+    loadContent();
+  }, []);
+
+  // Track scroll progress as section passes through viewport
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+
+      // Start opening when top of section comes into view, fully open when section center reaches viewport center
+      const startThreshold = windowHeight * 0.9;
+      const endThreshold = windowHeight * 0.2;
+
+      let progress = (startThreshold - rect.top) / (startThreshold - endThreshold);
+      progress = Math.max(0, Math.min(1, progress));
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Compute fanning factors (combines scroll progress and hover boost)
+  const factor = isHovered ? 1.3 : scrollProgress;
+
+  // Left card opens sideways to left
+  const leftRotate = -10 - factor * 16; // -10deg -> -26deg
+  const leftTranslateX = -25 - factor * 105; // -25px -> -130px
+  const leftTranslateY = factor * 15;
+
+  // Right card opens sideways to right
+  const rightRotate = 8 + factor * 16; // 8deg -> 24deg
+  const rightTranslateX = 25 + factor * 105; // 25px -> 130px
+  const rightTranslateY = factor * 15;
+
+  // Center card lifts up slightly
+  const centerRotate = -2 + factor * 2;
+  const centerTranslateY = -factor * 22;
+  const centerScale = 1 + factor * 0.08;
+
   return (
     <section
+      ref={sectionRef}
       style={{
         padding: '100px 24px 120px 24px',
         backgroundColor: 'var(--palm-black)',
@@ -29,27 +89,32 @@ export default function MemoryStatement() {
           {/* Left Title */}
           <div style={{ textAlign: 'center' }}>
             <h2
-              className="font-script"
               style={{
-                fontSize: 'clamp(4rem, 8vw, 7rem)',
+                fontFamily: 'var(--font-adineue)',
+                fontSize: 'clamp(2.6rem, 5.5vw, 4.6rem)',
                 color: '#ffffff',
-                lineHeight: 1,
-                fontWeight: 400,
-                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                lineHeight: 1.08,
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                textShadow: '0 4px 30px rgba(0,0,0,0.8)',
               }}
             >
               Düğün<br />Geçer
             </h2>
           </div>
 
-          {/* Center 3 Stacked Polaroids */}
+          {/* Center 3 Stacked Polaroids (Fans out sideways on scroll) */}
           <div
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             style={{
               position: 'relative',
-              height: '340px',
+              height: '360px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              cursor: 'pointer',
             }}
           >
             {/* Left Back Polaroid */}
@@ -61,16 +126,16 @@ export default function MemoryStatement() {
                 backgroundColor: '#ffffff',
                 padding: '10px 10px 32px 10px',
                 borderRadius: '6px',
-                boxShadow: '0 12px 30px rgba(0,0,0,0.6)',
-                transform: 'rotate(-12deg) translateX(-45px)',
-                transition: 'transform 0.3s ease',
+                boxShadow: '0 16px 36px rgba(0,0,0,0.7)',
+                transform: `rotate(${leftRotate}deg) translateX(${leftTranslateX}px) translateY(${leftTranslateY}px)`,
+                transition: 'transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 zIndex: 1,
               }}
             >
               <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=600&q=80"
-                  alt="Düğün Anı Çekimi"
+                  src={photos.photo1 || DEFAULT_HOMEPAGE_CONTENT.memoryStatement.photo1}
+                  alt="Düğün Anı Çekimi 1"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -85,16 +150,16 @@ export default function MemoryStatement() {
                 backgroundColor: '#ffffff',
                 padding: '10px 10px 32px 10px',
                 borderRadius: '6px',
-                boxShadow: '0 12px 30px rgba(0,0,0,0.6)',
-                transform: 'rotate(10deg) translateX(45px)',
-                transition: 'transform 0.3s ease',
+                boxShadow: '0 16px 36px rgba(0,0,0,0.7)',
+                transform: `rotate(${rightRotate}deg) translateX(${rightTranslateX}px) translateY(${rightTranslateY}px)`,
+                transition: 'transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 zIndex: 2,
               }}
             >
               <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80"
-                  alt="Düğün Konsept Çekimi"
+                  src={photos.photo2 || DEFAULT_HOMEPAGE_CONTENT.memoryStatement.photo2}
+                  alt="Düğün Anı Çekimi 2"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -109,16 +174,16 @@ export default function MemoryStatement() {
                 backgroundColor: '#ffffff',
                 padding: '12px 12px 36px 12px',
                 borderRadius: '6px',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.7)',
-                transform: 'rotate(-2deg)',
-                transition: 'transform 0.3s ease',
+                boxShadow: '0 20px 45px rgba(0,0,0,0.8)',
+                transform: `rotate(${centerRotate}deg) translateY(${centerTranslateY}px) scale(${centerScale})`,
+                transition: 'transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 zIndex: 3,
               }}
             >
               <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: '4px' }}>
                 <img
-                  src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80"
-                  alt="Didim Düğün Fotoğrafı"
+                  src={photos.photo3 || DEFAULT_HOMEPAGE_CONTENT.memoryStatement.photo3}
+                  alt="Didim Düğün Fotoğrafı 3"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
@@ -128,13 +193,15 @@ export default function MemoryStatement() {
           {/* Right Title */}
           <div style={{ textAlign: 'center' }}>
             <h2
-              className="font-script"
               style={{
-                fontSize: 'clamp(4rem, 8vw, 7rem)',
+                fontFamily: 'var(--font-adineue)',
+                fontSize: 'clamp(2.6rem, 5.5vw, 4.6rem)',
                 color: 'var(--palm-gold-light)',
-                lineHeight: 1,
-                fontWeight: 400,
-                textShadow: '0 4px 20px rgba(201, 170, 103, 0.3)',
+                lineHeight: 1.08,
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                textShadow: '0 4px 30px rgba(201, 170, 103, 0.25)',
               }}
             >
               Anılar<br />Kalır
@@ -150,6 +217,7 @@ export default function MemoryStatement() {
             color: 'var(--palm-muted)',
             maxWidth: '640px',
             margin: '0 auto 36px auto',
+            fontFamily: 'var(--font-sans)',
           }}
         >
           Onca masrafın içinde, yıllar sonra hâlâ yanınızda olan tek şey. Zor günleri biliyoruz — kalıcı olanı da.

@@ -221,3 +221,27 @@ model AuditLog {
   metadata    String?
   createdAt   DateTime   @default(now())
 }
+
+model SiteContent {
+  id        String   @id @default(uuid())
+  section   String   @unique
+  dataJson  String   @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model ReservationRequest {
+  id              String   @id @default(uuid())
+  coupleNames     String
+  phone           String
+  eventDate       String?
+  city            String?
+  selectedService String
+  selectedConcept String?
+  notes           String?  @db.Text
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

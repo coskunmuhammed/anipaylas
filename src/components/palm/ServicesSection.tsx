@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { businessConfig } from '@/config/business';
 import { ArrowRight, QrCode } from 'lucide-react';
@@ -60,6 +60,30 @@ export const servicesList = [
 
 export default function ServicesSection() {
   const verifiedStats = businessConfig.stats.filter((s) => s.verified);
+  const [cmsData, setCmsData] = useState({
+    eyebrow: 'HİZMETLERİMİZ',
+    title: 'A’dan Z’ye Etkinlik & Çekim Çözümleri',
+    items: servicesList,
+  });
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const res = await fetch('/api/content/homepage');
+        const json = await res.json();
+        if (json.success && json.data?.services) {
+          setCmsData({
+            eyebrow: json.data.services.eyebrow || 'HİZMETLERİMİZ',
+            title: json.data.services.title || 'A’dan Z’ye Etkinlik & Çekim Çözümleri',
+            items: json.data.services.items && json.data.services.items.length > 0 ? json.data.services.items : servicesList,
+          });
+        }
+      } catch (e) {}
+    }
+    loadContent();
+  }, []);
+
+  const activeServices = cmsData.items && cmsData.items.length > 0 ? cmsData.items : servicesList;
 
   return (
     <section
@@ -73,21 +97,20 @@ export default function ServicesSection() {
         
         {/* Heading */}
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
-            HİZMETLER
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
+            {cmsData.eyebrow}
           </div>
 
           <h2
             style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-              fontWeight: 800,
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(2.3rem, 5vw, 3.8rem)',
+              fontWeight: 700,
               color: '#ffffff',
               lineHeight: 1.15,
             }}
           >
-            Tüm Hizmetler{' '}
-            <span style={{ color: 'var(--palm-gold)' }}>Palm Studio®</span> ’da
+            {cmsData.title}
           </h2>
         </div>
 
@@ -100,7 +123,7 @@ export default function ServicesSection() {
             marginBottom: '80px',
           }}
         >
-          {servicesList.map((service) => (
+          {activeServices.map((service) => (
             <div
               key={service.id}
               className="palm-card"

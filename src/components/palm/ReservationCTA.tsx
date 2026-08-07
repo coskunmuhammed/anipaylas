@@ -1,10 +1,29 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import GoldButton from './GoldButton';
 import { ArrowRight } from 'lucide-react';
 
 export default function ReservationCTA() {
+  const [cmsData, setCmsData] = useState({
+    eyebrow: 'REZERVASYON & İLETİŞİM',
+    title: 'Hayalinizdeki Çekimi Birlikte Planlayalım',
+    description: 'Etkinlik tarihinizin uygunluğunu sorgulamak, konsept önerisi almak ve özel fiyat teklifimizi öğrenmek için bizimle anında iletişime geçin.',
+  });
+
+  useEffect(() => {
+    async function loadContent() {
+      try {
+        const res = await fetch('/api/content/homepage');
+        const json = await res.json();
+        if (json.success && json.data?.contact) {
+          setCmsData(json.data.contact);
+        }
+      } catch (e) {}
+    }
+    loadContent();
+  }, []);
+
   return (
     <section
       style={{
@@ -31,8 +50,8 @@ export default function ReservationCTA() {
         }}
       >
         <div style={{ maxWidth: '640px' }}>
-          <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
-            HAZIR MISINIZ?
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
+            {cmsData.eyebrow}
           </div>
 
           <h2
@@ -45,20 +64,17 @@ export default function ReservationCTA() {
               marginBottom: '16px',
             }}
           >
-            Tarihinizi seçin,{' '}
-            <span style={{ color: 'var(--palm-gold)', fontStyle: 'italic' }}>
-              size özel teklifinizi hazırlayalım.
-            </span>
+            {cmsData.title}
           </h2>
 
-          <p style={{ fontSize: '1rem', color: 'var(--palm-muted)', lineHeight: 1.6 }}>
-            Online rezervasyon talebinizi iletin veya WhatsApp hattımız üzerinden 2 dakikada detaylı teklif alın.
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', color: 'var(--palm-muted)', lineHeight: 1.6 }}>
+            {cmsData.description}
           </p>
         </div>
 
         <div>
-          <GoldButton href="/rezervasyon" style={{ padding: '18px 38px', fontSize: '1rem' }}>
-            <span>Rezervasyona Başla</span>
+          <GoldButton href="/iletisim" style={{ padding: '18px 38px', fontSize: '1rem' }}>
+            <span>İletişime Geçin & Teklif Alın</span>
             <ArrowRight size={18} />
           </GoldButton>
         </div>

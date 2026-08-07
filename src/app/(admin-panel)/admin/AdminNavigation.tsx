@@ -18,6 +18,8 @@ import {
   LogOut,
   Menu,
   X,
+  Globe,
+  ExternalLink,
 } from 'lucide-react';
 
 interface AdminNavigationProps {
@@ -58,6 +60,8 @@ export default function AdminNavigation({ session, children }: AdminNavigationPr
 
   const navItems = [
     { href: '/admin', label: 'Genel Bakış', icon: LayoutDashboard },
+    { href: '/admin/reservations', label: 'Rezervasyon Talepleri', icon: Calendar },
+    { href: '/admin/content', label: 'İçerik Yönetimi', icon: ScrollText },
     { href: '/admin/events', label: 'Etkinlikler', icon: Calendar },
     { href: '/admin/events/new', label: 'Yeni Etkinlik', icon: Settings },
     { href: '/admin/photos', label: 'Fotoğraflar', icon: ImageIcon },
@@ -109,6 +113,35 @@ export default function AdminNavigation({ session, children }: AdminNavigationPr
           >
             <X size={20} />
           </button>
+        </div>
+
+        {/* View Main Public Website Button */}
+        <div style={{ padding: '0 16px 16px 16px' }}>
+          <Link
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '10px 14px',
+              backgroundColor: 'rgba(201, 170, 103, 0.15)',
+              border: '1px solid rgba(201, 170, 103, 0.4)',
+              borderRadius: '10px',
+              color: '#var(--primary)',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              textDecoration: 'none',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            <Globe size={16} style={{ color: '#c9aa67' }} />
+            <span style={{ color: '#c9aa67' }}>Anaekrana Git (Site)</span>
+            <ExternalLink size={14} style={{ color: '#c9aa67' }} />
+          </Link>
         </div>
         
         <nav className="sidebar-nav">
