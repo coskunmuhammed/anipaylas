@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('photo') as File | null;
     const sessionToken = formData.get('sessionToken') as string | null;
     const guestMessage = formData.get('guestMessage') as string | null;
+    const clientUploadId = formData.get('clientUploadId') as string | null;
 
     if (!file || !sessionToken) {
       return NextResponse.json({ error: 'Eksik dosya veya oturum parametresi.' }, { status: 400 });
@@ -48,6 +49,16 @@ export async function POST(req: NextRequest) {
 
     if (!isWithinUploadWindow) {
       return NextResponse.json({ error: 'Fotoğraf yükleme zaman aralığı dışında.' }, { status: 403 });
+    }
+
+    // Idempotency check: Return existing photo if exact same clientUploadId was already uploaded
+    if (clientUploadId) {
+      const existingPhoto = await prisma.photo.findFirst({
+        where: { eventId: event.id, clientUploadId },
+      });
+      if (existingPhoto) {
+        return NextResponse.json({ success: true, photoId: existingPhoto.id, deduplicated: true });
+      }
     }
 
     // 2. Validate limits
@@ -137,6 +148,7 @@ export async function POST(req: NextRequest) {
         width,
         height,
         status,
+        clientUploadId: clientUploadId || null,
       },
     });
 

@@ -46,6 +46,7 @@ interface GuestUploadPortalProps {
 
 interface UploadFileItem {
   id: string;
+  clientUploadId: string;
   file: File;
   previewUrl: string;
   progress: number;
@@ -129,8 +130,10 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
         continue;
       }
 
+      const itemId = Math.random().toString(36).substring(2, 9);
       newItems.push({
-        id: Math.random().toString(36).substring(2, 9),
+        id: itemId,
+        clientUploadId: `guest-${itemId}-${Date.now()}`,
         file,
         previewUrl: URL.createObjectURL(file),
         progress: 0,
@@ -161,6 +164,7 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     const formData = new FormData();
     formData.append('photo', item.file);
     formData.append('sessionToken', sessionToken);
+    formData.append('clientUploadId', item.clientUploadId);
     if (guestMessage) formData.append('guestMessage', guestMessage);
 
     try {

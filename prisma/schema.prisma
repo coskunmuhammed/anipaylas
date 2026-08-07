@@ -128,8 +128,11 @@ model Photo {
   height                Int?
   status                PhotoStatus @default(PENDING_APPROVAL)
   isSelectedForDelivery Boolean     @default(false)
+  clientUploadId        String?
   uploadedAt            DateTime    @default(now())
   deletedAt             DateTime?
+
+  @@index([eventId, clientUploadId])
 }
 
 model UploadSession {
