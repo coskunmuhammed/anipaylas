@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { processImage } from '@/lib/image';
-import { saveFile } from '@/lib/storage';
+import { saveFile, deleteFile } from '@/lib/storage';
 import { imageProcessingQueue } from '@/lib/imageQueue';
 import { getStorageHealth } from '@/lib/storageHealth';
 import crypto from 'crypto';
@@ -155,6 +155,13 @@ export async function POST(req: NextRequest) {
       });
     } catch (dbErr: any) {
       if (dbErr.code === 'P2002' && clientUploadId) {
+        // Clean up temporary files created for this duplicate request
+        await Promise.all([
+          deleteFile(originalKey),
+          deleteFile(galleryKey),
+          deleteFile(thumbnailKey),
+        ]).catch(() => {});
+
         const existing = await prisma.photo.findFirst({
           where: { eventId: event.id, clientUploadId },
         });
