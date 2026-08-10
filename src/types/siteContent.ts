@@ -20,6 +20,7 @@ export interface StoryCardItem {
   title: string;
   subtitle: string;
   image: string;
+  videoUrl?: string;
 }
 
 export interface TestimonialCardItem {
@@ -88,11 +89,11 @@ export interface HomepageContent {
 
 export const DEFAULT_HOMEPAGE_CONTENT: HomepageContent = {
   hero: {
-    eyebrow: 'DİDİM BÖLGESİNİN LÜKS DÜĞÜN STÜDYOSU',
-    titleLine1: 'PALM STÜDYO',
+    eyebrow: 'DİDİM BÖLGESİNİN LÜKS DÜĞÜN STÜDYO VE DIŞ ÇEKİM HİZMETİ',
+    titleLine1: 'PALM STUDIO',
     titleLine2: 'Özel Çekim Konseptleri & Dijital Anı Albümü',
     description: 'Didim, Aydın, İzmir ve Türkiye’nin 81 ilinden gelen çiftlerimiz için düğün fotoğrafçılığı, dış mekan, saç & makyaj ve anında QR kodlu dijital fotoğraf paylaşım deneyimini tek çatı altında sunuyoruz.',
-    badgeText: '✨ DIDIM MERKEZ STÜDYO & 81 İL ÇEKİM HİZMETİ',
+    badgeText: '✨ DİDİM MERKEZLİ & 81 İL ÇEKİM HİZMETİ',
     primaryCtaText: 'Randevu & Fiyat Alın',
     secondaryCtaText: 'Bizi Arayın',
     backgroundPhotos: [

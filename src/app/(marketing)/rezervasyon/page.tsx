@@ -22,20 +22,18 @@ import { TURKEY_CITIES } from '@/data/turkeyCities';
 const SERVICES = [
   'Fotoğraf Çekimi',
   'Sinematik Video Çekimi',
-  'Saç & Makyaj Hazırlığı',
-  'Gelinlik Kiralama',
-  'Panoramik Albüm Baskı',
+  'Albüm Baskı',
   'QR Dijital Anı Albümü',
   'VIP Tam Paket (Tüm Hizmetler)',
 ];
 
 const CONCEPTS = [
-  'Bohem Bahçe',
-  'Zamansız Beyaz',
-  'Ege Gün Batımı',
-  'Vintage Romance',
-  'Gece Işıkları',
-  'Özel Stüdyo Seti',
+  'Sahil & Deniz Kenarı Çekimi',
+  'Kır & Ağaçlık Alan Çekimi',
+  'İç Mekan & Salon Çekimi',
+  'Dış Mekan & Tarihi Doku Çekimi',
+  'Gün Batımı & Altın Saatler',
+  'Özel Plato Çekimi',
 ];
 
 export default function RezervasyonPage() {
@@ -509,7 +507,7 @@ export default function RezervasyonPage() {
               <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Eklemek İstediğiniz Notlar & Özel İstekler</label>
               <textarea
                 rows={3}
-                placeholder="Özel lokasyon istekleriniz, gelinlik kiralama tercihleriniz veya sormak istediğiniz sorular..."
+                placeholder="Özel lokasyon istekleriniz, çekim detayları veya sormak istediğiniz sorular..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)', resize: 'vertical' }}

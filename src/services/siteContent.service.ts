@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { HomepageContent, DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
+import { ServiceItem, servicesData } from '@/data/services';
 
 export { DEFAULT_HOMEPAGE_CONTENT };
 export type { HomepageContent };
@@ -62,4 +63,57 @@ export async function updateHomepageContent(data: Partial<HomepageContent>): Pro
   });
 
   return updated;
+}
+
+/**
+ * Fetch all Services content details from DB (with fallback to default servicesData)
+ */
+export async function getServicesContent(): Promise<ServiceItem[]> {
+  try {
+    const record = await prisma.siteContent.findUnique({
+      where: { section: 'serviceDetails' },
+    });
+
+    if (!record || !record.dataJson) {
+      return servicesData;
+    }
+
+    const parsed: ServiceItem[] = JSON.parse(record.dataJson);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return servicesData;
+    }
+
+    return servicesData.map((defaultItem) => {
+      const found = parsed.find((item) => item.slug === defaultItem.slug || item.id === defaultItem.id);
+      if (found) {
+        return {
+          ...defaultItem,
+          ...found,
+          galleryPhotos: found.galleryPhotos || defaultItem.galleryPhotos || [],
+        };
+      }
+      return defaultItem;
+    });
+  } catch (error) {
+    console.error('Failed to load service details from DB:', error);
+    return servicesData;
+  }
+}
+
+/**
+ * Save Services content details to DB
+ */
+export async function updateServicesContent(items: ServiceItem[]): Promise<ServiceItem[]> {
+  await prisma.siteContent.upsert({
+    where: { section: 'serviceDetails' },
+    update: {
+      dataJson: JSON.stringify(items),
+    },
+    create: {
+      section: 'serviceDetails',
+      dataJson: JSON.stringify(items),
+    },
+  });
+
+  return items;
 }

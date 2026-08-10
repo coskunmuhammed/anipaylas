@@ -15,8 +15,8 @@ export default function ValueComparison() {
         
         {/* Section Heading */}
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
-            AYNI BÜTÇE, FARKLI ÖMÜR
+          <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.18em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px', fontFamily: 'var(--font-sans)' }}>
+            ZAMANSIZ BİR YATIRIM
           </div>
 
           <h2
@@ -31,7 +31,7 @@ export default function ValueComparison() {
           >
             Hangisi{' '}
             <span style={{ color: 'var(--palm-gold)', fontStyle: 'italic' }}>
-              kalır?
+              Yıllara Direnir?
             </span>
           </h2>
 
@@ -40,11 +40,12 @@ export default function ValueComparison() {
               fontSize: '1.05rem',
               color: 'var(--palm-muted)',
               lineHeight: 1.7,
-              maxWidth: '640px',
+              maxWidth: '680px',
               margin: '0 auto',
+              fontFamily: 'var(--font-sans)',
             }}
           >
-            Harcamalarınızı yargılamıyoruz — hepsi güzel bir günün parçası. Sadece hangisinin sizinle kaldığını gösteriyoruz.
+            Düğün gününüzdeki her detay değerlidir. Ancak ışıklar söndüğünde, geriye sadece o hisleri size yeniden yaşatacak hikayeniz kalır.
           </p>
         </div>
 
@@ -68,24 +69,29 @@ export default function ValueComparison() {
               flexDirection: 'column',
             }}
           >
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--palm-muted)', textTransform: 'uppercase', marginBottom: '12px' }}>
-              BİR GÜN
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--palm-muted)', textTransform: 'uppercase', marginBottom: '12px', fontFamily: 'var(--font-sans)' }}>
+              BİR GÜN / Tek Bir Gece
             </div>
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 600, color: '#ffffff', marginBottom: '28px' }}>
-              Yaşanır ve geçer
+              O Gün Yaşanır ve Biter
             </h3>
 
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px', flex: 1 }}>
-              {['Salon, ışıklar, sahne', 'Yemek, ikram', 'Çiçek, süsleme', 'Orkestra, müzik'].map((item, idx) => (
-                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.95rem' }}>
+              {[
+                'Mekan, ışıklar, dekorasyon',
+                'İkramlar ve organizasyon',
+                'Çiçekler ve süslemeler',
+                'Müzik ve gecenin akışı',
+              ].map((item, idx) => (
+                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.95rem', fontFamily: 'var(--font-sans)' }}>
                   <span style={{ color: 'var(--palm-muted)', fontSize: '1.2rem' }}>—</span>
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
 
-            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '20px', fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--palm-muted)' }}>
-              Ertesi sabah: bir anı, bir de fatura.
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '20px', fontSize: '0.9rem', color: 'var(--palm-muted)', fontFamily: 'var(--font-sans)' }}>
+              <span style={{ fontStyle: 'italic', fontWeight: 700, color: '#ffffff' }}>Ertesi gün:</span> Tatlı bir yorgunluk ve geride kalan detaylar.
             </div>
           </div>
 
@@ -94,39 +100,44 @@ export default function ValueComparison() {
             className="palm-card"
             style={{
               backgroundColor: '#2a211a',
-              borderColor: 'rgba(201, 170, 103, 0.3)',
+              borderColor: 'rgba(201, 170, 103, 0.35)',
               padding: '40px 36px',
               display: 'flex',
               flexDirection: 'column',
               boxShadow: '0 12px 36px rgba(0,0,0,0.3)',
             }}
           >
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px' }}>
-              BİR ÖMÜR
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '12px', fontFamily: 'var(--font-sans)' }}>
+              BİR ÖMÜR / Zamansız Miras
             </div>
             <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 600, color: '#ffffff', marginBottom: '28px' }}>
-              Kalır ve <span style={{ color: 'var(--palm-gold)', fontStyle: 'italic' }}>değerlenir</span>
+              Yaşatır ve <span style={{ color: 'var(--palm-gold)', fontStyle: 'italic' }}>Değerlenir</span>
             </h3>
 
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px', flex: 1 }}>
-              {['Fotoğraflanmış anlar', 'Sinematik filminiz', 'Her özel gününüzde açılan albüm', 'Torunlarınıza göstereceğiniz kareler'].map((item, idx) => (
-                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#ffffff', fontSize: '0.95rem', fontWeight: 500 }}>
+              {[
+                'Sinematik kalitede düğün filminiz',
+                'Doğal, kurgusuz ve zamansız kareler',
+                'Her yıl dönümünde ilk günkü gibi açılan albüm',
+                'Geleceğe bırakacağınız en canlı görsel miras',
+              ].map((item, idx) => (
+                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#ffffff', fontSize: '0.95rem', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>
                   <span style={{ color: 'var(--palm-gold)', fontSize: '1.2rem' }}>—</span>
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
 
-            <div style={{ borderTop: '1px solid rgba(201, 170, 103, 0.2)', paddingTop: '20px', fontStyle: 'italic', fontSize: '0.9rem', color: 'var(--palm-gold-light)' }}>
-              On yıl sonra: hâlâ yanınızda, daha da değerli.
+            <div style={{ borderTop: '1px solid rgba(201, 170, 103, 0.25)', paddingTop: '20px', fontSize: '0.9rem', color: 'var(--palm-gold-light)', fontFamily: 'var(--font-sans)' }}>
+              <span style={{ fontStyle: 'italic', fontWeight: 700, color: 'var(--palm-gold)' }}>Yıllar sonra:</span> Aynı heyecanla izlenen, değeri katlanan anılar.
             </div>
           </div>
         </div>
 
         {/* Bottom Motto Banner */}
         <div style={{ textAlign: 'center', padding: '24px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-          <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: '#ffffff', fontWeight: 400 }}>
-            En pahalı kare, <strong style={{ color: 'var(--palm-gold)', fontWeight: 600 }}>hiç çekilmemiş olandır.</strong>
+          <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.4rem, 3vw, 2.1rem)', color: '#ffffff', fontWeight: 400 }}>
+            "Geri getiremeyeceğiniz tek şey, <strong style={{ color: 'var(--palm-gold)', fontWeight: 600, fontStyle: 'italic' }}>o anın kendisidir.</strong>"
           </p>
         </div>
 

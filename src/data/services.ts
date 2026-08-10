@@ -9,6 +9,7 @@ export interface ServiceItem {
   features: string[];
   processSteps: string[];
   faqs: { question: string; answer: string }[];
+  galleryPhotos?: string[];
 }
 
 export const servicesData: ServiceItem[] = [
@@ -17,9 +18,15 @@ export const servicesData: ServiceItem[] = [
     slug: 'fotograf-cekimi',
     title: 'Fotoğraf Çekimi',
     shortDesc: 'Doğal plato ışığında, Didim koylarında ve açık hava setlerimizde fark yaratan retouch dokunuşuyla en iyi kareler.',
-    fullDesc: 'Didim merkez stüdyomuz ve Ege sahil şeridinde uzman ekibimizle çiftlerimize unutulmaz kareler sunuyoruz. Düğün günü hikaye çekiminden dış mekan albüm çekimlerine kadar tüm detayları yüksek çözünürlüklü ekipmanlarla ölümsüzleştiriyoruz.',
+    fullDesc: 'Didim merkezimiz ve Ege sahil şeridinde uzman ekibimizle çiftlerimize unutulmaz kareler sunuyoruz. Düğün günü hikaye çekiminden dış mekan albüm çekimlerine kadar tüm detayları yüksek çözünürlüklü ekipmanlarla ölümsüzleştiriyoruz.',
     iconName: 'Camera',
     coverImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
+    galleryPhotos: [
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1594552072238-b8a33785b261?auto=format&fit=crop&w=1000&q=80',
+    ],
     features: [
       'Didim & Ege Sahil Şeridi Dış Mekan Çekimi',
       'Doğal Işık & Plato Set Çalışması',

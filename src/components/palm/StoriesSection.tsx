@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Play } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import PalmImage from './PalmImage';
 
 export interface StoryItem {
@@ -18,22 +18,26 @@ export const storiesList: StoryItem[] = [
     title: 'Sevginin Sırrı',
     subtitle: 'Çift highlight’ı',
     image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
   },
   {
     id: '2',
     title: 'Aşka Doyun',
     subtitle: 'Çift highlight’ı',
     image: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
   },
   {
     id: '3',
     title: 'Beraberlik Kalpleri Birleştirir',
     subtitle: 'Çift highlight’ı',
     image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
+    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
   },
 ];
 
 export default function StoriesSection() {
+  const [activeVideo, setActiveVideo] = useState<{ title: string; url: string } | null>(null);
   const [cmsData, setCmsData] = useState({
     eyebrow: 'HİKÂYELER',
     title: 'Gerçek Hikâyeler',
@@ -60,6 +64,11 @@ export default function StoriesSection() {
   }, []);
 
   const activeStories = cmsData.items && cmsData.items.length > 0 ? cmsData.items : storiesList;
+
+  const handlePlayStory = (story: StoryItem) => {
+    const videoUrl = story.videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+    setActiveVideo({ title: story.title, url: videoUrl });
+  };
 
   return (
     <section
@@ -102,6 +111,7 @@ export default function StoriesSection() {
           {activeStories.map((story) => (
             <div
               key={story.id}
+              onClick={() => handlePlayStory(story)}
               style={{
                 borderRadius: '24px',
                 overflow: 'hidden',
@@ -110,6 +120,16 @@ export default function StoriesSection() {
                 textAlign: 'left',
                 display: 'flex',
                 flexDirection: 'column',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--palm-gold)';
+                e.currentTarget.style.transform = 'translateY(-6px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               <div style={{ height: '360px', overflow: 'hidden', position: 'relative' }}>
@@ -149,18 +169,19 @@ export default function StoriesSection() {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: '60px',
-                    height: '60px',
+                    width: '64px',
+                    height: '64px',
                     borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backgroundColor: 'var(--palm-gold)',
                     color: '#0d0b09',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                    boxShadow: '0 8px 28px rgba(201, 170, 103, 0.5)',
+                    transition: 'transform 0.25s ease',
                   }}
                 >
-                  <Play size={24} style={{ marginLeft: '4px' }} />
+                  <Play size={26} style={{ marginLeft: '4px' }} />
                 </div>
               </div>
 
@@ -177,6 +198,74 @@ export default function StoriesSection() {
         </div>
 
       </div>
+
+      {/* Video Modal Popup */}
+      {activeVideo && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.88)',
+            backdropFilter: 'blur(12px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+          onClick={() => setActiveVideo(null)}
+        >
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '900px',
+              backgroundColor: '#16120e',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              border: '1px solid var(--palm-gold)',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.9)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 24px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: '#ffffff', margin: 0 }}>
+                {activeVideo.title} • Çekim Hikayesi
+              </h3>
+              <button
+                onClick={() => setActiveVideo(null)}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: 'none',
+                  color: '#ffffff',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Video iFrame / Container */}
+            <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', backgroundColor: '#000' }}>
+              <iframe
+                src={activeVideo.url}
+                title={activeVideo.title}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
+

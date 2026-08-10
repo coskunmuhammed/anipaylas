@@ -101,7 +101,7 @@ export default function MemoryStatement() {
                 textShadow: '0 4px 30px rgba(0,0,0,0.8)',
               }}
             >
-              Düğün<br />Geçer
+              Düğün<br />Bir Gün,
             </h2>
           </div>
 
@@ -205,7 +205,7 @@ export default function MemoryStatement() {
                 textShadow: '0 4px 30px rgba(201, 170, 103, 0.25)',
               }}
             >
-              Anılar<br />Kalır
+              Anılar<br />Bir Ömür
             </h2>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { servicesData } from '@/data/services';
 import { siteConfig } from '@/config/site';
+import { getServicesContent } from '@/services/siteContent.service';
 import { 
   CheckCircle2, 
   Sparkles, 
@@ -11,7 +12,8 @@ import {
   HelpCircle,
   QrCode,
   Layers,
-  ArrowLeft
+  ArrowLeft,
+  Camera
 } from 'lucide-react';
 
 interface ServiceDetailProps {
@@ -20,25 +22,30 @@ interface ServiceDetailProps {
 
 export async function generateMetadata({ params }: ServiceDetailProps) {
   const { slug } = await params;
-  const service = servicesData.find((s) => s.slug === slug);
-  if (!service) return { title: 'Hizmet Bulunamadı | Palm Stüdyo' };
+  const allServices = await getServicesContent();
+  const service = allServices.find((s) => s.slug === slug) || servicesData.find((s) => s.slug === slug);
+  if (!service) return { title: 'Hizmet Bulunamadı | Palm Studio' };
 
   return {
-    title: `${service.title} | Palm Stüdyo`,
+    title: `${service.title} | Palm Studio`,
     description: service.shortDesc,
   };
 }
 
 export default async function ServiceDetailPage({ params }: ServiceDetailProps) {
   const { slug } = await params;
-  const service = servicesData.find((s) => s.slug === slug);
+  const allServices = await getServicesContent();
+  const service = allServices.find((s) => s.slug === slug) || servicesData.find((s) => s.slug === slug);
 
   if (!service) {
     notFound();
   }
 
-  const whatsappLink = siteConfig.getWhatsAppLink(`Merhaba Palm Stüdyo, ${service.title} hizmetiniz hakkında detaylı bilgi ve teklif almak istiyorum.`);
-  const otherServices = servicesData.filter((s) => s.slug !== slug).slice(0, 3);
+  const whatsappLink = siteConfig.getWhatsAppLink(`Merhaba Palm Studio, ${service.title} hizmetiniz hakkında detaylı bilgi ve teklif almak istiyorum.`);
+  const otherServices = allServices.filter((s) => s.slug !== slug).slice(0, 3);
+  const galleryPhotos = service.galleryPhotos && service.galleryPhotos.length > 0 
+    ? service.galleryPhotos 
+    : [service.coverImage];
 
   return (
     <div style={{ backgroundColor: 'var(--palm-black)', color: 'var(--palm-cream)', minHeight: '100vh' }}>
@@ -46,7 +53,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailProps) 
       <section style={{ backgroundColor: 'var(--palm-deep-brown)', borderBottom: '1px solid var(--palm-border)', padding: '70px 24px', position: 'relative' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           
-          {/* Back Button and Badge Container - Flex Column prevents horizontal collisions */}
+          {/* Back Button and Badge Container */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '16px', marginBottom: '24px' }}>
             <Link 
               href="/hizmetler" 
@@ -65,7 +72,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailProps) 
             </Link>
 
             <span className="palm-tag">
-              PALM STÜDYO HİZMET DETAYI
+              PALM STUDIO HİZMET DETAYI
             </span>
           </div>
 
@@ -123,6 +130,69 @@ export default async function ServiceDetailPage({ params }: ServiceDetailProps) 
                         {idx + 1}
                       </div>
                       <span style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 600, color: '#ffffff' }}>{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Dynamic Gallery Photo Showcase Section (Right below Hizmet Sürecimiz as requested) */}
+            {galleryPhotos.length > 0 && (
+              <div style={{ marginBottom: '48px', backgroundColor: 'var(--palm-deep-brown)', padding: '32px', borderRadius: '24px', border: '1px solid rgba(201, 170, 103, 0.25)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Camera size={22} style={{ color: 'var(--palm-gold)' }} />
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: '#ffffff', fontWeight: 700, margin: 0 }}>
+                      Örnek Çalışmalarımız & Kareler
+                    </h3>
+                  </div>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--palm-gold)', fontWeight: 700, fontFamily: 'var(--font-sans)', backgroundColor: 'rgba(201, 170, 103, 0.12)', padding: '4px 12px', borderRadius: '20px', border: '1px solid rgba(201, 170, 103, 0.3)' }}>
+                    {galleryPhotos.length} Kare
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  {galleryPhotos.map((photoUrl, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        boxShadow: '0 12px 30px rgba(0, 0, 0, 0.5)',
+                        backgroundColor: '#16120e',
+                        position: 'relative',
+                        transition: 'transform 0.3s ease, border-color 0.3s ease',
+                      }}
+                    >
+                      <img
+                        src={photoUrl}
+                        alt={`${service.title} Görseli ${idx + 1}`}
+                        style={{
+                          width: '100%',
+                          maxHeight: '520px',
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '12px',
+                          right: '16px',
+                          backgroundColor: 'rgba(13, 11, 9, 0.75)',
+                          backdropFilter: 'blur(8px)',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          fontSize: '0.78rem',
+                          color: 'var(--palm-gold-light)',
+                          fontWeight: 600,
+                          border: '1px solid rgba(201, 170, 103, 0.3)',
+                          fontFamily: 'var(--font-sans)',
+                        }}
+                      >
+                        Kare #{idx + 1}
+                      </div>
                     </div>
                   ))}
                 </div>

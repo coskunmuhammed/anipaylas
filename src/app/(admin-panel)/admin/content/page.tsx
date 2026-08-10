@@ -17,20 +17,25 @@ import {
   Film,
   Upload,
   Plus,
-  Trash2
+  Trash2,
+  Camera
 } from 'lucide-react';
 import { HomepageContent, DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
+import { ServiceItem, servicesData } from '@/data/services';
 import { getMediaUrl } from '@/lib/mediaUrl';
 
 export default function AdminContentManagementPage() {
   const [content, setContent] = useState<HomepageContent>(DEFAULT_HOMEPAGE_CONTENT);
-  const [activeTab, setActiveTab] = useState<'hero' | 'services' | 'serviceArea' | 'concepts' | 'stories' | 'testimonials' | 'contact'>('hero');
+  const [servicesList, setServicesList] = useState<ServiceItem[]>(servicesData);
+  const [selectedServiceIdx, setSelectedServiceIdx] = useState<number>(0);
+  const [newPhotoUrl, setNewPhotoUrl] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'hero' | 'services' | 'serviceArea' | 'concepts' | 'stories' | 'testimonials' | 'contact' | 'serviceDetails'>('hero');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Fetch content on load
+  // Fetch content and service details on load
   useEffect(() => {
     async function loadContent() {
       try {
@@ -39,6 +44,12 @@ export default function AdminContentManagementPage() {
         const json = await res.json();
         if (json.success && json.data) {
           setContent(json.data);
+        }
+
+        const sRes = await fetch('/api/admin/services');
+        const sJson = await sRes.json();
+        if (sJson.success && Array.isArray(sJson.data) && sJson.data.length > 0) {
+          setServicesList(sJson.data);
         }
       } catch (err) {
         console.error('Error fetching admin content:', err);
@@ -215,23 +226,83 @@ export default function AdminContentManagementPage() {
     try {
       setSaving(true);
       setStatusMessage(null);
+
+      // Save Homepage Content
       const res = await fetch('/api/admin/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(content),
       });
-
       const json = await res.json();
-      if (res.ok && json.success) {
-        setStatusMessage({ type: 'success', text: 'Anasayfa içerikleri, görseller ve polaroidler başarıyla kaydedildi!' });
+
+      // Save Service Details Content
+      const sRes = await fetch('/api/admin/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(servicesList),
+      });
+      const sJson = await sRes.json();
+
+      if (res.ok && json.success && sRes.ok && sJson.success) {
+        setStatusMessage({ type: 'success', text: 'Tüm anasayfa içerikleri ve hizmet detay fotoğrafları başarıyla kaydedildi!' });
         if (json.data) setContent(json.data);
+        if (sJson.data) setServicesList(sJson.data);
       } else {
-        setStatusMessage({ type: 'error', text: json.error || 'Kaydederken bir hata oluştu.' });
+        setStatusMessage({ type: 'error', text: json.error || sJson.error || 'Kaydederken bir hata oluştu.' });
       }
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message || 'Bağlantı hatası oluştu.' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAddServiceGalleryPhoto = (serviceIdx: number, photoUrl: string) => {
+    if (!photoUrl.trim()) return;
+    setServicesList((prev) => {
+      const updated = [...prev];
+      const target = { ...updated[serviceIdx] };
+      const currentGallery = [...(target.galleryPhotos || [])];
+      currentGallery.push(photoUrl.trim());
+      target.galleryPhotos = currentGallery;
+      updated[serviceIdx] = target;
+      return updated;
+    });
+    setNewPhotoUrl('');
+  };
+
+  const handleDeleteServiceGalleryPhoto = (serviceIdx: number, photoIdx: number) => {
+    setServicesList((prev) => {
+      const updated = [...prev];
+      const target = { ...updated[serviceIdx] };
+      const currentGallery = [...(target.galleryPhotos || [])];
+      currentGallery.splice(photoIdx, 1);
+      target.galleryPhotos = currentGallery;
+      updated[serviceIdx] = target;
+      return updated;
+    });
+  };
+
+  const handleServiceGalleryFileUpload = async (serviceIdx: number, file: File) => {
+    const key = `serviceGallery-${serviceIdx}`;
+    try {
+      setUploadingKey(key);
+      setStatusMessage(null);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('category', 'services');
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+      const json = await res.json();
+      if (res.ok && json.success && json.url) {
+        handleAddServiceGalleryPhoto(serviceIdx, json.url);
+        setStatusMessage({ type: 'success', text: 'Hizmet fotoğrafı yüklendi ve galeriye eklendi!' });
+      } else {
+        setStatusMessage({ type: 'error', text: json.error || 'Görsel yüklenemedi.' });
+      }
+    } catch (e: any) {
+      setStatusMessage({ type: 'error', text: e.message || 'Yükleme hatası.' });
+    } finally {
+      setUploadingKey(null);
     }
   };
 
@@ -261,6 +332,7 @@ export default function AdminContentManagementPage() {
     { key: 'stories', label: '5. Gerçek Hikâyeler', icon: Film },
     { key: 'testimonials', label: '6. Müşteri Yorumları', icon: MessageSquare },
     { key: 'contact', label: '7. İletişim & CTA', icon: PhoneCall },
+    { key: 'serviceDetails', label: '8. Hizmet Detay & Galeri Yönetimi', icon: Camera },
   ];
 
   const currentHeroBgPhotos = content.hero.backgroundPhotos && content.hero.backgroundPhotos.length > 0 
@@ -945,7 +1017,7 @@ export default function AdminContentManagementPage() {
 
                     {/* Fields */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 2fr', gap: '12px' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Hikâye Başlığı</label>
                           <input
@@ -965,7 +1037,17 @@ export default function AdminContentManagementPage() {
                           />
                         </div>
                         <div>
-                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Kapak Fotoğrafı URL veya Bilgisayardan Yükle</label>
+                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Video URL (YouTube/MP4)</label>
+                          <input
+                            type="text"
+                            placeholder="https://..."
+                            value={item.videoUrl || ''}
+                            onChange={(e) => handleArrayItemChange('stories', idx, 'videoUrl', e.target.value)}
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.88rem' }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Kapak Fotoğrafı URL veya Yükle</label>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             <input
                               type="text"
@@ -1228,7 +1310,258 @@ export default function AdminContentManagementPage() {
           </div>
         )}
 
+        {/* TAB 8: SERVICE DETAILS & GALLERY MANAGEMENT */}
+        {activeTab === 'serviceDetails' && (
+          <div>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                8. Hizmet Detay Sayfaları & Fotoğraf Galerisi Yönetimi
+              </h2>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                "İncele" butonuna basınca açılan hizmet detay sayfalarının içeriklerini ve "Hizmet Sürecimiz" altına eklenecek fotoğraf galerisini düzenleyin.
+              </p>
+            </div>
+
+            {/* Service Selection Pills */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '28px', backgroundColor: 'var(--bg-tertiary)', padding: '12px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+              {servicesList.map((svc, sIdx) => {
+                const isSelected = selectedServiceIdx === sIdx;
+                return (
+                  <button
+                    key={svc.id}
+                    onClick={() => setSelectedServiceIdx(sIdx)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      fontWeight: isSelected ? 700 : 500,
+                      backgroundColor: isSelected ? 'var(--primary)' : 'rgba(255, 255, 255, 0.05)',
+                      color: isSelected ? '#0d0b09' : '#ffffff',
+                      border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border-color)',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {svc.title} {svc.galleryPhotos ? `(${svc.galleryPhotos.length} foto)` : ''}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Selected Service Editor Card */}
+            {servicesList[selectedServiceIdx] && (
+              <div style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)' }}>
+                    Düzenlenen Hizmet: {servicesList[selectedServiceIdx].title}
+                  </h3>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Slug: /hizmetler/{servicesList[selectedServiceIdx].slug}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Hizmet Başlığı</label>
+                      <input
+                        type="text"
+                        value={servicesList[selectedServiceIdx].title}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setServicesList((prev) => {
+                            const updated = [...prev];
+                            updated[selectedServiceIdx] = { ...updated[selectedServiceIdx], title: val };
+                            return updated;
+                          });
+                        }}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.9rem' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Kapak Görseli URL</label>
+                      <input
+                        type="text"
+                        value={servicesList[selectedServiceIdx].coverImage}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setServicesList((prev) => {
+                            const updated = [...prev];
+                            updated[selectedServiceIdx] = { ...updated[selectedServiceIdx], coverImage: val };
+                            return updated;
+                          });
+                        }}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.9rem' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Kısa Açıklama</label>
+                    <textarea
+                      rows={2}
+                      value={servicesList[selectedServiceIdx].shortDesc}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setServicesList((prev) => {
+                          const updated = [...prev];
+                          updated[selectedServiceIdx] = { ...updated[selectedServiceIdx], shortDesc: val };
+                          return updated;
+                        });
+                      }}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.9rem', resize: 'vertical' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Detaylı Hizmet Açıklaması</label>
+                    <textarea
+                      rows={4}
+                      value={servicesList[selectedServiceIdx].fullDesc}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setServicesList((prev) => {
+                          const updated = [...prev];
+                          updated[selectedServiceIdx] = { ...updated[selectedServiceIdx], fullDesc: val };
+                          return updated;
+                        });
+                      }}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.9rem', resize: 'vertical' }}
+                    />
+                  </div>
+                </div>
+
+                {/* Gallery Management Section */}
+                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Camera size={18} style={{ color: 'var(--primary)' }} />
+                        Hizmet Sürecinden Sonra Açılan Fotoğraf Galerisi ({servicesList[selectedServiceIdx].galleryPhotos?.length || 0} Fotoğraf)
+                      </h4>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        Bu hizmet detay sayfasında kullanıcıların göreceği fotoğrafları ekleyin veya silin.
+                      </p>
+                    </div>
+
+                    {/* Upload File Button for Gallery */}
+                    <label
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 16px',
+                        backgroundColor: 'rgba(201, 170, 103, 0.15)',
+                        color: 'var(--primary)',
+                        border: '1px solid var(--primary)',
+                        borderRadius: '8px',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {uploadingKey === `serviceGallery-${selectedServiceIdx}` ? <Loader2 className="animate-spin" size={16} /> : <Upload size={16} />}
+                      <span>Bilgisayardan Fotoğraf Yükle</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleServiceGalleryFileUpload(selectedServiceIdx, file);
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Add Photo by URL Input */}
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
+                    <input
+                      type="text"
+                      placeholder="Görsel URL veya bağlantısı yapıştırın..."
+                      value={newPhotoUrl}
+                      onChange={(e) => setNewPhotoUrl(e.target.value)}
+                      style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: '#fff', fontSize: '0.9rem' }}
+                    />
+                    <button
+                      onClick={() => handleAddServiceGalleryPhoto(selectedServiceIdx, newPhotoUrl)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '10px 18px',
+                        backgroundColor: 'var(--primary)',
+                        color: '#0d0b09',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Plus size={16} />
+                      <span>Galeriye Ekle</span>
+                    </button>
+                  </div>
+
+                  {/* Existing Gallery Photos List */}
+                  {servicesList[selectedServiceIdx].galleryPhotos && servicesList[selectedServiceIdx].galleryPhotos!.length > 0 ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px' }}>
+                      {servicesList[selectedServiceIdx].galleryPhotos!.map((photoUrl, pIdx) => (
+                        <div
+                          key={pIdx}
+                          style={{
+                            backgroundColor: 'var(--bg-secondary)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            position: 'relative',
+                            display: 'flex',
+                            flexDirection: 'column',
+                          }}
+                        >
+                          <div style={{ width: '100%', height: '140px', backgroundColor: '#000', overflow: 'hidden' }}>
+                            <img src={getMediaUrl(photoUrl)} alt={`Galeri Fotoğrafı ${pIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+
+                          <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>Foto #{pIdx + 1}</span>
+                            <button
+                              onClick={() => handleDeleteServiceGalleryPhoto(selectedServiceIdx, pIdx)}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '4px 10px',
+                                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                color: '#f87171',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <Trash2 size={13} />
+                              <span>Sil</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '32px', border: '1px dashed var(--border-color)', borderRadius: '12px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                      Henüz bu hizmet için özel galeri fotoğrafı eklenmedi. Yukarıdaki butonlarla fotoğraf ekleyebilirsiniz.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
+

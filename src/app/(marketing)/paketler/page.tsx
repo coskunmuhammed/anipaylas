@@ -4,8 +4,8 @@ import { siteConfig } from '@/config/site';
 import { CheckCircle2, MessageCircle } from 'lucide-react';
 
 export const metadata = {
-  title: 'Paketler & Kapsamlar | Palm Stüdyo',
-  description: 'Düğün, kına ve nişan organizasyonlarınız için Palm Stüdyo paket seçenekleri.',
+  title: 'Paket Seçenekleri | Palm Studio',
+  description: 'Düğün, kına ve nişan çekimleriniz için Palm Studio profesyonel fotoğraf ve video paket seçenekleri.',
 };
 
 export default function PackagesPage() {
@@ -16,13 +16,13 @@ export default function PackagesPage() {
       <section style={{ backgroundColor: 'var(--palm-deep-brown)', borderBottom: '1px solid var(--palm-border)', padding: '80px 24px', textAlign: 'center' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--palm-gold)', fontWeight: 700, marginBottom: '14px', display: 'block' }}>
-            PAKET KAPSAMLARI
+            ÇEKİM PAKETLERİ
           </span>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', fontWeight: 700, color: '#ffffff', marginBottom: '20px', lineHeight: 1.15 }}>
             İhtiyacınıza Özel Çözümler
           </h1>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: '1.1rem', color: 'var(--palm-muted)', lineHeight: '1.7' }}>
-            Fiyatlarımız etkinlik mekanı, davetli sayısı ve özel tasarım taleplerinize göre kişiye özel teklif olarak hazırlanır.
+            Çekim paketlerimizin detayları, etkinlik lokasyonu, çekim süresi ve kurgu taleplerinize göre kişiye özel hazırlanır.
           </p>
         </div>
       </section>

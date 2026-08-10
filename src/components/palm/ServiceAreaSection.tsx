@@ -12,89 +12,84 @@ export interface CityNode {
   y: number;
   region: 'Ege' | 'Marmara' | 'İç Anadolu' | 'Akdeniz' | 'Karadeniz' | 'Doğu Anadolu' | 'Güneydoğu Anadolu';
   isMajor?: boolean;
-  couple?: {
-    names: string;
-    concept: string;
-    location: string;
-  };
 }
 
 // Origin coordinates: Didim / Aydın on SVG map grid (0-1000 x 0-520)
 const DIDIM_ORIGIN = {
   name: 'Didim',
-  fullLabel: 'Didim • Stüdyo Merkez',
+  fullLabel: 'Didim • Merkez',
   code: '09',
   x: 145,
   y: 350,
 };
 
-// All 81 Provinces of Turkey with geographic coordinates & sample couple stories
+// All 81 Provinces of Turkey with geographic coordinates
 const CITIES_81: CityNode[] = [
-  { id: 1, code: '01', name: 'Adana', x: 520, y: 395, region: 'Akdeniz', isMajor: true, couple: { names: 'Selin & Can', concept: 'Sunset Konsept', location: 'Adana' } },
+  { id: 1, code: '01', name: 'Adana', x: 520, y: 395, region: 'Akdeniz', isMajor: true },
   { id: 2, code: '02', name: 'Adıyaman', x: 650, y: 335, region: 'Güneydoğu Anadolu' },
   { id: 3, code: '03', name: 'Afyonkarahisar', x: 280, y: 285, region: 'Ege' },
   { id: 4, code: '04', name: 'Ağrı', x: 885, y: 215, region: 'Doğu Anadolu' },
   { id: 5, code: '05', name: 'Amasya', x: 535, y: 165, region: 'Karadeniz' },
-  { id: 6, code: '06', name: 'Ankara', x: 405, y: 210, region: 'İç Anadolu', isMajor: true, couple: { names: 'Elif & Burak', concept: 'Dış Mekan Hikâyesi', location: 'Ankara' } },
-  { id: 7, code: '07', name: 'Antalya', x: 320, y: 405, region: 'Akdeniz', isMajor: true, couple: { names: 'Zeynep & Emre', concept: 'Sahil & Gün Batımı', location: 'Antalya' } },
+  { id: 6, code: '06', name: 'Ankara', x: 405, y: 210, region: 'İç Anadolu', isMajor: true },
+  { id: 7, code: '07', name: 'Antalya', x: 320, y: 405, region: 'Akdeniz', isMajor: true },
   { id: 8, code: '08', name: 'Artvin', x: 810, y: 125, region: 'Karadeniz' },
-  { id: 9, code: '09', name: 'Aydın', x: 168, y: 345, region: 'Ege', isMajor: true, couple: { names: 'Gamze & Onur', concept: 'Stüdyo & Dış Çekim', location: 'Aydın' } },
+  { id: 9, code: '09', name: 'Aydın', x: 168, y: 345, region: 'Ege', isMajor: true },
   { id: 10, code: '10', name: 'Balıkesir', x: 175, y: 230, region: 'Marmara' },
   { id: 11, code: '11', name: 'Bilecik', x: 270, y: 205, region: 'Marmara' },
   { id: 12, code: '12', name: 'Bingöl', x: 770, y: 270, region: 'Doğu Anadolu' },
   { id: 13, code: '13', name: 'Bitlis', x: 840, y: 300, region: 'Doğu Anadolu' },
   { id: 14, code: '14', name: 'Bolu', x: 335, y: 170, region: 'Karadeniz' },
   { id: 15, code: '15', name: 'Burdur', x: 275, y: 360, region: 'Akdeniz' },
-  { id: 16, code: '16', name: 'Bursa', x: 230, y: 195, region: 'Marmara', isMajor: true, couple: { names: 'Büşra & Kaan', concept: 'Zeytinlik & Plato', location: 'Bursa' } },
+  { id: 16, code: '16', name: 'Bursa', x: 230, y: 195, region: 'Marmara', isMajor: true },
   { id: 17, code: '17', name: 'Çanakkale', x: 120, y: 200, region: 'Marmara' },
   { id: 18, code: '18', name: 'Çankırı', x: 420, y: 165, region: 'İç Anadolu' },
   { id: 19, code: '19', name: 'Çorum', x: 480, y: 165, region: 'Karadeniz' },
   { id: 20, code: '20', name: 'Denizli', x: 220, y: 340, region: 'Ege' },
-  { id: 21, code: '21', name: 'Diyarbakır', x: 755, y: 330, region: 'Güneydoğu Anadolu', isMajor: true, couple: { names: 'Berfin & Murat', concept: 'Tarihi Dış Çekim', location: 'Diyarbakır' } },
+  { id: 21, code: '21', name: 'Diyarbakır', x: 755, y: 330, region: 'Güneydoğu Anadolu', isMajor: true },
   { id: 22, code: '22', name: 'Edirne', x: 135, y: 105, region: 'Marmara' },
   { id: 23, code: '23', name: 'Elazığ', x: 715, y: 285, region: 'Doğu Anadolu' },
   { id: 24, code: '24', name: 'Erzincan', x: 715, y: 220, region: 'Doğu Anadolu' },
-  { id: 25, code: '25', name: 'Erzurum', x: 790, y: 200, region: 'Doğu Anadolu', isMajor: true, couple: { names: 'Sinem & Ogün', concept: 'Özel Albüm Çekimi', location: 'Erzurum' } },
-  { id: 26, code: '26', name: 'Eskişehir', x: 310, y: 235, region: 'İç Anadolu' },
-  { id: 27, code: '27', name: 'Gaziantep', x: 605, y: 380, region: 'Güneydoğu Anadolu', isMajor: true, couple: { names: 'Yaren & Ali', concept: 'Düğün Belgeseli', location: 'Gaziantep' } },
+  { id: 25, code: '25', name: 'Erzurum', x: 790, y: 200, region: 'Doğu Anadolu', isMajor: true },
+  { id: 26, code: '26', name: 'Eskişehir', x: 310, y: 235, region: 'İç Anadolu', isMajor: true },
+  { id: 27, code: '27', name: 'Gaziantep', x: 605, y: 380, region: 'Güneydoğu Anadolu', isMajor: true },
   { id: 28, code: '28', name: 'Giresun', x: 650, y: 145, region: 'Karadeniz' },
   { id: 29, code: '29', name: 'Gümüşhane', x: 695, y: 175, region: 'Karadeniz' },
   { id: 30, code: '30', name: 'Hakkari', x: 925, y: 365, region: 'Doğu Anadolu' },
   { id: 31, code: '31', name: 'Hatay', x: 550, y: 445, region: 'Akdeniz' },
   { id: 32, code: '32', name: 'Isparta', x: 290, y: 350, region: 'Akdeniz' },
   { id: 33, code: '33', name: 'Mersin', x: 470, y: 410, region: 'Akdeniz' },
-  { id: 34, code: '34', name: 'İstanbul', x: 240, y: 145, region: 'Marmara', isMajor: true, couple: { names: 'Gizem & Arda', concept: 'Özel Plato Çekimi', location: 'İstanbul' } },
-  { id: 35, code: '35', name: 'İzmir', x: 140, y: 300, region: 'Ege', isMajor: true, couple: { names: 'Derya & Mert', concept: 'Aşk Bahçeleri', location: 'İzmir' } },
+  { id: 34, code: '34', name: 'İstanbul', x: 240, y: 145, region: 'Marmara', isMajor: true },
+  { id: 35, code: '35', name: 'İzmir', x: 140, y: 300, region: 'Ege', isMajor: true },
   { id: 36, code: '36', name: 'Kars', x: 875, y: 155, region: 'Doğu Anadolu' },
   { id: 37, code: '37', name: 'Kastamonu', x: 435, y: 120, region: 'Karadeniz' },
-  { id: 38, code: '38', name: 'Kayseri', x: 535, y: 270, region: 'İç Anadolu' },
+  { id: 38, code: '38', name: 'Kayseri', x: 535, y: 270, region: 'İç Anadolu', isMajor: true },
   { id: 39, code: '39', name: 'Kırklareli', x: 165, y: 95, region: 'Marmara' },
   { id: 40, code: '40', name: 'Kırşehir', x: 450, y: 250, region: 'İç Anadolu' },
   { id: 41, code: '41', name: 'Kocaeli', x: 275, y: 155, region: 'Marmara' },
-  { id: 42, code: '42', name: 'Konya', x: 400, y: 335, region: 'İç Anadolu', isMajor: true, couple: { names: 'Ayşe & Mehmet', concept: 'Görkemli Dış Çekim', location: 'Konya' } },
+  { id: 42, code: '42', name: 'Konya', x: 400, y: 335, region: 'İç Anadolu', isMajor: true },
   { id: 43, code: '43', name: 'Kütahya', x: 245, y: 245, region: 'Ege' },
   { id: 44, code: '44', name: 'Malatya', x: 645, y: 290, region: 'Doğu Anadolu' },
   { id: 45, code: '45', name: 'Manisa', x: 165, y: 280, region: 'Ege' },
   { id: 46, code: '46', name: 'Kahramanmaraş', x: 585, y: 335, region: 'Akdeniz' },
   { id: 47, code: '47', name: 'Mardin', x: 775, y: 375, region: 'Güneydoğu Anadolu' },
-  { id: 48, code: '48', name: 'Muğla', x: 175, y: 380, region: 'Ege', isMajor: true, couple: { names: 'Melis & Tolga', concept: 'Bodrum Sahil Çekimi', location: 'Muğla' } },
+  { id: 48, code: '48', name: 'Muğla', x: 175, y: 380, region: 'Ege', isMajor: true },
   { id: 49, code: '49', name: 'Muş', x: 815, y: 270, region: 'Doğu Anadolu' },
   { id: 50, code: '50', name: 'Nevşehir', x: 480, y: 265, region: 'İç Anadolu' },
   { id: 51, code: '51', name: 'Niğde', x: 485, y: 315, region: 'İç Anadolu' },
   { id: 52, code: '52', name: 'Ordu', x: 610, y: 140, region: 'Karadeniz' },
   { id: 53, code: '53', name: 'Rize', x: 745, y: 130, region: 'Karadeniz' },
   { id: 54, code: '54', name: 'Sakarya', x: 300, y: 160, region: 'Marmara' },
-  { id: 55, code: '55', name: 'Samsun', x: 545, y: 120, region: 'Karadeniz', isMajor: true, couple: { names: 'Buse & Eren', concept: 'Gün Batımı Çekimi', location: 'Samsun' } },
+  { id: 55, code: '55', name: 'Samsun', x: 545, y: 120, region: 'Karadeniz', isMajor: true },
   { id: 56, code: '56', name: 'Siirt', x: 825, y: 340, region: 'Güneydoğu Anadolu' },
   { id: 57, code: '57', name: 'Sinop', x: 490, y: 95, region: 'Karadeniz' },
   { id: 58, code: '58', name: 'Sivas', x: 600, y: 220, region: 'İç Anadolu' },
   { id: 59, code: '59', name: 'Tekirdağ', x: 175, y: 130, region: 'Marmara' },
   { id: 60, code: '60', name: 'Tokat', x: 565, y: 175, region: 'Karadeniz' },
-  { id: 61, code: '61', name: 'Trabzon', x: 700, y: 135, region: 'Karadeniz', isMajor: true, couple: { names: 'Aslı & Cem', concept: 'Doğa & Plato Çekimi', location: 'Trabzon' } },
+  { id: 61, code: '61', name: 'Trabzon', x: 700, y: 135, region: 'Karadeniz', isMajor: true },
   { id: 62, code: '62', name: 'Tunceli', x: 720, y: 255, region: 'Doğu Anadolu' },
   { id: 63, code: '63', name: 'Şanlıurfa', x: 675, y: 375, region: 'Güneydoğu Anadolu' },
   { id: 64, code: '64', name: 'Uşak', x: 225, y: 290, region: 'Ege' },
-  { id: 65, code: '65', name: 'Van', x: 890, y: 295, region: 'Doğu Anadolu', isMajor: true, couple: { names: 'Ceren & Görkem', concept: 'Özel Dış Mekan', location: 'Van' } },
+  { id: 65, code: '65', name: 'Van', x: 890, y: 295, region: 'Doğu Anadolu', isMajor: true },
   { id: 66, code: '66', name: 'Yozgat', x: 495, y: 215, region: 'İç Anadolu' },
   { id: 67, code: '67', name: 'Zonguldak', x: 350, y: 130, region: 'Karadeniz' },
   { id: 68, code: '68', name: 'Aksaray', x: 450, y: 295, region: 'İç Anadolu' },
@@ -113,19 +108,15 @@ const CITIES_81: CityNode[] = [
   { id: 81, code: '81', name: 'Düzce', x: 320, y: 155, region: 'Karadeniz' },
 ];
 
-// Featured couples list for auto-rotation card
-const FEATURED_COUPLES = CITIES_81.filter(c => c.couple);
-
 export default function ServiceAreaSection() {
   const [selectedRegion, setSelectedRegion] = useState<string>('Tüm Türkiye');
   const [activeCity, setActiveCity] = useState<CityNode | null>(CITIES_81.find(c => c.name === 'İzmir') || null);
-  const [coupleIndex, setCoupleIndex] = useState(0);
   const [cmsData, setCmsData] = useState({
     eyebrow: 'NEREDEN GELİYORLAR?',
     title: 'Didim’deyiz, hikâyeleriniz Türkiye’nin 81 ilinden geliyor.',
-    description: 'Didim merkez stüdyomuzdan Türkiye’nin 81 iline ışınlanan anılar ve yurt dışından gelen çiftlerimiz için çekim, konsept ve organizasyon süreçlerini tek çatı altında planlıyoruz.',
-    studioGuaranteeTitle: 'Tüm çekimler ve organizasyon detayları stüdyomuz koordinasyonunda yönetilir.',
-    studioGuaranteeText: 'Türkiye’nin 81 ilinden veya yurt dışından gelen tüm çiftlerimiz için Didim merkez stüdyomuzda çekim, gelinlik, saç & makyaj, konaklama ve ulaşım planlamasını tek güne sığdırarak stresi sıfıra indiriyoruz.',
+    description: 'Didim merkezimizden Türkiye’nin 81 iline ışınlanan anılar ve yurt dışından gelen çiftlerimiz için çekim, konsept ve organizasyon süreçlerini tek çatı altında planlıyoruz.',
+    studioGuaranteeTitle: 'Tüm çekimler ve organizasyon detayları merkezimiz koordinasyonunda yönetilir.',
+    studioGuaranteeText: 'Türkiye’nin 81 ilinden veya yurt dışından gelen tüm çiftlerimiz için Didim merkezimizde çekim, gelinlik, saç & makyaj, konaklama ve ulaşım planlamasını tek güne sığdırarak stresi sıfıra indiriyoruz.',
   });
 
   useEffect(() => {
@@ -141,24 +132,10 @@ export default function ServiceAreaSection() {
     loadContent();
   }, []);
 
-  // Auto cycle featured couples every 3.5s
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCoupleIndex((prev) => {
-        const nextIdx = (prev + 1) % FEATURED_COUPLES.length;
-        setActiveCity(FEATURED_COUPLES[nextIdx]);
-        return nextIdx;
-      });
-    }, 3500);
-    return () => clearInterval(timer);
-  }, []);
-
   // Filter cities by selected region
   const filteredCities = selectedRegion === 'Tüm Türkiye' 
     ? CITIES_81 
     : CITIES_81.filter(c => c.region === selectedRegion);
-
-  const activeCoupleData = activeCity?.couple || FEATURED_COUPLES[coupleIndex].couple;
 
   return (
     <section
@@ -278,12 +255,12 @@ export default function ServiceAreaSection() {
             overflow: 'hidden',
           }}
         >
-          {/* Top Map Status Bar */}
+          {/* Top Map Status Bar (Hidden top text per user request, showing map legend right-aligned) */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-end',
               padding: '0 12px 16px 12px',
               borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
               marginBottom: '16px',
@@ -291,18 +268,14 @@ export default function ServiceAreaSection() {
               gap: '10px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--palm-gold)', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>
-              <Sparkles size={16} />
-              <span>DİDİM ÇIKIŞLI 81 İLE IŞINLANMA EFEKTİ</span>
-            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.8rem', color: 'var(--palm-muted)', fontFamily: 'var(--font-sans)' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ffd700', boxShadow: '0 0 8px #ffd700' }} />
-                Didim Stüdyo Merkez
+                Didim Merkez
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#c9aa67' }} />
-                81 İl Hedef Çiftler
+                81 İl Çekim Hizmeti
               </span>
             </div>
           </div>
@@ -509,9 +482,9 @@ export default function ServiceAreaSection() {
                 {/* Prominent Didim Origin Badge */}
                 <g transform="translate(0, -22)">
                   <rect
-                    x="-55"
+                    x="-50"
                     y="-14"
-                    width="110"
+                    width="100"
                     height="22"
                     rx="11"
                     fill="#110d09"
@@ -529,48 +502,11 @@ export default function ServiceAreaSection() {
                     fontFamily="var(--font-sans)"
                     letterSpacing="0.04em"
                   >
-                    📍 Didim • Stüdyo
+                    📍 Didim Merkez
                   </text>
                 </g>
               </g>
             </svg>
-          </div>
-
-          {/* Floating Couple Story Card (Overlay lower-left like in reference image 1) */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '20px',
-              left: '20px',
-              backgroundColor: 'rgba(18, 14, 10, 0.92)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(201, 170, 103, 0.35)',
-              borderRadius: '16px',
-              padding: '16px 20px',
-              textAlign: 'left',
-              maxWidth: '310px',
-              boxShadow: '0 12px 30px rgba(0,0,0,0.6)',
-              zIndex: 10,
-              transition: 'all 0.3s ease',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', color: 'var(--palm-gold)', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
-                BU HAFTA ÇEKİM HİKÂYESİ
-              </span>
-            </div>
-
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', fontWeight: 600, color: '#ffffff', marginBottom: '4px' }}>
-              {activeCoupleData?.names || 'Derya & Mert'}
-            </div>
-
-            <div style={{ fontSize: '0.85rem', color: 'var(--palm-muted)', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <MapPin size={13} style={{ color: 'var(--palm-gold)' }} />
-              <span>{activeCity?.name || 'İzmir'}’den</span>
-              <span>•</span>
-              <span style={{ color: '#ffffff' }}>{activeCoupleData?.concept || 'Aşk Bahçeleri Konsepti'}</span>
-            </div>
           </div>
         </div>
 
@@ -588,7 +524,7 @@ export default function ServiceAreaSection() {
         >
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.15em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '10px', fontFamily: 'var(--font-sans)' }}>
             <Globe size={16} />
-            MERKEZ STÜDYO: DİDİM / AYDIN
+            MERKEZ: DİDİM / AYDIN
           </div>
 
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', color: '#ffffff', fontWeight: 600, marginBottom: '12px' }}>

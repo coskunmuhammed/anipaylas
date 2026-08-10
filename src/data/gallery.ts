@@ -1,7 +1,7 @@
 export interface GalleryItem {
   id: string;
   title: string;
-  category: 'dugun' | 'kina' | 'nisan' | 'dogum-gunu' | 'kurumsal';
+  category: 'fotograf' | 'sahil' | 'video' | 'kir' | 'detay' | 'dijital-album';
   categoryLabel: string;
   imageUrl: string;
   subtitle: string;
@@ -11,56 +11,56 @@ export interface GalleryItem {
 export const galleryData: GalleryItem[] = [
   {
     id: 'gal-1',
-    title: 'Kır Düğünü Konsepti',
-    category: 'dugun',
-    categoryLabel: 'Düğün',
+    title: 'Dış Mekan Düğün Çekimi',
+    category: 'fotograf',
+    categoryLabel: 'Fotoğraf Çekimi',
     imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
-    subtitle: 'Doğal yeşillikler ve altın detaylı masa düzeni',
+    subtitle: 'Doğal plato ışığı ve zamansız kurgu tonları',
     isSample: true,
   },
   {
     id: 'gal-2',
-    title: 'Zarif Kına Tahtı',
-    category: 'kina',
-    categoryLabel: 'Kına',
-    imageUrl: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=800&q=80',
-    subtitle: 'Geleneksel motifler ve kadife detaylar',
+    title: 'Ege Sahili Gün Batımı',
+    category: 'sahil',
+    categoryLabel: 'Sahil Çekimi',
+    imageUrl: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80',
+    subtitle: 'Altın saatlerde Didim koylarında büyüleyici kareler',
     isSample: true,
   },
   {
     id: 'gal-3',
-    title: 'Bohem Nişan Masası',
-    category: 'nisan',
-    categoryLabel: 'Nişan & Söz',
+    title: 'Sinematik Düğün Hikayesi',
+    category: 'video',
+    categoryLabel: 'Sinematik Video',
     imageUrl: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80',
-    subtitle: 'Kurutulmuş çiçekler ve şeffaf pleksi detaylar',
+    subtitle: '4K çözünürlüklü kurgulu ve duygusal klip çekimi',
     isSample: true,
   },
   {
     id: 'gal-4',
-    title: 'Şık Salon Düğünü',
-    category: 'dugun',
-    categoryLabel: 'Düğün',
-    imageUrl: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80',
-    subtitle: 'Kristal avizeler ve canlı beyaz gül konsepti',
+    title: 'Kır & Ağaçlık Alan Çekimi',
+    category: 'kir',
+    categoryLabel: 'Kır Çekimi',
+    imageUrl: 'https://images.unsplash.com/photo-1594552072238-b8a33785b261?auto=format&fit=crop&w=800&q=80',
+    subtitle: 'Doğal ortamlarda bohem ve samimi çift portreleri',
     isSample: true,
   },
   {
     id: 'gal-5',
-    title: 'Tematik Doğum Günü',
-    category: 'dogum-gunu',
-    categoryLabel: 'Doğum Günü',
-    imageUrl: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=800&q=80',
-    subtitle: 'Pastel balon zinciri ve kişiye özel ikram masası',
+    title: 'Gelin Hazırlık & Detay Çekimi',
+    category: 'detay',
+    categoryLabel: 'Detay Çekimleri',
+    imageUrl: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=800&q=80',
+    subtitle: 'Aksesuar, gelinlik ve duygu dolu ilk bakış anları',
     isSample: true,
   },
   {
     id: 'gal-6',
-    title: 'Kurumsal Gala Yemeği',
-    category: 'kurumsal',
-    categoryLabel: 'Kurumsal',
-    imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
-    subtitle: 'Sahne ışıklandırması ve protokol masa düzeni',
+    title: 'QR Dijital Anı Albümü Kareleri',
+    category: 'dijital-album',
+    categoryLabel: 'Dijital Anı Albümü',
+    imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80',
+    subtitle: 'Davetlilerin telefonlarıyla çekip anında albüme yüklediği anılar',
     isSample: true,
   },
 ];

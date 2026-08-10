@@ -115,14 +115,34 @@ export default function PalmFooter() {
         <div>
           &copy; {currentYear} {siteConfig.name}. Tüm hakları saklıdır.
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <span>Didim Düğün Fotoğrafçılığı & Etkinlik Stüdyosu</span>
+        <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span>Didim Düğün Fotoğrafçılığı & Çekim Hizmetleri</span>
           <span>·</span>
-          <Link href="/admin" style={{ color: 'var(--palm-gold-light)', fontWeight: 600 }}>
-            Admin Girişi
-          </Link>
+          <a
+            href="https://altunmedya.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: 'var(--palm-gold)',
+              fontWeight: 700,
+              fontSize: '0.82rem',
+              letterSpacing: '0.05em',
+              textDecoration: 'none',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(201, 170, 103, 0.1)',
+              border: '1px solid rgba(201, 170, 103, 0.3)',
+            }}
+          >
+            <span>ALTUN MEDYA</span>
+            <span style={{ fontSize: '0.7rem', color: '#fff', fontWeight: 400 }}>Yazılım & Medya</span>
+          </a>
         </div>
       </div>
     </footer>
   );
 }
+

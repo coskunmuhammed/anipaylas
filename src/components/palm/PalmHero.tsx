@@ -58,8 +58,8 @@ export default function PalmHero() {
           display: 'flex',
           justifyContent: 'center',
           gap: '28px',
-          transform: 'rotate(-14deg) scale(1.2)',
-          opacity: 0.32,
+          transform: 'rotate(-12deg) scale(1.35)',
+          opacity: 0.58,
           pointerEvents: 'none',
           zIndex: 1,
         }}
@@ -81,12 +81,12 @@ export default function PalmHero() {
                 height: '320px',
                 borderRadius: '28px',
                 overflow: 'hidden',
-                border: '1px solid rgba(255, 255, 255, 0.18)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
                 flexShrink: 0,
               }}
             >
-              <img src={getMediaUrl(img)} alt="Palm Stüdyo Çekim" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={getMediaUrl(img)} alt="Palm Studio Çekim" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
@@ -108,12 +108,12 @@ export default function PalmHero() {
                 height: '320px',
                 borderRadius: '28px',
                 overflow: 'hidden',
-                border: '1px solid rgba(255, 255, 255, 0.18)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
                 flexShrink: 0,
               }}
             >
-              <img src={getMediaUrl(img)} alt="Palm Stüdyo Düğün" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={getMediaUrl(img)} alt="Palm Studio Düğün" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
@@ -135,12 +135,12 @@ export default function PalmHero() {
                 height: '320px',
                 borderRadius: '28px',
                 overflow: 'hidden',
-                border: '1px solid rgba(255, 255, 255, 0.18)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
                 flexShrink: 0,
               }}
             >
-              <img src={getMediaUrl(img)} alt="Palm Stüdyo Konsept" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={getMediaUrl(img)} alt="Palm Studio Konsept" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
@@ -151,7 +151,7 @@ export default function PalmHero() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(ellipse at 50% 50%, rgba(13, 11, 9, 0.75) 0%, rgba(13, 11, 9, 0.96) 80%)',
+          background: 'radial-gradient(ellipse at 50% 50%, rgba(13, 11, 9, 0.42) 0%, rgba(13, 11, 9, 0.85) 80%)',
           zIndex: 2,
           pointerEvents: 'none',
         }}
@@ -194,7 +194,7 @@ export default function PalmHero() {
               boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
             }}
           >
-            {heroData.badgeText}
+            {heroData.badgeText.replace(/STÜDYO/gi, 'MERKEZLİ')}
           </div>
         )}
 
@@ -211,19 +211,23 @@ export default function PalmHero() {
               display: 'block',
               fontFamily: 'var(--font-sans)',
               fontSize: 'clamp(2.8rem, 6.5vw, 5.8rem)',
-              fontWeight: 900,
-              color: '#ffffff',
               letterSpacing: '-0.03em',
               textShadow: '0 4px 30px rgba(0,0,0,0.8)',
             }}
           >
-            {heroData.titleLine1 || 'PALM STÜDYO'}
+            <span style={{ fontWeight: 900, color: '#ffffff' }}>PALM </span>
+            <span style={{ fontWeight: 300, color: '#ffffff', letterSpacing: '0.04em' }}>STUDIO</span>
           </span>
+
+          {/* Title Line 2: 3-line layout if contains '&' */}
           <span
             style={{
-              display: 'block',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
               fontFamily: 'var(--font-serif)',
-              fontSize: 'clamp(2.8rem, 7vw, 6.2rem)',
+              fontSize: 'clamp(2.4rem, 5.5vw, 4.8rem)',
               fontWeight: 500,
               fontStyle: 'italic',
               color: 'var(--palm-gold)',
@@ -231,9 +235,24 @@ export default function PalmHero() {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               textShadow: '0 4px 30px rgba(201, 170, 103, 0.25)',
+              marginTop: '12px',
+              gap: '4px',
             }}
           >
-            {heroData.titleLine2 || 'Düğün Fotoğrafçılığı & Dijital Anı Albümü'}
+            {(() => {
+              const text = heroData.titleLine2 || 'Özel Çekim Konseptleri & Dijital Anı Albümü';
+              if (text.includes('&')) {
+                const parts = text.split('&');
+                return (
+                  <>
+                    <span>{parts[0].trim()}</span>
+                    <span style={{ fontSize: '0.7em', fontStyle: 'italic', opacity: 0.9 }}>&</span>
+                    <span>{parts.slice(1).join('&').trim()}</span>
+                  </>
+                );
+              }
+              return <span>{text}</span>;
+            })()}
           </span>
         </h1>
 
