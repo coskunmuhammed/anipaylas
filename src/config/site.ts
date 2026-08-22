@@ -17,12 +17,12 @@ export const siteConfig = {
   logo: '/brand/palm-studio-logo.svg',
   
   // Public contact information
-  phone: process.env.NEXT_PUBLIC_PHONE || '',
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || '',
+  phone: process.env.NEXT_PUBLIC_PHONE || '+90 545 904 80 40',
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'info@palmstudio.com.tr',
   instagramUsername: process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'palmstudio',
   instagramUrl: `https://instagram.com/${process.env.NEXT_PUBLIC_INSTAGRAM_USERNAME || 'palmstudio'}`,
   
-  rawWhatsAppNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '905550000000',
+  rawWhatsAppNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '905459048040',
   get whatsappNumber() {
     return normalizeWhatsAppNumber(this.rawWhatsAppNumber);
   },

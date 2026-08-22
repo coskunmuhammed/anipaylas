@@ -85,9 +85,13 @@ export default function PalmFooter() {
           </h4>
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {siteConfig.phone && (
-              <li><a href={`tel:${siteConfig.phone}`} style={{ color: 'var(--palm-muted)' }}>{siteConfig.phone}</a></li>
+              <li><a href={`tel:${siteConfig.phone.replace(/[^\d+]/g, '')}`} style={{ color: 'var(--palm-muted)' }}>{siteConfig.phone}</a></li>
             )}
-            <li><a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--palm-gold-light)', fontWeight: 600 }}>WhatsApp İletişim Hattı</a></li>
+            <li>
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--palm-gold-light)', fontWeight: 600 }}>
+                WhatsApp İletişim Hattı (+90 545 904 80 40)
+              </a>
+            </li>
             {siteConfig.email && (
               <li><a href={`mailto:${siteConfig.email}`} style={{ color: 'var(--palm-muted)' }}>{siteConfig.email}</a></li>
             )}
