@@ -43,6 +43,7 @@ export async function seedAdmin() {
         CREATE TYPE "SubjectType" AS ENUM ('COUPLE', 'PERSON', 'ORGANIZATION');
       EXCEPTION WHEN duplicate_object THEN null; END $$;
       ALTER TABLE "DownloadLink" ADD COLUMN IF NOT EXISTS "tokenEncrypted" TEXT;
+      ALTER TABLE "Photo" ADD COLUMN IF NOT EXISTS "clientUploadId" TEXT;
       ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "eventType" "EventType" NOT NULL DEFAULT 'WEDDING';
       ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "subjectType" "SubjectType" NOT NULL DEFAULT 'COUPLE';
       ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "hostName" TEXT;

@@ -6,6 +6,9 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const photos = await prisma.photo.findMany({
     include: { event: true },
+  }).catch(async () => {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "Photo" ADD COLUMN IF NOT EXISTS "clientUploadId" TEXT;`);
+    return await prisma.photo.findMany({ include: { event: true } });
   });
 
   const photoNullChecks = photos.map((p) => ({
