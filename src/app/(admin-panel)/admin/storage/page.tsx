@@ -34,10 +34,11 @@ export default async function AdminStoragePage() {
 
   const totalCalculatedBytes = activePhotosBytes + softDeletedBytes + activeZipsBytes;
 
-  const events = await prisma.event.findMany({
+  const eventsRaw = await prisma.event.findMany({
     where: { status: { not: 'DELETED' } },
     orderBy: { currentStorageBytes: 'desc' },
   });
+  const events = JSON.parse(JSON.stringify(eventsRaw));
 
   const formatSize = (bytes: number) => {
     if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(2)} GB`;

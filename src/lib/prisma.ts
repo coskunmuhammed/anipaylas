@@ -5,6 +5,13 @@ import bcrypt from 'bcryptjs';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
+// Polyfill BigInt serialization for JSON & React Server Components (RSC)
+if (typeof BigInt !== 'undefined') {
+  (BigInt.prototype as any).toJSON = function () {
+    return Number(this);
+  };
+}
+
 const connectionString = process.env.DATABASE_URL || 'postgresql://wedding_admin:wedding_password@localhost:5433/wedding_db?schema=public';
 
 const needsSsl = process.env.NODE_ENV === 'production' || 

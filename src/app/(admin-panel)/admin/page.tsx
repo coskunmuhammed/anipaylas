@@ -98,22 +98,23 @@ export default async function AdminDashboardPage() {
 
   const recentPhotos = await Promise.all(
     recentPhotosRaw.map(async (photo: any) => {
-      const signedThumbnailUrl = photo.thumbnailUrl.startsWith('http')
+      const signedThumbnailUrl = photo.thumbnailUrl?.startsWith('http')
         ? photo.thumbnailUrl
-        : await getSignedDownloadUrl(photo.thumbnailUrl);
-      return {
+        : photo.thumbnailUrl ? await getSignedDownloadUrl(photo.thumbnailUrl) : '';
+      return JSON.parse(JSON.stringify({
         ...photo,
         signedThumbnailUrl,
-      };
+      }));
     })
   );
 
   // Recent Events
-  const recentEvents = await prisma.event.findMany({
+  const recentEventsRaw = await prisma.event.findMany({
     take: 5,
     orderBy: { createdAt: 'desc' },
     where: { status: { not: 'DELETED' } },
   });
+  const recentEvents = JSON.parse(JSON.stringify(recentEventsRaw));
 
   return (
     <div>

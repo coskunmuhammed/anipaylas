@@ -9,10 +9,11 @@ export const dynamic = 'force-dynamic';
 export default async function AdminEventsPage() {
   await requireAdmin();
 
-  const events = await prisma.event.findMany({
+  const eventsRaw = await prisma.event.findMany({
     where: { status: { not: 'DELETED' } },
     orderBy: { eventDate: 'desc' },
   });
+  const events = JSON.parse(JSON.stringify(eventsRaw));
 
   const getStatusLabel = (status: string) => {
     switch (status) {
