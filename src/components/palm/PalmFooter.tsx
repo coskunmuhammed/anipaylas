@@ -126,19 +126,18 @@ export default function PalmFooter() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              color: 'var(--palm-gold)',
-              fontWeight: 700,
-              fontSize: '0.82rem',
-              letterSpacing: '0.05em',
+              color: '#ffffff',
+              fontSize: '0.95rem',
+              letterSpacing: '-0.02em',
               textDecoration: 'none',
-              padding: '4px 10px',
-              borderRadius: '6px',
-              backgroundColor: 'rgba(201, 170, 103, 0.1)',
-              border: '1px solid rgba(201, 170, 103, 0.3)',
+              transition: 'opacity 0.2s ease',
             }}
           >
-            <span>ALTUN MEDYA</span>
-            <span style={{ fontSize: '0.7rem', color: '#fff', fontWeight: 400 }}>Yazılım & Medya</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: '#ffffff', flexShrink: 0 }}>
+              <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" fill="currentColor"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, color: '#ffffff' }}>altun</span>
+            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, color: '#ffffff' }}>medya</span>
           </a>
         </div>
       </div>

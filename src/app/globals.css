@@ -261,3 +261,62 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* Comprehensive Mobile & Tablet Responsive Enhancements */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  /* Card Containers Mobile Padding */
+  .palm-card {
+    padding: 24px 18px !important;
+    border-radius: 18px !important;
+  }
+
+  /* CTA Section Mobile Fixes */
+  .palm-cta-container {
+    padding: 32px 18px !important;
+    border-radius: 20px !important;
+    gap: 24px !important;
+    text-align: center;
+  }
+
+  .palm-cta-button-wrapper {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .palm-cta-button-wrapper a,
+  .palm-cta-button-wrapper button {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Primary & Secondary Buttons Mobile Fitting */
+  .palm-btn-gold,
+  .palm-btn-secondary {
+    padding: 13px 18px !important;
+    font-size: 0.88rem !important;
+    white-space: normal !important;
+    text-align: center !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Footer Mobile Padding */
+  footer {
+    padding: 48px 16px 32px 16px !important;
+  }
+
+  /* Section Padding Scale */
+  section {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+

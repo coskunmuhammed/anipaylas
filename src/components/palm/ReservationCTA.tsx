@@ -33,6 +33,7 @@ export default function ReservationCTA() {
       }}
     >
       <div
+        className="palm-cta-container"
         style={{
           maxWidth: '1280px',
           margin: '0 auto',
@@ -57,7 +58,7 @@ export default function ReservationCTA() {
           <h2
             style={{
               fontFamily: 'var(--font-serif)',
-              fontSize: 'clamp(2.2rem, 4.5vw, 3.4rem)',
+              fontSize: 'clamp(2rem, 4.5vw, 3.4rem)',
               fontWeight: 600,
               color: '#ffffff',
               lineHeight: 1.15,
@@ -72,8 +73,8 @@ export default function ReservationCTA() {
           </p>
         </div>
 
-        <div>
-          <GoldButton href="/iletisim" style={{ padding: '18px 38px', fontSize: '1rem' }}>
+        <div className="palm-cta-button-wrapper">
+          <GoldButton href="/iletisim" style={{ padding: '16px 30px', fontSize: '0.95rem' }}>
             <span>İletişime Geçin & Teklif Alın</span>
             <ArrowRight size={18} />
           </GoldButton>
