@@ -31,9 +31,26 @@ export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-// Auto-seed admin user
+// Auto-seed admin user and ensure database schema migrations
 export async function seedAdmin() {
   try {
+    // Ensure DDL columns exist
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        CREATE TYPE "EventType" AS ENUM ('WEDDING', 'ENGAGEMENT', 'HENNA', 'BIRTHDAY', 'GRADUATION', 'BABY_SHOWER', 'PROMISE', 'CORPORATE', 'PARTY', 'OTHER');
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+      DO $$ BEGIN
+        CREATE TYPE "SubjectType" AS ENUM ('COUPLE', 'PERSON', 'ORGANIZATION');
+      EXCEPTION WHEN duplicate_object THEN null; END $$;
+      ALTER TABLE "DownloadLink" ADD COLUMN IF NOT EXISTS "tokenEncrypted" TEXT;
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "eventType" "EventType" NOT NULL DEFAULT 'WEDDING';
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "subjectType" "SubjectType" NOT NULL DEFAULT 'COUPLE';
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "hostName" TEXT;
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "instagramUsername" TEXT;
+      ALTER TABLE "Event" ALTER COLUMN "brideName" DROP NOT NULL;
+      ALTER TABLE "Event" ALTER COLUMN "groomName" DROP NOT NULL;
+    `).catch(() => {});
+
     const email = process.env.ADMIN_EMAIL || 'admin@weddingalbum.com';
     const existing = await prisma.adminUser.findUnique({
       where: { email },

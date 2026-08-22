@@ -2,37 +2,65 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  const diagnostics: Record<string, any> = {};
+  const results: Record<string, any> = {};
 
   try {
-    diagnostics.auditLogCount = await prisma.auditLog.count();
-  } catch (e: any) {
-    diagnostics.auditLogError = { message: e.message, stack: e.stack, code: e.code };
+    // Run missing DDL migrations if any column is missing
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        CREATE TYPE "EventType" AS ENUM ('WEDDING', 'ENGAGEMENT', 'HENNA', 'BIRTHDAY', 'GRADUATION', 'BABY_SHOWER', 'PROMISE', 'CORPORATE', 'PARTY', 'OTHER');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        CREATE TYPE "SubjectType" AS ENUM ('COUPLE', 'PERSON', 'ORGANIZATION');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "DownloadLink" ADD COLUMN IF NOT EXISTS "tokenEncrypted" TEXT;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "eventType" "EventType" NOT NULL DEFAULT 'WEDDING';
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "subjectType" "SubjectType" NOT NULL DEFAULT 'COUPLE';
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "hostName" TEXT;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Event" ADD COLUMN IF NOT EXISTS "instagramUsername" TEXT;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Event" ALTER COLUMN "brideName" DROP NOT NULL;
+    `);
+
+    await prisma.$executeRawUnsafe(`
+      ALTER TABLE "Event" ALTER COLUMN "groomName" DROP NOT NULL;
+    `);
+
+    results.migrationStatus = 'Migration executed successfully!';
+  } catch (err: any) {
+    results.migrationError = { message: err.message, stack: err.stack };
   }
 
   try {
-    diagnostics.eventCount = await prisma.event.count();
-  } catch (e: any) {
-    diagnostics.eventError = { message: e.message, stack: e.stack, code: e.code };
+    results.eventsCount = await prisma.event.count();
+    results.eventsSample = await prisma.event.findMany({ take: 2 });
+  } catch (err: any) {
+    results.eventsQueryError = { message: err.message, stack: err.stack };
   }
 
-  try {
-    diagnostics.eventsSample = await prisma.event.findMany({ take: 2 });
-  } catch (e: any) {
-    diagnostics.eventsSampleError = { message: e.message, stack: e.stack, code: e.code };
-  }
-
-  try {
-    diagnostics.photoCount = await prisma.photo.count();
-  } catch (e: any) {
-    diagnostics.photoError = { message: e.message, stack: e.stack, code: e.code };
-  }
-
-  try {
-    diagnostics.downloadLinkCount = await prisma.downloadLink.count();
-  } catch (e: any) {
-    diagnostics.downloadLinkError = { message: e.message, stack: e.stack, code: e.code };
-  }
-
-  return NextResponse.json(diagnostics);
+  return NextResponse.json(results);
 }
