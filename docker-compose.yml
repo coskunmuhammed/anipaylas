@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: wedding_admin
       POSTGRES_PASSWORD: wedding_password
       POSTGRES_DB: wedding_db
-    ports:
-      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -27,7 +25,17 @@ services:
       - storage_data:/app/storage
     depends_on:
       - postgres
+    networks:
+      default:
+      shared_proxy:
+        aliases:
+          - anipaylas_app
 
 volumes:
   postgres_data:
   storage_data:
+
+networks:
+  shared_proxy:
+    external: true
+    name: shared_proxy
