@@ -16,9 +16,9 @@ export function getBaseUrl(): string {
     return `https://${process.env.VERCEL_URL}`;
   }
 
-  // Production fallback to current VPS domain/IP if localhost is detected in production
+  // Production fallback to Palm Stüdyo production domain
   if (process.env.NODE_ENV === 'production') {
-    return 'http://169.58.43.155:3000';
+    return 'https://palmstudio.com.tr';
   }
 
   return 'http://localhost:3000';

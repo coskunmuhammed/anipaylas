@@ -128,8 +128,8 @@ export async function getSignedDownloadUrl(
       .digest('hex');
     
     let baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
-    if (process.env.VERCEL || baseUrl.includes('localhost') || !baseUrl) {
-      baseUrl = 'https://anipaylas-eight.vercel.app';
+    if (!baseUrl || baseUrl.includes('localhost')) {
+      baseUrl = 'https://palmstudio.com.tr';
     }
     baseUrl = baseUrl.replace(/\/$/, '');
 
