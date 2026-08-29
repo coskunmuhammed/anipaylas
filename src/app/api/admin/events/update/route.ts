@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import { saveFile, deleteFile } from '@/lib/storage';
-import { normalizeInstagramUsername, getDefaultSubjectType } from '@/lib/eventUtils';
+import { normalizeInstagramUsername, getDefaultSubjectType, getEventWindow } from '@/lib/eventUtils';
 import { EventType, SubjectType, EventStatus } from '@prisma/client';
 import path from 'path';
 
@@ -89,18 +89,19 @@ export async function POST(req: NextRequest) {
       coverImageUrl = await saveFile(buffer, key, coverImageFile.type);
     }
 
-    // Parse dates safely
-    const eventDate = new Date(eventDateStr);
-    const fallbackStart = !isNaN(eventDate.getTime()) ? eventDate : new Date();
-    const fallbackEnd = new Date(fallbackStart.getTime() + 24 * 60 * 60 * 1000);
-
-    const uploadStartsAt = uploadStartsAtStr && !isNaN(new Date(uploadStartsAtStr).getTime())
+    // Safe canonical date window calculation
+    const window = getEventWindow({
+      eventDate: eventDateStr,
+      startTime,
+      endTime,
+    });
+    const eventDate = window.startsAt;
+    const uploadStartsAt = (uploadStartsAtStr && !isNaN(new Date(uploadStartsAtStr).getTime()))
       ? new Date(uploadStartsAtStr)
-      : fallbackStart;
-
-    const uploadEndsAt = uploadEndsAtStr && !isNaN(new Date(uploadEndsAtStr).getTime())
+      : window.startsAt;
+    const uploadEndsAt = (uploadEndsAtStr && !isNaN(new Date(uploadEndsAtStr).getTime()))
       ? new Date(uploadEndsAtStr)
-      : fallbackEnd;
+      : window.endsAt;
 
     const updatedEvent = await prisma.event.update({
       where: { id },

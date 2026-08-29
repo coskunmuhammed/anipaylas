@@ -4,6 +4,7 @@ import { processImage } from '@/lib/image';
 import { saveFile, deleteFile } from '@/lib/storage';
 import { imageProcessingQueue } from '@/lib/imageQueue';
 import { getStorageHealth } from '@/lib/storageHealth';
+import { getEventWindow } from '@/lib/eventUtils';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -40,15 +41,17 @@ export async function POST(req: NextRequest) {
 
     const event = session.event;
     const now = new Date();
-    const isWithinUploadWindow = (!event.uploadStartsAt || now >= new Date(event.uploadStartsAt)) &&
-                                 (!event.uploadEndsAt || now <= new Date(event.uploadEndsAt));
+    const window = getEventWindow(event, now);
 
     if (event.status !== 'ACTIVE' && event.status !== 'PLANNED') {
       return NextResponse.json({ error: 'Etkinlik şu anda aktif değil veya fotoğraf yüklemeye kapalı.' }, { status: 403 });
     }
 
-    if (!isWithinUploadWindow) {
-      return NextResponse.json({ error: 'Fotoğraf yükleme zaman aralığı dışında.' }, { status: 403 });
+    if (!window.isActive) {
+      if (!window.hasStarted) {
+        return NextResponse.json({ error: `Fotoğraf yüklemeleri henüz başlamamıştır. (Başlangıç: ${window.startsAtFormatted})` }, { status: 403 });
+      }
+      return NextResponse.json({ error: 'Fotoğraf yükleme zaman aralığı sona ermiştir.' }, { status: 403 });
     }
 
     // Idempotency check: Return existing photo if exact same clientUploadId was already uploaded

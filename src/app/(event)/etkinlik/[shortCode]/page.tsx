@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { siteConfig } from '@/config/site';
-import { getEventDisplayName } from '@/lib/eventUtils';
+import { getEventDisplayName, getEventWindow } from '@/lib/eventUtils';
 import { getSignedDownloadUrl } from '@/lib/storage';
 import Link from 'next/link';
 import InstagramIcon from '@/components/icons/InstagramIcon';
@@ -39,8 +39,10 @@ export default async function EventLandingPage({ params }: PageProps) {
     notFound();
   }
 
-  // Calculate backend upload availability state
+  // Calculate backend upload availability state using canonical getEventWindow
   const now = new Date();
+  const window = getEventWindow(event, now);
+
   let uploadState: 'active' | 'not_started' | 'ended' | 'limit_reached' = 'active';
   let statusMessage = '';
 
@@ -50,10 +52,10 @@ export default async function EventLandingPage({ params }: PageProps) {
   } else if (event.status === 'ARCHIVED' || event.status === 'CLOSED_FOR_UPLOAD') {
     uploadState = 'ended';
     statusMessage = 'Bu etkinlik için fotoğraf yükleme süresi tamamlanmıştır.';
-  } else if (now < event.uploadStartsAt) {
+  } else if (!window.hasStarted) {
     uploadState = 'not_started';
-    statusMessage = `Fotoğraf yüklemeleri henüz başlamamıştır. (Başlangıç: ${new Date(event.uploadStartsAt).toLocaleString('tr-TR')})`;
-  } else if (now > event.uploadEndsAt) {
+    statusMessage = `Fotoğraf yüklemeleri henüz başlamamıştır. (Başlangıç: ${window.startsAtFormatted})`;
+  } else if (window.hasEnded) {
     uploadState = 'ended';
     statusMessage = 'Fotoğraf yükleme zaman aralığı sona ermiştir.';
   } else if (event.currentPhotoCount >= event.maxTotalPhotos || event.currentStorageBytes >= event.maxStorageBytes) {

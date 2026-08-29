@@ -16,9 +16,10 @@ async function runZipGeneration(packageId: string, eventId: string) {
     });
     if (!event) throw new Error('Event not found');
 
-    // 2. Fetch all approved photos (not soft deleted)
+    // 2. Fetch all approved photos (not soft deleted) with deterministic ordering
     const photos = await prisma.photo.findMany({
       where: { eventId, status: 'APPROVED', deletedAt: null },
+      orderBy: [{ uploadedAt: 'asc' }, { id: 'asc' }],
     });
 
     if (photos.length === 0) {

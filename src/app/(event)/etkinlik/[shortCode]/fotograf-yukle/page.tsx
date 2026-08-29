@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { getSignedDownloadUrl } from '@/lib/storage';
+import { getEventWindow } from '@/lib/eventUtils';
 import GuestUploadPortal from '@/components/upload/GuestUploadPortal';
 import '@/app/guest.css';
 
@@ -28,8 +29,10 @@ export default async function EventUploadPage({ params }: PageProps) {
     notFound();
   }
 
-  // Server-side active window and limit validation
+  // Server-side active window and limit validation using canonical getEventWindow
   const now = new Date();
+  const window = getEventWindow(event, now);
+
   let statusMessage = '';
   let isBlocked = false;
 
@@ -39,10 +42,10 @@ export default async function EventUploadPage({ params }: PageProps) {
   } else if (event.status === 'ARCHIVED') {
     statusMessage = 'Bu etkinlik arşivlenmiştir. Fotoğraf yüklemeleri sona ermiştir.';
     isBlocked = true;
-  } else if (now < event.uploadStartsAt) {
-    statusMessage = `Fotoğraf yüklemeleri henüz başlamamıştır. Başlangıç Tarihi: ${new Date(event.uploadStartsAt).toLocaleString('tr-TR')}`;
+  } else if (!window.hasStarted) {
+    statusMessage = `Fotoğraf yüklemeleri henüz başlamamıştır. (Başlangıç: ${window.startsAtFormatted})`;
     isBlocked = true;
-  } else if (now > event.uploadEndsAt || event.status === 'CLOSED_FOR_UPLOAD') {
+  } else if (window.hasEnded || event.status === 'CLOSED_FOR_UPLOAD') {
     statusMessage = 'Bu etkinlik için fotoğraf yükleme süresi dolmuştur. İlginiz için teşekkür ederiz.';
     isBlocked = true;
   } else if (event.currentPhotoCount >= event.maxTotalPhotos || event.currentStorageBytes >= event.maxStorageBytes) {
