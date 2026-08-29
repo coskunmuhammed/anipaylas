@@ -13,7 +13,6 @@ import {
   X, 
   RefreshCw, 
   ArrowRight,
-  Sparkles,
   ArrowLeft,
   MapPin,
   Navigation,
@@ -759,7 +758,7 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
                       marginTop: '8px',
                     }}
                   >
-                    <Sparkles size={14} style={{ color: '#B59A63' }} />
+                    <CheckCircle size={14} style={{ color: '#B59A63' }} />
                     <span>Palm Stüdyo’yu Keşfet &rarr;</span>
                   </Link>
                 </div>

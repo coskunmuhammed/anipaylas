@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { servicesData } from '@/data/services';
 import { siteConfig } from '@/config/site';
-import { ArrowRight, MessageCircle, Sparkles } from 'lucide-react';
+import { ArrowRight, MessageCircle, CheckCircle2 } from 'lucide-react';
 
 export const metadata = {
   title: 'Hizmetlerimiz | Palm Stüdyo - Organizasyon & Dijital Anı Albümü',
@@ -65,7 +65,7 @@ export default function ServicesPage() {
                     <ul style={{ listStyle: 'none', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', fontSize: '0.9rem', color: '#ffffff' }}>
                       {service.features.slice(0, 4).map((feat, idx) => (
                         <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-sans)' }}>
-                          <Sparkles size={14} style={{ color: 'var(--palm-gold)' }} />
+                          <CheckCircle2 size={16} style={{ color: 'var(--palm-gold)', flexShrink: 0 }} />
                           <span>{feat}</span>
                         </li>
                       ))}

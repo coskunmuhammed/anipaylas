@@ -9,7 +9,7 @@ import GoldButton from '@/components/palm/GoldButton';
 import AltunMedyaLogo from '@/components/palm/AltunMedyaLogo';
 import { 
   Camera, 
-  Sparkles, 
+  CheckCircle, 
   Calendar, 
   MapPin, 
   ArrowRight, 
@@ -162,7 +162,7 @@ export default async function EventLandingPage({ params }: PageProps) {
 
         {/* Palm Stüdyo Brand Experience Card */}
         <div className="palm-card" style={{ backgroundColor: '#1f1813', textAlign: 'center', marginBottom: '28px', border: '1px solid rgba(201, 170, 103, 0.2)' }}>
-          <Sparkles size={32} style={{ color: 'var(--palm-gold)', margin: '0 auto 12px auto' }} />
+          <CheckCircle size={32} style={{ color: 'var(--palm-gold)', margin: '0 auto 12px auto' }} />
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', fontWeight: 600, color: '#ffffff', marginBottom: '8px' }}>
             Palm Stüdyo Dijital Anı Albümü
           </h3>

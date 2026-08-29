@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getMediaUrl } from '@/lib/mediaUrl';
-import { Sparkles } from 'lucide-react';
+import { Camera } from 'lucide-react';
 
 interface PalmImageProps {
   src?: string | null;
@@ -70,7 +70,7 @@ export default function PalmImage({
             marginBottom: '10px',
           }}
         >
-          <Sparkles size={20} style={{ color: '#c9aa67' }} />
+          <Camera size={20} style={{ color: '#c9aa67' }} />
         </div>
         <span
           style={{

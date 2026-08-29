@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { QrCode, Camera, ShieldCheck, Download, Lock, ArrowRight, Sparkles } from 'lucide-react';
+import { QrCode, Camera, ShieldCheck, Download, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import GoldButton from './GoldButton';
 
 export default function DigitalMemoryShowcase() {
@@ -230,7 +230,7 @@ export default function DigitalMemoryShowcase() {
         >
           <div style={{ maxWidth: '600px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--palm-gold)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '8px' }}>
-              <Sparkles size={16} />
+              <CheckCircle2 size={16} />
               <span>DİJİTAL ANI SİSTEMİ DAHİLDİR</span>
             </div>
 
