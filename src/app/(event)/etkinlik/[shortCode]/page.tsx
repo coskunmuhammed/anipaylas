@@ -88,10 +88,10 @@ export default async function EventLandingPage({ params }: PageProps) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--palm-black)', color: 'var(--palm-cream)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--palm-black)', color: 'var(--palm-cream)', display: 'flex', flexDirection: 'column', overflowX: 'hidden', maxWidth: '100%', width: '100%' }}>
       
       {/* Top Header Branding */}
-      <header style={{ padding: '20px 24px', backgroundColor: 'var(--palm-deep-brown)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ padding: '16px 20px', backgroundColor: 'var(--palm-deep-brown)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ fontFamily: 'var(--font-sans)', fontSize: '1.2rem', fontWeight: 900, letterSpacing: '0.12em', color: '#ffffff' }}>
             PALM

@@ -368,14 +368,14 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
       <header className="palm-guest-header">
         <Link 
           href={landingUrl} 
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#F8F6F1', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#F8F6F1', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600, flexShrink: 0 }}
         >
-          <ArrowLeft size={16} style={{ color: '#B59A63' }} />
-          <span>Etkinlik Sayfası</span>
+          <ArrowLeft size={16} style={{ color: '#B59A63', flexShrink: 0 }} />
+          <span style={{ whiteSpace: 'nowrap' }}>Etkinlik</span>
         </Link>
 
         {/* Official Palm Studio Wordmark Logo */}
-        <div className="palm-brand-logo">
+        <div className="palm-brand-logo" style={{ flexShrink: 0 }}>
           <div className="palm-brand-title">
             PALM <span>STUDIO<sup>®</sup></span>
           </div>
@@ -384,18 +384,18 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
           </div>
         </div>
 
-        <div style={{ width: '80px' }} /> {/* Spacer for symmetry */}
+        <div style={{ flexShrink: 0, minWidth: '40px', textAlign: 'right' }} />
       </header>
 
       {/* Main Container */}
-      <main className="guest-container" style={{ marginTop: '24px' }}>
+      <main className="guest-container" style={{ marginTop: '20px', width: '100%', boxSizing: 'border-box' }}>
         
         {/* Event Identity Hero Card */}
-        <div className="palm-editorial-card" style={{ textAlign: 'center' }}>
+        <div className="palm-editorial-card" style={{ textAlign: 'center', width: '100%', boxSizing: 'border-box' }}>
           <div className="event-identity-badge">
             {eventTypeLabel}
           </div>
-          <h1 className="event-identity-title">
+          <h1 className="event-identity-title" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
             {displayName}
           </h1>
           <div className="event-identity-meta">

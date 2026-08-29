@@ -268,16 +268,12 @@ export default function PalmHeader() {
 
       <style jsx global>{`
         @media (max-width: 1260px) {
-          .desktop-nav {
+          .desktop-nav,
+          .desktop-cta {
             display: none !important;
           }
           .mobile-hamburger {
             display: block !important;
-          }
-        }
-        @media (max-width: 768px) {
-          .desktop-cta {
-            display: none !important;
           }
         }
       `}</style>
