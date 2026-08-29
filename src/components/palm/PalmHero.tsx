@@ -161,29 +161,6 @@ export default function PalmHero() {
       />
 
       <div style={{ maxWidth: '1020px', margin: '0 auto', position: 'relative', zIndex: 3 }}>
-        
-        {/* Eyebrow / Pill Badge */}
-        {heroData.badgeText && (
-          <div
-            style={{
-              display: 'inline-block',
-              padding: '6px 18px',
-              backgroundColor: 'rgba(201, 170, 103, 0.15)',
-              border: '1px solid rgba(201, 170, 103, 0.4)',
-              borderRadius: '30px',
-              color: 'var(--palm-gold)',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              marginBottom: '24px',
-              fontFamily: 'var(--font-sans)',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-            }}
-          >
-            {heroData.badgeText.replace(/STÜDYO/gi, 'MERKEZLİ')}
-          </div>
-        )}
 
         {/* Main Headline with Serif/Sans-Serif Contrast */}
         <h1
