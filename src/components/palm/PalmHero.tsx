@@ -30,10 +30,18 @@ export default function PalmHero() {
     ? heroData.backgroundPhotos 
     : DEFAULT_HOMEPAGE_CONTENT.hero.backgroundPhotos;
 
-  // Duplicate photos for smooth infinite animation loop
-  const col1Photos = [...bgPhotos, ...bgPhotos];
-  const col2Photos = [...bgPhotos.slice(2), ...bgPhotos, ...bgPhotos.slice(0, 2)];
-  const col3Photos = [...bgPhotos.slice(4), ...bgPhotos, ...bgPhotos.slice(0, 4)];
+  // Ensure photo pool has at least 6 photos for column variety
+  const photoPool = bgPhotos.length >= 6 
+    ? bgPhotos 
+    : [...bgPhotos, ...bgPhotos, ...bgPhotos].slice(0, 6);
+
+  // 6 staggered columns, duplicated for seamless infinite scroll
+  const col1Photos = [...photoPool, ...photoPool];
+  const col2Photos = [...photoPool.slice(1), ...photoPool.slice(0, 1), ...photoPool.slice(1), ...photoPool.slice(0, 1)];
+  const col3Photos = [...photoPool.slice(2), ...photoPool.slice(0, 2), ...photoPool.slice(2), ...photoPool.slice(0, 2)];
+  const col4Photos = [...photoPool.slice(3), ...photoPool.slice(0, 3), ...photoPool.slice(3), ...photoPool.slice(0, 3)];
+  const col5Photos = [...photoPool.slice(4), ...photoPool.slice(0, 4), ...photoPool.slice(4), ...photoPool.slice(0, 4)];
+  const col6Photos = [...photoPool.slice(5), ...photoPool.slice(0, 5), ...photoPool.slice(5), ...photoPool.slice(0, 5)];
 
   return (
     <section
@@ -50,97 +58,76 @@ export default function PalmHero() {
         backgroundColor: '#0d0b09',
       }}
     >
-      {/* Dynamic Diagonal Floating Photo Grid Background */}
+      {/* Dynamic Diagonal Floating Photo Grid Background (Edge to Edge 6-Column) */}
       <div
         style={{
           position: 'absolute',
-          inset: '-20%',
+          top: '50%',
+          left: '50%',
+          width: '160vw',
+          minWidth: '1800px',
+          height: '160vh',
+          minHeight: '1200px',
           display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           gap: '28px',
-          transform: 'rotate(-12deg) scale(1.35)',
+          transform: 'translate(-50%, -50%) rotate(-10deg) scale(1.15)',
           opacity: 0.58,
           pointerEvents: 'none',
           zIndex: 1,
         }}
       >
         {/* Column 1 (Scrolls Up) */}
-        <div
-          className="palm-hero-column-up"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-          }}
-        >
+        <div className="palm-hero-column-up" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {col1Photos.map((img, idx) => (
-            <div
-              key={`col1-${idx}`}
-              style={{
-                width: '240px',
-                height: '320px',
-                borderRadius: '28px',
-                overflow: 'hidden',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
-                flexShrink: 0,
-              }}
-            >
+            <div key={`col1-${idx}`} style={{ width: '240px', height: '320px', borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.25)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)', flexShrink: 0 }}>
               <img src={getMediaUrl(img)} alt="Palm Studio Çekim" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
 
         {/* Column 2 (Scrolls Down) */}
-        <div
-          className="palm-hero-column-down"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-          }}
-        >
+        <div className="palm-hero-column-down" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {col2Photos.map((img, idx) => (
-            <div
-              key={`col2-${idx}`}
-              style={{
-                width: '240px',
-                height: '320px',
-                borderRadius: '28px',
-                overflow: 'hidden',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
-                flexShrink: 0,
-              }}
-            >
+            <div key={`col2-${idx}`} style={{ width: '240px', height: '320px', borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.25)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)', flexShrink: 0 }}>
               <img src={getMediaUrl(img)} alt="Palm Studio Düğün" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
 
         {/* Column 3 (Scrolls Up) */}
-        <div
-          className="palm-hero-column-up"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-          }}
-        >
+        <div className="palm-hero-column-up" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {col3Photos.map((img, idx) => (
-            <div
-              key={`col3-${idx}`}
-              style={{
-                width: '240px',
-                height: '320px',
-                borderRadius: '28px',
-                overflow: 'hidden',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
-                flexShrink: 0,
-              }}
-            >
+            <div key={`col3-${idx}`} style={{ width: '240px', height: '320px', borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.25)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)', flexShrink: 0 }}>
               <img src={getMediaUrl(img)} alt="Palm Studio Konsept" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Column 4 (Scrolls Down) */}
+        <div className="palm-hero-column-down" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {col4Photos.map((img, idx) => (
+            <div key={`col4-${idx}`} style={{ width: '240px', height: '320px', borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.25)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)', flexShrink: 0 }}>
+              <img src={getMediaUrl(img)} alt="Palm Studio Dış Mekan" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Column 5 (Scrolls Up) */}
+        <div className="palm-hero-column-up" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {col5Photos.map((img, idx) => (
+            <div key={`col5-${idx}`} style={{ width: '240px', height: '320px', borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.25)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)', flexShrink: 0 }}>
+              <img src={getMediaUrl(img)} alt="Palm Studio Albüm" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Column 6 (Scrolls Down) */}
+        <div className="palm-hero-column-down" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {col6Photos.map((img, idx) => (
+            <div key={`col6-${idx}`} style={{ width: '240px', height: '320px', borderRadius: '28px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.25)', boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)', flexShrink: 0 }}>
+              <img src={getMediaUrl(img)} alt="Palm Studio Etkinlik" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}
         </div>
