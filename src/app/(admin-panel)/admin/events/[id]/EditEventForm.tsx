@@ -3,10 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Save, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { Save, ArrowLeft, Image as ImageIcon, Trash2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { getDefaultSubjectType } from '@/lib/eventUtils';
 import { getEventLandingUrl, getEventUploadUrl } from '@/lib/urlUtils';
 import { EventType, SubjectType } from '@prisma/client';
+import DeleteEventModal from '../DeleteEventModal';
+import CleanStorageModal from '../../storage/CleanStorageModal';
 
 const EVENT_TYPE_OPTIONS: { value: EventType; label: string }[] = [
   { value: 'WEDDING', label: 'Düğün' },
@@ -59,6 +61,8 @@ interface EditEventFormProps {
     maxPhotoSizeBytes: number;
     maxTotalPhotos: number;
     maxStorageBytes: number;
+    currentPhotoCount: number;
+    currentStorageBytes: number;
   };
 }
 
@@ -67,6 +71,8 @@ export default function EditEventForm({ event }: EditEventFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCleanModalOpen, setIsCleanModalOpen] = useState(false);
 
   // Form State initialized with existing event data
   const [title, setTitle] = useState(event.title);
@@ -612,6 +618,52 @@ export default function EditEventForm({ event }: EditEventFormProps) {
           </div>
         </div>
 
+        {/* Section 5: Tehlikeli Bölge */}
+        <div className="section-card" style={{ border: '1px solid rgba(239, 68, 68, 0.3)', backgroundColor: 'rgba(239, 68, 68, 0.02)' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', color: 'var(--danger, #ef4444)', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(239, 68, 68, 0.2)', paddingBottom: '8px' }}>
+            <AlertTriangle size={18} />
+            <span>Tehlikeli Bölge (Depolama & Silme)</span>
+          </h3>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '0.92rem' }}>Etkinlik Fotoğraflarını & Depolamasını Temizle</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                Etkinliği silmeden sadece bu etkinliğe yüklenmiş fotoğrafları ve ZIP paketlerini diskten siler.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsCleanModalOpen(true)}
+              className="btn btn-secondary"
+              style={{ color: 'var(--warning, #f59e0b)', borderColor: 'var(--warning, #f59e0b)' }}
+            >
+              <RefreshCw size={16} />
+              <span>Depolamayı Temizle</span>
+            </button>
+          </div>
+
+          <hr style={{ margin: '16px 0', borderColor: 'rgba(239, 68, 68, 0.15)' }} />
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--danger, #ef4444)' }}>Etkinliği Kalıcı Olarak Sil</div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                Etkinliği, tüm fotoğraflarını, QR verilerini, oturumlarını ve ilgili tüm kayıtları kalıcı olarak kaldırır.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="btn btn-danger"
+              style={{ backgroundColor: 'var(--danger, #ef4444)', color: '#fff' }}
+            >
+              <Trash2 size={16} />
+              <span>Etkinliği Sil</span>
+            </button>
+          </div>
+        </div>
+
         {/* Submit */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
           <Link href="/admin/events" className="btn btn-secondary">
@@ -624,6 +676,29 @@ export default function EditEventForm({ event }: EditEventFormProps) {
         </div>
 
       </form>
+
+      {/* Modals */}
+      <CleanStorageModal
+        isOpen={isCleanModalOpen}
+        onClose={() => setIsCleanModalOpen(false)}
+        event={{
+          id: event.id,
+          title: event.title,
+          shortCode: event.shortCode,
+          currentPhotoCount: event.currentPhotoCount,
+        }}
+      />
+
+      <DeleteEventModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        event={{
+          id: event.id,
+          title: event.title,
+          shortCode: event.shortCode,
+        }}
+        onSuccess={() => router.push('/admin/events')}
+      />
     </div>
   );
 }

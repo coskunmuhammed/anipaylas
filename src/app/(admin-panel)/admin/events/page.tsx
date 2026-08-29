@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/auth';
 import Link from 'next/link';
 import { Plus, Edit2, ImageIcon, QrCode, Trash2, Calendar } from 'lucide-react';
 import { getEventDisplayName } from '@/lib/eventUtils';
+import EventRowActions from './EventRowActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,29 +127,7 @@ export default async function AdminEventsPage() {
                       </td>
                       <td style={{ fontSize: '0.85rem' }}>{storageMB} MB</td>
                       <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                          <Link 
-                            href={`/admin/events/${event.id}`} 
-                            className="btn btn-secondary btn-sm"
-                            title="Etkinliği Düzenle"
-                          >
-                            <Edit2 size={14} />
-                          </Link>
-                          <Link 
-                            href={`/admin/photos?eventId=${event.id}`} 
-                            className="btn btn-secondary btn-sm"
-                            title="Fotoğrafları Yönet"
-                          >
-                            <ImageIcon size={14} />
-                          </Link>
-                          <Link 
-                            href={`/admin/qr?eventId=${event.id}`} 
-                            className="btn btn-secondary btn-sm"
-                            title="QR Kod Üret"
-                          >
-                            <QrCode size={14} />
-                          </Link>
-                        </div>
+                          <EventRowActions event={{ id: event.id, title: event.title, shortCode: event.shortCode }} />
                       </td>
                     </tr>
                   );

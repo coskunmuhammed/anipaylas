@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import CleanupButton from './CleanupButton';
+import StorageRowActions from './StorageRowActions';
 import { getEventDisplayName } from '@/lib/eventUtils';
 import { Database, AlertTriangle, Trash2, FolderArchive, Server } from 'lucide-react';
 
@@ -112,6 +113,7 @@ export default async function AdminStoragePage() {
                   <th>Kullanım</th>
                   <th>Limit / Kota</th>
                   <th>Doluluk Oranı</th>
+                  <th style={{ textAlign: 'right' }}>İşlemler</th>
                 </tr>
               </thead>
               <tbody>
@@ -143,6 +145,16 @@ export default async function AdminStoragePage() {
                             }} 
                           />
                         </div>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <StorageRowActions
+                          event={{
+                            id: event.id,
+                            title: event.title,
+                            shortCode: event.shortCode,
+                            currentPhotoCount: event.currentPhotoCount,
+                          }}
+                        />
                       </td>
                     </tr>
                   );
