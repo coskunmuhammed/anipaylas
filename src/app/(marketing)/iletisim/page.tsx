@@ -87,7 +87,6 @@ export default function ContactPage() {
 
           {/* Direct Action Card */}
           <div className="palm-card" style={{ backgroundColor: 'var(--palm-deep-brown)', color: '#ffffff', border: '1px solid var(--palm-border)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '40px' }}>
-            <Sparkles size={36} style={{ color: 'var(--palm-gold)', marginBottom: '20px' }} />
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 700, color: '#ffffff', marginBottom: '16px' }}>
               En Hızlı İletişim Yolu
             </h2>

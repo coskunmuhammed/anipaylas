@@ -225,7 +225,6 @@ export default async function ServiceDetailPage({ params }: ServiceDetailProps) 
           {/* Sidebar CTA Card */}
           <div>
             <div style={{ position: 'sticky', top: '100px', backgroundColor: 'var(--palm-deep-brown)', color: '#ffffff', padding: '36px', borderRadius: '24px', border: '1px solid rgba(201, 170, 103, 0.3)', boxShadow: '0 20px 40px rgba(0,0,0,0.6)' }}>
-              <Sparkles size={32} style={{ color: 'var(--palm-gold)', marginBottom: '16px' }} />
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, marginBottom: '12px', color: '#ffffff' }}>
                 Teklif ve Tarih Bilgisi Alın
               </h3>
