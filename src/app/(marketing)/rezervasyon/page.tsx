@@ -242,17 +242,18 @@ export default function RezervasyonPage() {
             style={{
               backgroundColor: 'var(--palm-surface)',
               border: '1px solid var(--palm-gold)',
-              borderRadius: '24px',
+              borderRadius: '32px',
               padding: '60px 40px',
               textAlign: 'center',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+              background: 'linear-gradient(160deg, #1d1713 0%, #120e0b 100%)',
             }}
           >
-            <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: 'rgba(201, 170, 103, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', color: 'var(--palm-gold)' }}>
-              <CheckCircle size={36} />
+            <div style={{ width: '76px', height: '76px', borderRadius: '50%', background: 'linear-gradient(135deg, rgba(201, 170, 103, 0.25) 0%, rgba(201, 170, 103, 0.05) 100%)', border: '1px solid rgba(201, 170, 103, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', color: 'var(--palm-gold)' }}>
+              <CheckCircle size={40} />
             </div>
 
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', color: '#ffffff', marginBottom: '14px' }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', color: '#ffffff', marginBottom: '14px', fontWeight: 700 }}>
               Rezervasyon Talebiniz Başarıyla Alındı!
             </h2>
 
@@ -270,8 +271,8 @@ export default function RezervasyonPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '14px 28px',
-                  borderRadius: '12px',
+                  padding: '16px 32px',
+                  borderRadius: '16px',
                   fontWeight: 700,
                   fontSize: '0.95rem',
                   textDecoration: 'none',
@@ -288,8 +289,8 @@ export default function RezervasyonPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '14px 28px',
-                  borderRadius: '12px',
+                  padding: '16px 32px',
+                  borderRadius: '16px',
                   fontWeight: 600,
                   fontSize: '0.95rem',
                   textDecoration: 'none',
@@ -303,26 +304,47 @@ export default function RezervasyonPage() {
           <form
             onSubmit={handleSubmit}
             style={{
-              backgroundColor: 'var(--palm-surface)',
-              border: '1px solid rgba(201, 170, 103, 0.25)',
-              borderRadius: '24px',
-              padding: '44px 36px',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
+              background: 'linear-gradient(160deg, #1d1713 0%, #120e0b 100%)',
+              border: '1px solid rgba(201, 170, 103, 0.35)',
+              borderRadius: '32px',
+              padding: '52px 42px',
+              boxShadow: '0 30px 80px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '32px',
+              gap: '36px',
+              backdropFilter: 'blur(16px)',
             }}
           >
             {/* Step 1: Select Service (Multi-Select) */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
-                  1. İSTEDİĞİNİZ ÇEKİM / HİZMET TÜRÜNÜ SEÇİN
-                </label>
-                <span style={{ fontSize: '0.75rem', color: 'var(--palm-muted)' }}>(Birden fazla seçebilirsiniz)</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f0dfa8 0%, #c9aa67 60%, #9e7f41 100%)',
+                    color: '#0d0b09',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    boxShadow: '0 4px 15px rgba(201, 170, 103, 0.4)',
+                    flexShrink: 0
+                  }}>
+                    1
+                  </div>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.08em', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
+                    İstediğiniz Çekim / Hizmet Türünü Seçin
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--palm-gold-light)', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>
+                  (Birden fazla seçebilirsiniz)
+                </span>
               </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                 {SERVICES.map((srv) => {
                   const isSelected = selectedServices.includes(srv);
                   return (
@@ -332,21 +354,24 @@ export default function RezervasyonPage() {
                       onClick={() => handleServiceToggle(srv)}
                       style={{
                         fontFamily: 'var(--font-sans)',
-                        padding: '10px 18px',
-                        borderRadius: '30px',
-                        fontSize: '0.88rem',
+                        padding: '12px 22px',
+                        borderRadius: '20px',
+                        fontSize: '0.9rem',
                         fontWeight: isSelected ? 700 : 500,
-                        backgroundColor: isSelected ? 'var(--palm-gold)' : '#1c1611',
-                        color: isSelected ? '#0d0b09' : 'var(--palm-muted)',
-                        border: isSelected ? '1px solid var(--palm-gold)' : '1px solid rgba(255, 255, 255, 0.12)',
+                        background: isSelected 
+                          ? 'linear-gradient(135deg, #f0dfa8 0%, #c9aa67 60%, #9e7f41 100%)' 
+                          : 'rgba(255, 255, 255, 0.04)',
+                        color: isSelected ? '#0d0b09' : 'rgba(255, 255, 255, 0.85)',
+                        border: isSelected ? '1px solid #f0dfa8' : '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: isSelected ? '0 6px 20px rgba(201, 170, 103, 0.35)' : 'none',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
                       }}
                     >
-                      {isSelected && <Check size={14} />}
+                      {isSelected ? <Check size={16} style={{ strokeWidth: 3 }} /> : <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.3)' }} />}
                       <span>{srv}</span>
                     </button>
                   );
@@ -356,14 +381,34 @@ export default function RezervasyonPage() {
 
             {/* Step 2: Select Concept (Multi-Select) */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
-                  2. TERCİH ETTİĞİNİZ ÇEKİM KONSEPTİ
-                </label>
-                <span style={{ fontSize: '0.75rem', color: 'var(--palm-muted)' }}>(Birden fazla seçebilirsiniz)</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f0dfa8 0%, #c9aa67 60%, #9e7f41 100%)',
+                    color: '#0d0b09',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    boxShadow: '0 4px 15px rgba(201, 170, 103, 0.4)',
+                    flexShrink: 0
+                  }}>
+                    2
+                  </div>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.08em', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
+                    Tercih Ettiğiniz Çekim Konsepti
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.78rem', color: 'var(--palm-gold-light)', fontWeight: 500, fontFamily: 'var(--font-sans)' }}>
+                  (Birden fazla seçebilirsiniz)
+                </span>
               </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                 {CONCEPTS.map((cpt) => {
                   const isSelected = selectedConcepts.includes(cpt);
                   return (
@@ -373,21 +418,24 @@ export default function RezervasyonPage() {
                       onClick={() => handleConceptToggle(cpt)}
                       style={{
                         fontFamily: 'var(--font-sans)',
-                        padding: '10px 18px',
-                        borderRadius: '30px',
-                        fontSize: '0.88rem',
+                        padding: '12px 22px',
+                        borderRadius: '20px',
+                        fontSize: '0.9rem',
                         fontWeight: isSelected ? 700 : 500,
-                        backgroundColor: isSelected ? 'var(--palm-gold)' : '#1c1611',
-                        color: isSelected ? '#0d0b09' : 'var(--palm-muted)',
-                        border: isSelected ? '1px solid var(--palm-gold)' : '1px solid rgba(255, 255, 255, 0.12)',
+                        background: isSelected 
+                          ? 'linear-gradient(135deg, #f0dfa8 0%, #c9aa67 60%, #9e7f41 100%)' 
+                          : 'rgba(255, 255, 255, 0.04)',
+                        color: isSelected ? '#0d0b09' : 'rgba(255, 255, 255, 0.85)',
+                        border: isSelected ? '1px solid #f0dfa8' : '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: isSelected ? '0 6px 20px rgba(201, 170, 103, 0.35)' : 'none',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
                       }}
                     >
-                      {isSelected && <Check size={14} />}
+                      {isSelected ? <Check size={16} style={{ strokeWidth: 3 }} /> : <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.3)' }} />}
                       <span>{cpt}</span>
                     </button>
                   );
@@ -395,63 +443,124 @@ export default function RezervasyonPage() {
               </div>
             </div>
 
-            {/* Step 3: Contact & Couple Information with Automated Turkey Cities Dropdown */}
+            {/* Step 3: Contact & Couple Information */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--palm-gold)', textTransform: 'uppercase', marginBottom: '14px', fontFamily: 'var(--font-sans)' }}>
-                3. ÇİFT & İLETİŞİM BİLGİLERİ
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '22px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #f0dfa8 0%, #c9aa67 60%, #9e7f41 100%)',
+                  color: '#0d0b09',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  boxShadow: '0 4px 15px rgba(201, 170, 103, 0.4)',
+                  flexShrink: 0
+                }}>
+                  3
+                </div>
+                <span style={{ fontSize: '0.95rem', fontWeight: 700, letterSpacing: '0.08em', color: '#ffffff', textTransform: 'uppercase', fontFamily: 'var(--font-sans)' }}>
+                  Çift & İletişim Bilgileri
+                </span>
+              </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Ad Soyad (Gelin & Damat)</label>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                    Ad Soyad (Gelin & Damat)
+                  </label>
                   <input
                     type="text"
                     required
                     placeholder="Örn: Elif & Burak Kaya"
                     value={names}
                     onChange={(e) => setNames(e.target.value)}
-                    style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)' }}
+                    style={{
+                      width: '100%',
+                      padding: '16px 18px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(12, 9, 7, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#ffffff',
+                      fontSize: '0.95rem',
+                      fontFamily: 'var(--font-sans)',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Telefon / WhatsApp Numarası</label>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                    Telefon / WhatsApp Numarası
+                  </label>
                   <input
                     type="tel"
                     required
                     placeholder="05XX XXX XX XX"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)' }}
+                    style={{
+                      width: '100%',
+                      padding: '16px 18px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(12, 9, 7, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#ffffff',
+                      fontSize: '0.95rem',
+                      fontFamily: 'var(--font-sans)',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Tahmini Çekim / Etkinlik Tarihi</label>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                    Tahmini Çekim / Etkinlik Tarihi
+                  </label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)' }}
+                    style={{
+                      width: '100%',
+                      padding: '16px 18px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(12, 9, 7, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#ffffff',
+                      fontSize: '0.95rem',
+                      fontFamily: 'var(--font-sans)',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
+                    }}
                   />
                 </div>
 
                 {/* City Selection Dropdown */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Çekim İli (Şehir Seçin)</label>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                    Çekim İli (Şehir Seçin)
+                  </label>
                   <select
                     value={selectedCityName}
                     onChange={(e) => handleCityChange(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '14px',
-                      borderRadius: '10px',
-                      backgroundColor: '#1c1611',
+                      padding: '16px 18px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(12, 9, 7, 0.75)',
                       border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: '#fff',
+                      color: '#ffffff',
                       fontSize: '0.95rem',
                       fontFamily: 'var(--font-sans)',
                       cursor: 'pointer',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
                     }}
                   >
                     {TURKEY_CITIES.map((c) => (
@@ -464,20 +573,24 @@ export default function RezervasyonPage() {
 
                 {/* District Selection Dropdown */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>İlçe Seçin</label>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                    İlçe Seçin
+                  </label>
                   <select
                     value={selectedDistrictName}
                     onChange={(e) => setSelectedDistrictName(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '14px',
-                      borderRadius: '10px',
-                      backgroundColor: '#1c1611',
+                      padding: '16px 18px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(12, 9, 7, 0.75)',
                       border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: '#fff',
+                      color: '#ffffff',
                       fontSize: '0.95rem',
                       fontFamily: 'var(--font-sans)',
                       cursor: 'pointer',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
                     }}
                   >
                     {currentCityObj.districts.map((dst) => (
@@ -490,13 +603,26 @@ export default function RezervasyonPage() {
 
                 {/* Optional Address / Venue Detail Input */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Özel Mekan / Mahalle (Opsiyonel)</label>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                    Özel Mekan / Mahalle (Opsiyonel)
+                  </label>
                   <input
                     type="text"
                     placeholder="Örn: Altınkum Sahili, Stüdyo, Kır Bahçesi..."
                     value={addressDetails}
                     onChange={(e) => setAddressDetails(e.target.value)}
-                    style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)' }}
+                    style={{
+                      width: '100%',
+                      padding: '16px 18px',
+                      borderRadius: '16px',
+                      backgroundColor: 'rgba(12, 9, 7, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: '#ffffff',
+                      fontSize: '0.95rem',
+                      fontFamily: 'var(--font-sans)',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
+                    }}
                   />
                 </div>
               </div>
@@ -504,26 +630,40 @@ export default function RezervasyonPage() {
 
             {/* Step 4: Notes */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--palm-muted)', marginBottom: '6px', fontFamily: 'var(--font-sans)' }}>Eklemek İstediğiniz Notlar & Özel İstekler</label>
+              <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', marginBottom: '8px', fontFamily: 'var(--font-sans)' }}>
+                Eklemek İstediğiniz Notlar & Özel İstekler
+              </label>
               <textarea
                 rows={3}
                 placeholder="Özel lokasyon istekleriniz, çekim detayları veya sormak istediğiniz sorular..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', backgroundColor: '#1c1611', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-sans)', resize: 'vertical' }}
+                style={{
+                  width: '100%',
+                  padding: '16px 18px',
+                  borderRadius: '16px',
+                  backgroundColor: 'rgba(12, 9, 7, 0.75)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontFamily: 'var(--font-sans)',
+                  resize: 'vertical',
+                  outline: 'none',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.4)',
+                }}
               />
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', paddingTop: '10px' }}>
+            <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', paddingTop: '10px' }}>
               <button
                 type="submit"
                 disabled={submitting}
                 className="palm-btn-gold"
                 style={{
-                  flex: '1 1 240px',
-                  padding: '16px 28px',
-                  borderRadius: '12px',
+                  flex: '1 1 260px',
+                  padding: '18px 32px',
+                  borderRadius: '16px',
                   fontWeight: 700,
                   fontSize: '1rem',
                   display: 'inline-flex',
@@ -532,6 +672,7 @@ export default function RezervasyonPage() {
                   gap: '10px',
                   border: 'none',
                   cursor: 'pointer',
+                  boxShadow: '0 8px 25px rgba(201, 170, 103, 0.3)',
                 }}
               >
                 <Send size={18} />
@@ -544,9 +685,9 @@ export default function RezervasyonPage() {
                 rel="noopener noreferrer"
                 className="palm-btn-secondary"
                 style={{
-                  flex: '1 1 240px',
-                  padding: '16px 28px',
-                  borderRadius: '12px',
+                  flex: '1 1 260px',
+                  padding: '18px 32px',
+                  borderRadius: '16px',
                   fontWeight: 700,
                   fontSize: '1rem',
                   display: 'inline-flex',
