@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getEventLandingUrl } from '@/lib/urlUtils';
 import crypto from 'crypto';
 
 interface RouteProps {
@@ -22,9 +23,9 @@ export async function GET(req: NextRequest, { params }: RouteProps) {
     // 2. Track visitor hash cookie
     let visitorHash = req.cookies.get('visitor_hash')?.value;
     
-    // Target Palm Stüdyo event landing page
-    const redirectUrl = new URL(`/etkinlik/${shortCode}`, req.url);
-    const response = NextResponse.redirect(redirectUrl);
+    // Target Palm Stüdyo event landing page (canonical public domain URL)
+    const redirectUrl = getEventLandingUrl(shortCode);
+    const response = NextResponse.redirect(redirectUrl, { status: 307 });
 
     if (!visitorHash) {
       visitorHash = crypto.randomUUID();

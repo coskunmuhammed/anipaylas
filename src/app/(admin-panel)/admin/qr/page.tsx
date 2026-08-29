@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
 import { getEventDisplayName } from '@/lib/eventUtils';
+import { getPublicAppUrl } from '@/lib/urlUtils';
 import QrGenerator from './QrGenerator';
 
 export const dynamic = 'force-dynamic';
@@ -85,7 +86,7 @@ export default async function AdminQrPage({ searchParams }: PageProps) {
     }
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = getPublicAppUrl();
 
   return (
     <QrGenerator 

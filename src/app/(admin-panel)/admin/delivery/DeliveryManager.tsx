@@ -123,7 +123,10 @@ export default function DeliveryManager({ events, selectedEvent, packages, stats
       if (!res.ok) {
         setError(data.error || 'İndirme bağlantısı oluşturulamadı.');
       } else {
-        const fullLink = `${window.location.origin}/download/${data.token}`;
+        const baseOrigin = (typeof window !== 'undefined' && !window.location.origin.includes('localhost'))
+          ? window.location.origin
+          : (process.env.NEXT_PUBLIC_APP_URL || 'https://palmstudio.com.tr');
+        const fullLink = `${baseOrigin}/download/${data.token}`;
         setGeneratedLink(fullLink);
       }
     } catch (err) {

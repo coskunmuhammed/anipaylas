@@ -78,7 +78,9 @@ export default function DownloadsList({ links }: DownloadsListProps) {
       return;
     }
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = (typeof window !== 'undefined' && !window.location.origin.includes('localhost'))
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_APP_URL || 'https://palmstudio.com.tr');
     const fullUrl = `${origin}/download/${link.rawToken}`;
     navigator.clipboard.writeText(fullUrl);
     showToast('Bağlantı panoya kopyalandı.');
@@ -90,7 +92,9 @@ export default function DownloadsList({ links }: DownloadsListProps) {
       return;
     }
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = (typeof window !== 'undefined' && !window.location.origin.includes('localhost'))
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_APP_URL || 'https://palmstudio.com.tr');
     const fullUrl = `${origin}/download/${link.rawToken}`;
     window.open(fullUrl, '_blank', 'noopener,noreferrer');
   };

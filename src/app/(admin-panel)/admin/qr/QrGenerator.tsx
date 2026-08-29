@@ -61,11 +61,16 @@ export default function QrGenerator({ events, selectedEvent, stats, appUrl }: Qr
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.origin) {
-      setOrigin(window.location.origin);
+      const locOrigin = window.location.origin;
+      if ((locOrigin.includes('localhost') || locOrigin.includes('127.0.0.1') || locOrigin.includes('172.')) && appUrl && !appUrl.includes('localhost')) {
+        setOrigin(appUrl);
+        return;
+      }
+      setOrigin(locOrigin);
     }
   }, [appUrl]);
 
-  const redirectUrl = selectedEvent ? `${origin}/q/${selectedEvent.shortCode}` : '';
+  const redirectUrl = selectedEvent ? `${origin || appUrl}/q/${selectedEvent.shortCode}` : '';
 
   const handleEventChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     router.push(`/admin/qr?eventId=${e.target.value}`);
