@@ -2,7 +2,6 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
-import { siteConfig } from '@/config/site';
 import { getEventDisplayName } from '@/lib/eventUtils';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import { 
@@ -17,7 +16,8 @@ import {
   ArrowLeft,
   MapPin,
   Navigation,
-  ShieldCheck
+  ShieldCheck,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface EventData {
@@ -60,6 +60,43 @@ interface UploadFileItem {
   xhr?: XMLHttpRequest;
 }
 
+function getTurkishEventTypeLabel(type?: string): string {
+  switch (type?.toUpperCase()) {
+    case 'WEDDING': return 'Düğün Albümü';
+    case 'ENGAGEMENT': return 'Nişan Albümü';
+    case 'HENNA': return 'Kına Gecesi Albümü';
+    case 'BIRTHDAY': return 'Doğum Günü Albümü';
+    case 'GRADUATION': return 'Mezuniyet Albümü';
+    case 'BABY_SHOWER': return 'Baby Shower Albümü';
+    case 'PROMISE': return 'Söz Albümü';
+    case 'CORPORATE': return 'Kurumsal Etkinlik Albümü';
+    case 'PARTY': return 'Parti Albümü';
+    default: return 'Dijital Anı Albümü';
+  }
+}
+
+function getFriendlyLocationErrorMessage(
+  errorType: 'outside' | 'denied' | 'poor_accuracy' | null, 
+  rawError: string | null,
+  distanceKm: string | null
+): string {
+  if (errorType === 'outside') {
+    return distanceKm 
+      ? `Etkinlik alanının dışındasınız (Yaklaşık mesafe: ${distanceKm} km). Fotoğraf yüklemek için lütfen etkinlik alanına yaklaşın.`
+      : 'Etkinlik alanının dışındasınız. Fotoğraf yüklemek için lütfen etkinlik alanına yaklaşın.';
+  }
+  if (errorType === 'denied') {
+    return 'Konum izni reddedildi. Fotoğraf paylaşmak için telefonunuzun tarayıcı ayarlarından konum erişimine izin verip tekrar deneyin.';
+  }
+  if (errorType === 'poor_accuracy') {
+    return 'Konumunuz yeterince hassas belirlenemedi. Lütfen GPS / konum servislerinizi açıp açık bir alanda tekrar deneyin.';
+  }
+  if (rawError?.includes('LOCATION_NOT_VERIFIED')) {
+    return 'Fotoğraf paylaşmadan önce konumunuzu doğrulamanız gerekiyor.';
+  }
+  return rawError || 'Konum doğrulanamadı. Lütfen tekrar deneyin.';
+}
+
 export default function GuestUploadPortal({ event, isBlocked, statusMessage }: GuestUploadPortalProps) {
   const [stage, setStage] = useState<'consent' | 'select' | 'upload' | 'complete'>('consent');
   
@@ -82,6 +119,7 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
 
   const displayName = getEventDisplayName(event);
   const landingUrl = `/etkinlik/${event.shortCode}`;
+  const eventTypeLabel = getTurkishEventTypeLabel(event.eventType);
 
   // Geofence browser location request handler
   const handleVerifyLocation = () => {
@@ -98,47 +136,47 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          const { latitude, longitude, accuracy } = position.coords;
-
           const res = await fetch(`/api/event/${event.shortCode}/verify-location`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ latitude, longitude, accuracy }),
+            body: JSON.stringify({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+            }),
           });
 
           const data = await res.json();
+          setVerifyingLocation(false);
 
           if (res.ok && data.success) {
             setLocationVerified(true);
             if (data.locationToken) {
               setLocationToken(data.locationToken);
             }
-          } else if (data.code === 'POOR_GPS_ACCURACY') {
-            setLocationErrorType('poor_accuracy');
-            setLocationError('Konumunuz yeterli hassasiyetle belirlenemedi. Lütfen GPS/konum servislerinizi açıp tekrar deneyin.');
-          } else if (data.code === 'OUTSIDE_EVENT_AREA') {
-            setLocationErrorType('outside');
-            const km = (data.distanceMeters / 1000).toFixed(1);
-            setApproximateDistanceKm(km);
-            setLocationError(`Etkinlik alanının dışındasınız. Fotoğraf paylaşımı yalnızca etkinlik alanı içerisinden yapılabilir. (Etkinlik alanına yaklaşık ${km} km uzaktasınız)`);
           } else {
-            setLocationError(data.error || 'Konum doğrulaması başarısız oldu.');
+            setLocationError(data.error || 'Konum doğrulanamadı.');
+            if (data.code === 'OUTSIDE_EVENT_AREA') {
+              setLocationErrorType('outside');
+              setApproximateDistanceKm(data.distanceKm || null);
+            } else if (data.code === 'POOR_GPS_ACCURACY') {
+              setLocationErrorType('poor_accuracy');
+            }
           }
-        } catch (err) {
-          setLocationError('Sunucu ile bağlantı kurulamadı.');
-        } finally {
+        } catch (err: any) {
           setVerifyingLocation(false);
+          setLocationError('Sunucu bağlantı hatası oluştu.');
         }
       },
-      (geoErr) => {
+      (err) => {
         setVerifyingLocation(false);
-        if (geoErr.code === geoErr.PERMISSION_DENIED) {
+        if (err.code === err.PERMISSION_DENIED) {
           setLocationErrorType('denied');
-          setLocationError('Fotoğraf paylaşımı için konum izni gereklidir. Lütfen cihaz/tarayıcı ayarlarınızdan konum erişimine izin verin.');
-        } else if (geoErr.code === geoErr.TIMEOUT) {
-          setLocationError('Konum alma isteği zaman aşımına uğradı. Lütfen tekrar deneyin.');
+          setLocationError('Konum erişim izni verilmedi. Lütfen konum izinlerini açıp tekrar deneyin.');
+        } else if (err.code === err.TIMEOUT) {
+          setLocationError('Konum alma zaman aşımına uğradı. Lütfen tekrar deneyin.');
         } else {
-          setLocationError('Konum bilginiz alınamadı. Lütfen GPS ve konum servislerinizin açık olduğundan emin olun.');
+          setLocationError('Konum bilgisi alınamadı.');
         }
       },
       {
@@ -149,103 +187,101 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     );
   };
 
-  // Step 1: Submit Consent & Create Session
+  // Step 1: Consent Form Submission
   const handleProceedToUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     setConsentError(null);
 
     if (event.guestNameRequired && !guestName.trim()) {
-      setConsentError('Lütfen adınızı girin.');
+      setConsentError('Lütfen adınızı soyadınızı giriniz.');
       return;
     }
 
     if (!consentAccepted) {
-      setConsentError('Devam etmek için KVKK ve veri kullanım şartlarını onaylamalısınız.');
+      setConsentError('Lütfen KVKK şartlarını kabul ediniz.');
       return;
     }
 
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (locationToken) {
+        headers['x-location-token'] = locationToken;
+      }
+
       const res = await fetch('/api/event/consent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           eventId: event.id,
-          guestName: guestName.trim() || 'Anonim Misafir',
-          guestMessage: guestMessage.trim(),
-          consentTextVersion: 'v1.0',
+          guestName: guestName.trim() || undefined,
+          guestMessage: guestMessage.trim() || undefined,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        setConsentError(data.error || 'Oturum oluşturulamadı.');
-      } else {
+      if (res.ok && data.sessionToken) {
         setSessionToken(data.sessionToken);
         setStage('select');
+      } else {
+        setConsentError(data.error || 'Oturum başlatılamadı.');
       }
     } catch (err) {
-      setConsentError('Bağlantı hatası oluştu.');
+      setConsentError('Bir ağ hatası oluştu, lütfen tekrar deneyin.');
     }
   };
 
-  // Step 2: Handle File Selection
+  // Step 2: File Select Handler
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
 
-    const selectedFiles = Array.from(e.target.files);
-    const newItems: UploadFileItem[] = [];
+    const remainingSlots = event.maxPhotosPerGuest - filesQueue.length;
+    if (remainingSlots <= 0) {
+      alert(`En fazla ${event.maxPhotosPerGuest} fotoğraf yükleyebilirsiniz.`);
+      return;
+    }
 
-    for (const file of selectedFiles) {
-      // Validate video rejection
-      const fileExt = file.name.split('.').pop()?.toLowerCase();
-      const isHeic = fileExt === 'heic' || fileExt === 'heif';
-      if (!file.type.startsWith('image/') && !isHeic) {
-        alert(`"${file.name}" bir fotoğraf dosyası değil. Videolar yüklenemez.`);
-        continue;
-      }
-
-      if (file.size > event.maxPhotoSizeBytes) {
-        alert(`"${file.name}" boyutu sınırı (${Math.round(event.maxPhotoSizeBytes / 1024 / 1024)}MB) aşıyor.`);
-        continue;
-      }
-
-      const itemId = Math.random().toString(36).substring(2, 9);
-      newItems.push({
-        id: itemId,
-        clientUploadId: `guest-${itemId}-${Date.now()}`,
+    const filesToAdd = selectedFiles.slice(0, remainingSlots);
+    const newItems: UploadFileItem[] = filesToAdd.map((file) => {
+      const clientUploadId = `c_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      return {
+        id: clientUploadId,
+        clientUploadId,
         file,
         previewUrl: URL.createObjectURL(file),
         progress: 0,
         status: 'pending',
-      });
-    }
-
-    if (filesQueue.length + newItems.length > event.maxPhotosPerGuest) {
-      alert(`Maksimum ${event.maxPhotosPerGuest} fotoğraf yükleyebilirsiniz.`);
-      return;
-    }
+      };
+    });
 
     setFilesQueue((prev) => [...prev, ...newItems]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // Remove file from queue
   const removeFile = (id: string) => {
-    setFilesQueue((prev) => prev.filter((item) => item.id !== id));
+    setFilesQueue((prev) => {
+      const target = prev.find((f) => f.id === id);
+      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((f) => f.id !== id);
+    });
   };
 
-  const uploadSingleFile = async (item: UploadFileItem) => {
+  // Upload single file routine
+  const uploadSingleFile = async (item: UploadFileItem): Promise<boolean> => {
     if (!sessionToken) return false;
 
     setFilesQueue((prev) =>
-      prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading', progress: 10, errorMsg: undefined } : f))
+      prev.map((f) => (f.id === item.id ? { ...f, status: 'uploading', progress: 5 } : f))
     );
 
     const formData = new FormData();
-    formData.append('photo', item.file);
+    formData.append('file', item.file);
     formData.append('sessionToken', sessionToken);
     formData.append('clientUploadId', item.clientUploadId);
-    if (guestMessage) formData.append('guestMessage', guestMessage);
-    if (locationToken) formData.append('locationToken', locationToken);
+    if (locationToken) {
+      formData.append('locationToken', locationToken);
+    }
 
     try {
       const uploadRes = await new Promise<{ success: boolean; error?: string }>((resolve) => {
@@ -325,67 +361,109 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8F6F1', color: '#1E2522', display: 'flex', flexDirection: 'column' }}>
+    <div className="guest-wrapper">
       
-      {/* Top Header */}
-      <header style={{ padding: '16px 24px', backgroundColor: '#183D35', color: '#F8F6F1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link href={landingUrl} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#F8F6F1', fontSize: '0.9rem', fontWeight: 600 }}>
-          <ArrowLeft size={18} />
-          <span>Etkinlik Sayfasına Dön</span>
+      {/* Sticky Branded Palm Header */}
+      <header className="palm-guest-header">
+        <Link 
+          href={landingUrl} 
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#F8F6F1', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}
+        >
+          <ArrowLeft size={16} style={{ color: '#B59A63' }} />
+          <span>Etkinlik Sayfası</span>
         </Link>
-        <div style={{ fontSize: '0.8rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#B59A63', fontWeight: 700 }}>
-          PALM STÜDYO DİJİTAL ANI ALBÜMÜ
+
+        {/* Official Palm Studio Wordmark Logo */}
+        <div className="palm-brand-logo">
+          <div className="palm-brand-title">
+            PALM <span>STUDIO<sup>®</sup></span>
+          </div>
+          <div className="palm-brand-subtitle">
+            DİJİTAL ANI ALBÜMÜ
+          </div>
         </div>
+
+        <div style={{ width: '80px' }} /> {/* Spacer for symmetry */}
       </header>
 
-      {/* Main Form Container */}
-      <main style={{ flex: 1, maxWidth: '640px', width: '100%', margin: '40px auto', padding: '0 20px' }}>
+      {/* Main Container */}
+      <main className="guest-container" style={{ marginTop: '24px' }}>
         
-        {/* Event Header Banner */}
-        <div className="palm-card" style={{ marginBottom: '24px', textAlign: 'center', backgroundColor: '#ffffff' }}>
-          <div style={{ fontSize: '0.8rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#557A67', fontWeight: 700, marginBottom: '6px' }}>
-            {event.eventType || 'ETKİNLİK'}
+        {/* Event Identity Hero Card */}
+        <div className="palm-editorial-card" style={{ textAlign: 'center' }}>
+          <div className="event-identity-badge">
+            {eventTypeLabel}
           </div>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '2.2rem', fontWeight: 700, color: '#183D35', marginBottom: '8px' }}>
+          <h1 className="event-identity-title">
             {displayName}
           </h1>
-          <p style={{ fontSize: '0.9rem', color: '#4a5568' }}>{event.eventDate}</p>
+          <div className="event-identity-meta">
+            <span>📅 {event.eventDate}</span>
+            <span>•</span>
+            <span>Didim, Aydın</span>
+          </div>
         </div>
 
         {/* Blocked Event Message */}
         {isBlocked ? (
-          <div className="palm-card" style={{ textAlign: 'center', backgroundColor: '#ffffff' }}>
-            <AlertCircle size={48} style={{ color: '#b91c1c', margin: '0 auto 16px auto' }} />
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', color: '#183D35', marginBottom: '12px' }}>
-              Yükleme Kapalı
+          <div className="palm-editorial-card" style={{ textAlign: 'center', padding: '36px 24px' }}>
+            <AlertCircle size={48} style={{ color: '#ef4444', margin: '0 auto 16px auto' }} />
+            <h2 className="editorial-heading">
+              Fotoğraf Yüklemesi Kapalı
             </h2>
-            <p style={{ color: '#4a5568', fontSize: '1rem', lineHeight: '1.6', marginBottom: '24px' }}>
+            <p className="editorial-desc" style={{ marginBottom: '24px' }}>
               {statusMessage}
             </p>
-            <Link href={landingUrl} className="palm-btn-primary">
-              Etkinlik Sayfasına Dön
+            <Link href={landingUrl} className="palm-btn-primary" style={{ textDecoration: 'none' }}>
+              <span>Etkinlik Sayfasına Dön</span>
             </Link>
           </div>
         ) : !locationVerified ? (
-          <div className="palm-card" style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '36px 28px' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(24, 61, 53, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto', color: '#183D35' }}>
-              <MapPin size={32} />
+          /* Location Verification Experience */
+          <div className="palm-editorial-card" style={{ textAlign: 'center', padding: '32px 24px' }}>
+            <div 
+              style={{ 
+                width: '60px', 
+                height: '60px', 
+                borderRadius: '50%', 
+                backgroundColor: 'rgba(181, 154, 99, 0.14)', 
+                color: '#183D35', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                margin: '0 auto 20px auto',
+                border: '1px solid rgba(181, 154, 99, 0.3)'
+              }}
+            >
+              <MapPin size={30} style={{ color: '#B59A63' }} />
             </div>
 
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.7rem', fontWeight: 700, color: '#183D35', marginBottom: '12px' }}>
-              Etkinlik Konum Doğrulaması
+            <h2 className="editorial-heading">
+              Etkinlik alanında<br />olduğunuzu doğrulayalım.
             </h2>
 
-            <p style={{ color: '#4a5568', fontSize: '0.98rem', lineHeight: '1.6', maxWidth: '480px', margin: '0 auto 24px auto' }}>
-              Etkinlik alanını doğrulamak için konumunuza erişmemiz gerekiyor. Konum bilginiz yalnızca etkinlik alanında olup olmadığınızı kontrol etmek için kullanılır.
+            <p className="editorial-desc">
+              Fotoğraf paylaşımını yalnızca etkinlikte bulunan misafirlerimiz kullanabilir. Devam etmek için konumunuzu bir kez doğrulayın.
             </p>
 
             {locationError && (
-              <div style={{ padding: '14px 18px', backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid #fca5a5', borderRadius: '12px', color: '#991b1b', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '24px', textAlign: 'left' }}>
+              <div 
+                style={{ 
+                  padding: '14px 16px', 
+                  backgroundColor: 'rgba(239, 68, 68, 0.06)', 
+                  border: '1px solid rgba(239, 68, 68, 0.25)', 
+                  borderRadius: '14px', 
+                  color: '#991b1b', 
+                  fontSize: '0.88rem', 
+                  lineHeight: '1.5', 
+                  marginBottom: '24px', 
+                  textAlign: 'left' 
+                }}
+              >
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                  <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px', color: '#ef4444' }} />
                   <div>
-                    {locationError}
+                    {getFriendlyLocationErrorMessage(locationErrorType, locationError, approximateDistanceKm)}
                   </div>
                 </div>
               </div>
@@ -395,7 +473,6 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
               onClick={handleVerifyLocation}
               disabled={verifyingLocation}
               className="palm-btn-primary"
-              style={{ width: '100%', padding: '16px', fontSize: '1.05rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
               {verifyingLocation ? (
                 <>
@@ -404,41 +481,49 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
                 </>
               ) : (
                 <>
-                  <Navigation size={20} />
+                  <Navigation size={20} style={{ color: '#B59A63' }} />
                   <span>{locationError ? 'Konumumu Tekrar Kontrol Et' : 'Konumumu Doğrula'}</span>
                 </>
               )}
             </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.76rem', color: '#557A67', marginTop: '16px' }}>
+              <ShieldCheck size={15} style={{ color: '#B59A63' }} />
+              <span>Konumunuz kaydedilmez; yalnızca alan doğrulaması için kullanılır.</span>
+            </div>
           </div>
         ) : (
           <>
-            {/* STAGE 1: CONSENT FORM */}
+            {/* STAGE 1: CONSENT & DETAILS FORM */}
             {stage === 'consent' && (
-              <div className="palm-card" style={{ backgroundColor: '#ffffff' }}>
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#183D35', marginBottom: '12px', textAlign: 'center' }}>
-                  {event.welcomeTitle || 'Anılarınızı Paylaşın'}
+              <div className="palm-editorial-card">
+                <h2 className="editorial-heading">
+                  {event.welcomeTitle || 'Bu geceden bir anı da siz bırakın.'}
                 </h2>
-                <p style={{ fontSize: '0.95rem', color: '#4a5568', lineHeight: '1.6', marginBottom: '28px', textAlign: 'center' }}>
-                  {event.welcomeMessage || 'Çektiğiniz güzel fotoğrafları yükleyerek düğün albümüne katkıda bulunun.'}
+                <p className="editorial-desc">
+                  {event.welcomeMessage || 'Çektiğiniz fotoğrafları paylaşın, bu özel günün albümüne birlikte hayat verelim.'}
                 </p>
 
-                <form onSubmit={handleProceedToUpload} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <form onSubmit={handleProceedToUpload} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#183D35', marginBottom: '6px' }}>
-                      Adınız Soyadınız {event.guestNameRequired ? '*' : '(Zorunlu Değil)'}
+                      Adınız Soyadınız {event.guestNameRequired ? '*' : '(İsteğe Bağlı)'}
                     </label>
                     <input
                       type="text"
-                      placeholder="Örn: Ayşe & Can Yılmaz"
+                      placeholder="Örn: Selin & Mert Yılmaz"
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '12px 16px',
+                        padding: '14px 16px',
                         borderRadius: '12px',
-                        border: '1px solid var(--palm-border)',
+                        border: '1px solid var(--g-border)',
+                        backgroundColor: '#FFFEFB',
                         fontSize: '0.95rem',
                         fontFamily: 'var(--font-sans)',
+                        color: '#1E2522',
+                        outline: 'none',
                       }}
                     />
                   </div>
@@ -446,62 +531,65 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
                   {event.guestMessageEnabled && (
                     <div>
                       <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#183D35', marginBottom: '6px' }}>
-                        Çiftimize / Etkinlik Sahibine Notunuz
+                        Tebrik / Sevgi Notunuz
                       </label>
                       <textarea
                         rows={3}
-                        placeholder="Birkaç tatlı mesaj bırakın..."
+                        placeholder="Birkaç içten cümle ekleyebilirsiniz..."
                         value={guestMessage}
                         onChange={(e) => setGuestMessage(e.target.value)}
                         style={{
                           width: '100%',
-                          padding: '12px 16px',
+                          padding: '14px 16px',
                           borderRadius: '12px',
-                          border: '1px solid var(--palm-border)',
+                          border: '1px solid var(--g-border)',
+                          backgroundColor: '#FFFEFB',
                           fontSize: '0.95rem',
                           fontFamily: 'var(--font-sans)',
+                          color: '#1E2522',
                           resize: 'none',
+                          outline: 'none',
                         }}
                       />
                     </div>
                   )}
 
                   {/* KVKK Consent Checkbox */}
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px', backgroundColor: 'var(--palm-offwhite)', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px', backgroundColor: 'rgba(248, 246, 241, 0.6)', borderRadius: '12px', border: '1px solid var(--g-border)' }}>
                     <input
                       type="checkbox"
                       id="kvkkConsent"
                       checked={consentAccepted}
                       onChange={(e) => setConsentAccepted(e.target.checked)}
-                      style={{ marginTop: '3px', width: '18px', height: '18px', cursor: 'pointer' }}
+                      style={{ marginTop: '3px', width: '18px', height: '18px', cursor: 'pointer', accentColor: '#183D35' }}
                     />
-                    <label htmlFor="kvkkConsent" style={{ fontSize: '0.82rem', color: '#4a5568', lineHeight: '1.5', cursor: 'pointer' }}>
-                      Yüklediğim fotoğrafların etkinlik sahibi tarafından indirilebileceğini, saklanabileceğini ve KVKK veri şartlarını kabul ediyorum.
+                    <label htmlFor="kvkkConsent" style={{ fontSize: '0.82rem', color: '#557A67', lineHeight: '1.5', cursor: 'pointer' }}>
+                      Yüklediğim fotoğrafların etkinlik sahibi tarafından görüntülenebileceğini ve KVKK gizlilik şartlarını kabul ediyorum.
                     </label>
                   </div>
 
                   {consentError && (
-                    <div style={{ color: '#b91c1c', fontSize: '0.85rem', fontWeight: 600, textAlign: 'center' }}>
+                    <div style={{ color: '#ef4444', fontSize: '0.88rem', fontWeight: 600, textAlign: 'center' }}>
                       {consentError}
                     </div>
                   )}
 
-                  <button type="submit" className="palm-btn-primary" style={{ width: '100%', marginTop: '10px' }}>
+                  <button type="submit" className="palm-btn-primary" style={{ width: '100%', marginTop: '6px' }}>
                     <span>Fotoğraf Seçimine Geç</span>
-                    <ArrowRight size={18} />
+                    <ArrowRight size={18} style={{ color: '#B59A63' }} />
                   </button>
                 </form>
               </div>
             )}
 
-            {/* STAGE 2: FILE SELECTION */}
+            {/* STAGE 2: PHOTO PICKER & SELECTION */}
             {stage === 'select' && (
-              <div className="palm-card" style={{ backgroundColor: '#ffffff' }}>
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', fontWeight: 700, color: '#183D35', marginBottom: '8px', textAlign: 'center' }}>
+              <div className="palm-editorial-card">
+                <h2 className="editorial-heading">
                   Fotoğraflarınızı Seçin
                 </h2>
-                <p style={{ fontSize: '0.85rem', color: '#557A67', textAlign: 'center', marginBottom: '24px' }}>
-                  En fazla {event.maxPhotosPerGuest} fotoğraf yükleyebilirsiniz.
+                <p className="editorial-desc" style={{ marginBottom: '20px' }}>
+                  Galerinizden bir veya birden fazla fotoğraf seçebilirsiniz (En fazla {event.maxPhotosPerGuest} adet).
                 </p>
 
                 <input
@@ -515,53 +603,36 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
 
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    border: '2px dashed #B59A63',
-                    backgroundColor: 'rgba(181, 154, 99, 0.05)',
-                    borderRadius: '16px',
-                    padding: '40px 20px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    marginBottom: '24px',
-                    transition: 'all 0.2s',
-                  }}
+                  className="palm-dropzone"
                 >
-                  <Camera size={44} style={{ color: '#183D35', marginBottom: '12px' }} />
-                  <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#183D35', marginBottom: '4px' }}>
-                    Fotoğraf Seçin veya Dokunun
+                  <div className="palm-dropzone-icon">
+                    <Camera size={26} />
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                    JPEG, PNG, WEBP veya HEIC formatları desteklenir.
+                  <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#183D35', marginBottom: '4px' }}>
+                    + Fotoğraf Seçin
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#557A67' }}>
+                    Galerinizden fotoğrafları işaretleyin
                   </div>
                 </div>
 
-                {/* Queue Preview List */}
+                {/* 3-Column Mobile Thumbnail Grid */}
                 {filesQueue.length > 0 && (
-                  <div style={{ marginBottom: '24px' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#183D35', marginBottom: '12px' }}>
-                      Seçilen Fotoğraflar ({filesQueue.length})
+                  <div style={{ marginTop: '24px' }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#183D35', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>Seçilen Fotoğraflar</span>
+                      <span style={{ color: '#B59A63' }}>{filesQueue.length} / {event.maxPhotosPerGuest}</span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '12px' }}>
+
+                    <div className="palm-thumb-grid">
                       {filesQueue.map((item) => (
-                        <div key={item.id} style={{ position: 'relative', height: '90px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--palm-border)' }}>
-                          <img src={item.previewUrl} alt="Seçim" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div key={item.id} className="palm-thumb-item">
+                          <img src={item.previewUrl} alt="Seçilen fotoğraf" />
                           <button
+                            type="button"
                             onClick={() => removeFile(item.id)}
-                            style={{
-                              position: 'absolute',
-                              top: '4px',
-                              right: '4px',
-                              width: '22px',
-                              height: '22px',
-                              borderRadius: '50%',
-                              backgroundColor: 'rgba(0,0,0,0.6)',
-                              color: '#fff',
-                              border: 'none',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                            }}
+                            className="palm-thumb-remove"
+                            aria-label="Kaldır"
                           >
                             <X size={14} />
                           </button>
@@ -575,32 +646,35 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
                   disabled={filesQueue.length === 0}
                   onClick={startBatchUpload}
                   className="palm-btn-primary"
-                  style={{ width: '100%', opacity: filesQueue.length === 0 ? 0.5 : 1 }}
+                  style={{ width: '100%', marginTop: '24px' }}
                 >
-                  <Upload size={18} />
-                  <span>Fotoğrafları Yükle ({filesQueue.length})</span>
+                  <Upload size={18} style={{ color: '#B59A63' }} />
+                  <span>Fotoğrafları Albüme Ekle ({filesQueue.length})</span>
                 </button>
               </div>
             )}
 
             {/* STAGE 3: UPLOAD PROGRESS */}
             {stage === 'upload' && (
-              <div className="palm-card" style={{ textAlign: 'center', backgroundColor: '#ffffff' }}>
-                <RefreshCw size={40} className="animate-spin" style={{ color: '#183D35', margin: '0 auto 16px auto' }} />
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', color: '#183D35', marginBottom: '8px' }}>
-                  Fotoğraflar Yükleniyor...
+              <div className="palm-editorial-card" style={{ textAlign: 'center' }}>
+                <RefreshCw size={42} className="animate-spin" style={{ color: '#183D35', margin: '0 auto 16px auto' }} />
+                <h2 className="editorial-heading">
+                  Fotoğraflarınız Yüklendi...
                 </h2>
-                <p style={{ fontSize: '0.88rem', color: '#557A67', marginBottom: '20px', fontWeight: 600 }}>
-                  Yüklenen: {filesQueue.filter((f) => f.status === 'success').length} / {filesQueue.length}
+                <p style={{ fontSize: '0.92rem', color: '#557A67', fontWeight: 600, marginBottom: '20px' }}>
+                  İşlenen: {filesQueue.filter((f) => f.status === 'success').length} / {filesQueue.length}
                 </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left', maxHeight: '240px', overflowY: 'auto', padding: '10px', border: '1px solid var(--palm-border)', borderRadius: '12px', marginBottom: '16px' }}>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left', maxHeight: '260px', overflowY: 'auto', padding: '12px', border: '1px solid var(--g-border)', borderRadius: '14px', backgroundColor: 'rgba(248, 246, 241, 0.4)' }}>
                   {filesQueue.map((item) => (
-                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.82rem', padding: '6px', backgroundColor: 'var(--palm-offwhite)', borderRadius: '8px' }}>
-                      <img src={item.previewUrl} alt="yükleme" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '6px' }} />
-                      <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        <div style={{ fontWeight: 600, color: '#183D35' }}>{item.file.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: item.status === 'error' ? '#b91c1c' : item.status === 'success' ? '#15803d' : '#4a5568' }}>
-                          {item.status === 'uploading' ? `Yükleniyor %${item.progress}...` : item.status === 'success' ? 'Tamamlandı ✓' : item.status === 'error' ? item.errorMsg || 'Hata' : 'Sırada'}
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 10px', backgroundColor: '#FFFEFB', borderRadius: '10px', border: '1px solid var(--g-border)' }}>
+                      <img src={item.previewUrl} alt="yükleme" style={{ width: '42px', height: '42px', objectFit: 'cover', borderRadius: '8px' }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#183D35', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.file.name}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: item.status === 'error' ? '#ef4444' : item.status === 'success' ? '#10b981' : '#557A67' }}>
+                          {item.status === 'uploading' ? `Yükleniyor %${item.progress}...` : item.status === 'success' ? 'Tamamlandı ✓' : item.status === 'error' ? item.errorMsg || 'Yüklenemedi' : 'Bekliyor'}
                         </div>
                       </div>
                     </div>
@@ -609,28 +683,45 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
               </div>
             )}
 
-            {/* STAGE 4: COMPLETE SUCCESS */}
+            {/* STAGE 4: SUCCESS CONFIRMATION */}
             {stage === 'complete' && (
-              <div className="palm-card" style={{ textAlign: 'center', backgroundColor: '#ffffff' }}>
-                <CheckCircle size={56} style={{ color: '#15803d', margin: '0 auto 16px auto' }} />
-                <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 700, color: '#183D35', marginBottom: '12px' }}>
-                  🎉 Fotoğraflarınız Yüklendi!
+              <div className="palm-editorial-card" style={{ textAlign: 'center', padding: '36px 24px' }}>
+                <div 
+                  style={{ 
+                    width: '64px', 
+                    height: '64px', 
+                    borderRadius: '50%', 
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)', 
+                    color: '#10b981', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    margin: '0 auto 16px auto',
+                    border: '1px solid rgba(16, 185, 129, 0.3)'
+                  }}
+                >
+                  <CheckCircle size={36} />
+                </div>
+
+                <h2 className="editorial-heading">
+                  Anılarınız albüme eklendi.
                 </h2>
-                <p style={{ fontSize: '0.95rem', color: '#4a5568', lineHeight: '1.6', marginBottom: '32px' }}>
-                  Bu özel günün en güzel anılarını paylaştığınız için teşekkür ederiz. Fotoğraflarınız Palm Stüdyo Dijital Anı Albümü’ne başarıyla eklendi.
+                
+                <p className="editorial-desc" style={{ marginBottom: '28px' }}>
+                  Bu özel güne sizin gözünüzden birkaç kare daha eklendi. Teşekkür ederiz.
                 </p>
 
-                {/* Clear UI separation between Event Owner Instagram vs Palm Studio Instagram */}
+                {/* Event Host Instagram */}
                 {event.instagramUsername && (
-                  <div style={{ padding: '16px', backgroundColor: 'var(--palm-surface-light)', borderRadius: '16px', marginBottom: '24px', textAlign: 'left' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#557A67', textTransform: 'uppercase', marginBottom: '4px' }}>
-                      Etkinlik Sahibi Instagram Hesabı
+                  <div style={{ padding: '16px', backgroundColor: 'rgba(248, 246, 241, 0.8)', borderRadius: '14px', border: '1px solid var(--g-border)', marginBottom: '24px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#557A67', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
+                      Etkinlik Sahibi Instagram
                     </div>
                     <a
                       href={`https://instagram.com/${event.instagramUsername}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#183D35' }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#183D35', textDecoration: 'none' }}
                     >
                       <InstagramIcon size={18} />
                       <span>@{event.instagramUsername}</span>
@@ -645,13 +736,12 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
                       setStage('select');
                     }}
                     className="palm-btn-secondary"
-                    style={{ width: '100%' }}
                   >
-                    Yeni Fotoğraf Yükle
+                    + Başka Fotoğraflar Ekle
                   </button>
 
-                  <Link href={landingUrl} className="palm-btn-primary" style={{ width: '100%' }}>
-                    Etkinlik Sayfasına Dön
+                  <Link href={landingUrl} className="palm-btn-primary" style={{ textDecoration: 'none' }}>
+                    <span>Etkinlik Sayfasına Dön</span>
                   </Link>
 
                   <Link
@@ -664,10 +754,11 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
                       fontSize: '0.85rem',
                       fontWeight: 600,
                       color: '#557A67',
-                      marginTop: '12px',
+                      textDecoration: 'none',
+                      marginTop: '8px',
                     }}
                   >
-                    <Sparkles size={14} />
+                    <Sparkles size={14} style={{ color: '#B59A63' }} />
                     <span>Palm Stüdyo’yu Keşfet &rarr;</span>
                   </Link>
                 </div>
@@ -675,12 +766,19 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
             )}
           </>
         )}
+
       </main>
 
-      {/* Footer Branding */}
-      <footer style={{ padding: '20px', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
-        Bu dijital anı deneyimi Palm Stüdyo tarafından hazırlanmıştır.
+      {/* Branded Footer Signature */}
+      <footer className="palm-guest-footer">
+        <div className="palm-footer-brand">
+          PALM STUDIO<sup>®</sup>
+        </div>
+        <div className="palm-footer-tagline">
+          Anılarınız, birlikte.
+        </div>
       </footer>
+
     </div>
   );
 }
