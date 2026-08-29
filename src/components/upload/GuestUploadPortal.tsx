@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { getEventDisplayName } from '@/lib/eventUtils';
 import InstagramIcon from '@/components/icons/InstagramIcon';
+import AltunMedyaLogo from '@/components/palm/AltunMedyaLogo';
 import { 
   Camera, 
   Upload, 
@@ -774,8 +775,13 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
         <div className="palm-footer-brand">
           PALM STUDIO<sup>®</sup>
         </div>
-        <div className="palm-footer-tagline">
+        <div className="palm-footer-tagline" style={{ marginBottom: '10px' }}>
           Anılarınız, birlikte.
+        </div>
+        <div style={{ fontSize: '0.82rem', color: 'var(--palm-muted-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span>Bu dijital anı deneyimi <strong>Palm Stüdyo</strong> tarafından hazırlanmıştır.</span>
+          <span>·</span>
+          <AltunMedyaLogo color="var(--palm-deep-green)" size={15} />
         </div>
       </footer>
 

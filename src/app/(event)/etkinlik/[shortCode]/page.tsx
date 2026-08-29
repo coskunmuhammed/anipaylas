@@ -6,6 +6,7 @@ import { getSignedDownloadUrl } from '@/lib/storage';
 import Link from 'next/link';
 import InstagramIcon from '@/components/icons/InstagramIcon';
 import GoldButton from '@/components/palm/GoldButton';
+import AltunMedyaLogo from '@/components/palm/AltunMedyaLogo';
 import { 
   Camera, 
   Sparkles, 
@@ -195,8 +196,10 @@ export default async function EventLandingPage({ params }: PageProps) {
       </main>
 
       {/* Brand Footer */}
-      <footer style={{ padding: '24px', textAlign: 'center', fontSize: '0.82rem', color: 'var(--palm-muted)', backgroundColor: 'var(--palm-deep-brown)', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-        Bu dijital anı deneyimi <Link href="/" style={{ color: 'var(--palm-gold-light)', fontWeight: 700 }}>Palm Stüdyo</Link> tarafından hazırlanmıştır.
+      <footer style={{ padding: '24px 20px', textAlign: 'center', fontSize: '0.82rem', color: 'var(--palm-muted)', backgroundColor: 'var(--palm-deep-brown)', borderTop: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <span>Bu dijital anı deneyimi <Link href="/" style={{ color: 'var(--palm-gold-light)', fontWeight: 700 }}>Palm Stüdyo</Link> tarafından hazırlanmıştır.</span>
+        <span>·</span>
+        <AltunMedyaLogo color="var(--palm-gold-light)" size={15} />
       </footer>
     </div>
   );

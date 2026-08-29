@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { siteConfig } from '@/config/site';
 import { Lock } from 'lucide-react';
+import AltunMedyaLogo from './AltunMedyaLogo';
 
 export default function PalmFooter() {
   const currentYear = new Date().getFullYear();
@@ -122,27 +123,7 @@ export default function PalmFooter() {
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
           <span>Didim Düğün Fotoğrafçılığı & Çekim Hizmetleri</span>
           <span>·</span>
-          <a
-            href="https://altunmedya.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              color: '#ffffff',
-              fontSize: '0.95rem',
-              letterSpacing: '-0.02em',
-              textDecoration: 'none',
-              transition: 'opacity 0.2s ease',
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: '#ffffff', flexShrink: 0 }}>
-              <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" fill="currentColor"/>
-            </svg>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, color: '#ffffff' }}>altun</span>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, color: '#ffffff' }}>medya</span>
-          </a>
+          <AltunMedyaLogo color="#ffffff" size={18} />
         </div>
       </div>
     </footer>
