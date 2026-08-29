@@ -63,6 +63,10 @@ interface EditEventFormProps {
     maxStorageBytes: number;
     currentPhotoCount: number;
     currentStorageBytes: number;
+    latitude?: number | null;
+    longitude?: number | null;
+    geofenceRadiusMeters?: number | null;
+    locationVerificationEnabled?: boolean;
   };
 }
 
@@ -103,6 +107,12 @@ export default function EditEventForm({ event }: EditEventFormProps) {
   const [moderationEnabled, setModerationEnabled] = useState(event.moderationEnabled);
   const [guestNameRequired, setGuestNameRequired] = useState(event.guestNameRequired);
   const [guestMessageEnabled, setGuestMessageEnabled] = useState(event.guestMessageEnabled);
+
+  // Geofencing
+  const [locationVerificationEnabled, setLocationVerificationEnabled] = useState(event.locationVerificationEnabled || false);
+  const [latitude, setLatitude] = useState<string>(event.latitude !== null && event.latitude !== undefined ? event.latitude.toString() : '');
+  const [longitude, setLongitude] = useState<string>(event.longitude !== null && event.longitude !== undefined ? event.longitude.toString() : '');
+  const [geofenceRadiusMeters, setGeofenceRadiusMeters] = useState<number>(event.geofenceRadiusMeters || 2500);
 
   // Limits
   const [uploadStartsAt, setUploadStartsAt] = useState(event.uploadStartsAt);
@@ -155,6 +165,11 @@ export default function EditEventForm({ event }: EditEventFormProps) {
       formData.append('moderationEnabled', moderationEnabled.toString());
       formData.append('guestNameRequired', guestNameRequired.toString());
       formData.append('guestMessageEnabled', guestMessageEnabled.toString());
+
+      formData.append('locationVerificationEnabled', locationVerificationEnabled.toString());
+      formData.append('latitude', latitude);
+      formData.append('longitude', longitude);
+      formData.append('geofenceRadiusMeters', geofenceRadiusMeters.toString());
       
       formData.append('uploadStartsAt', uploadStartsAt);
       formData.append('uploadEndsAt', uploadEndsAt);
@@ -561,6 +576,97 @@ export default function EditEventForm({ event }: EditEventFormProps) {
               <span>Misafir Tebrik Mesajı Yazabilsin</span>
             </label>
           </div>
+        </div>
+
+        {/* Section 4: Konum Doğrulaması & Erişim Kontrolü (Geofencing) */}
+        <div className="section-card">
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+            Konum Doğrulaması & Erişim Kontrolü (Geofencing)
+          </h3>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600 }}>
+              <input
+                type="checkbox"
+                checked={locationVerificationEnabled}
+                onChange={(e) => setLocationVerificationEnabled(e.target.checked)}
+              />
+              <span>Etkinlik Alanı Konum Doğrulamasını Etkinleştir (Geofencing)</span>
+            </label>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: '4px', marginLeft: '24px' }}>
+              Etkinleştirildiğinde misafirler yalnızca belirlediğiniz konum etrafındaki izin verilen yarıçap içindeyken fotoğraf yükleyebilir.
+            </p>
+          </div>
+
+          {locationVerificationEnabled && (
+            <div style={{ backgroundColor: 'rgba(0,0,0,0.15)', padding: '16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="latitude">Enlem (Latitude)</label>
+                  <input
+                    id="latitude"
+                    type="number"
+                    step="any"
+                    placeholder="Örn: 37.065833"
+                    className="form-control"
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="longitude">Boylam (Longitude)</label>
+                  <input
+                    id="longitude"
+                    type="number"
+                    step="any"
+                    placeholder="Örn: 27.258333"
+                    className="form-control"
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.88rem', fontWeight: 600 }}>
+                  İzin Verilen Yarıçap (Mesafe)
+                </label>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                  {[
+                    { label: '500 m', value: 500 },
+                    { label: '1 km', value: 1000 },
+                    { label: '2 km', value: 2000 },
+                    { label: '2.5 km', value: 2500 },
+                    { label: '3 km', value: 3000 },
+                    { label: '5 km', value: 5000 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      className={`btn ${geofenceRadiusMeters === preset.value ? 'btn-primary' : 'btn-secondary'}`}
+                      style={{ padding: '6px 12px', fontSize: '0.82rem' }}
+                      onClick={() => setGeofenceRadiusMeters(preset.value)}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="form-group" style={{ maxWidth: '240px' }}>
+                  <label htmlFor="geofenceRadiusMeters" style={{ fontSize: '0.8rem' }}>Özel Yarıçap (Metre)</label>
+                  <input
+                    id="geofenceRadiusMeters"
+                    type="number"
+                    className="form-control"
+                    value={geofenceRadiusMeters}
+                    onChange={(e) => setGeofenceRadiusMeters(parseInt(e.target.value, 10) || 500)}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Section 4: Limitler */}

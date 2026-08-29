@@ -92,8 +92,12 @@ model Event {
   uploadEndsAt         DateTime
   moderationEnabled    Boolean           @default(true)
   guestNameRequired    Boolean           @default(false)
-  guestMessageEnabled  Boolean           @default(true)
-  maxPhotosPerGuest    Int               @default(50)
+  guestMessageEnabled          Boolean           @default(true)
+  latitude                     Float?
+  longitude                    Float?
+  geofenceRadiusMeters         Int?              @default(2500)
+  locationVerificationEnabled Boolean           @default(false)
+  maxPhotosPerGuest            Int               @default(50)
   maxPhotoSizeBytes    Int               @default(15728640) // 15MB
   maxTotalPhotos       Int               @default(1000)
   maxStorageBytes      BigInt            @default(10737418240) // 10GB

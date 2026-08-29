@@ -5,6 +5,7 @@ import { saveFile, deleteFile } from '@/lib/storage';
 import { imageProcessingQueue } from '@/lib/imageQueue';
 import { getStorageHealth } from '@/lib/storageHealth';
 import { getEventWindow } from '@/lib/eventUtils';
+import { verifyLocationToken } from '@/lib/location';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
     const sessionToken = formData.get('sessionToken') as string | null;
     const guestMessage = formData.get('guestMessage') as string | null;
     const clientUploadId = formData.get('clientUploadId') as string | null;
+    const locationTokenParam = formData.get('locationToken') as string | null;
 
     if (!file || !sessionToken) {
       return NextResponse.json({ error: 'Eksik dosya veya oturum parametresi.' }, { status: 400 });
@@ -52,6 +54,25 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: `Fotoğraf yüklemeleri henüz başlamamıştır. (Başlangıç: ${window.startsAtFormatted})` }, { status: 403 });
       }
       return NextResponse.json({ error: 'Fotoğraf yükleme zaman aralığı sona ermiştir.' }, { status: 403 });
+    }
+
+    // Location geofence verification check
+    if (event.locationVerificationEnabled) {
+      const locationTokenHeader = req.headers.get('x-location-token');
+      const locationTokenCookie = req.cookies.get(`location_token_${event.shortCode}`)?.value;
+      const token = locationTokenParam || locationTokenHeader || locationTokenCookie;
+
+      const locationCheck = verifyLocationToken(token, event.id);
+      if (!locationCheck.valid) {
+        return NextResponse.json(
+          {
+            error: 'Fotoğraf yüklemesi için etkinlik alanında bulunmanız ve konumunuzu doğrulamanız gerekmektedir.',
+            code: 'LOCATION_NOT_VERIFIED',
+            reason: locationCheck.reason,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     // Idempotency check: Return existing photo if exact same clientUploadId was already uploaded

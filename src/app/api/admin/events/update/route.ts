@@ -36,10 +36,19 @@ export async function POST(req: NextRequest) {
     const moderationEnabled = formData.get('moderationEnabled') === 'true';
     const guestNameRequired = formData.get('guestNameRequired') === 'true';
     const guestMessageEnabled = formData.get('guestMessageEnabled') === 'true';
-    
+
+    const locationVerificationEnabled = formData.get('locationVerificationEnabled') === 'true';
+    const latitudeRaw = formData.get('latitude') as string | null;
+    const longitudeRaw = formData.get('longitude') as string | null;
+    const radiusRaw = formData.get('geofenceRadiusMeters') as string | null;
+
+    const latitude = latitudeRaw && !isNaN(parseFloat(latitudeRaw)) ? parseFloat(latitudeRaw) : null;
+    const longitude = longitudeRaw && !isNaN(parseFloat(longitudeRaw)) ? parseFloat(longitudeRaw) : null;
+    const geofenceRadiusMeters = radiusRaw && !isNaN(parseInt(radiusRaw, 10)) ? parseInt(radiusRaw, 10) : 2500;
+
     const uploadStartsAtStr = formData.get('uploadStartsAt') as string;
     const uploadEndsAtStr = formData.get('uploadEndsAt') as string;
-    
+
     const maxPhotosPerGuest = parseInt(formData.get('maxPhotosPerGuest') as string, 10);
     const maxPhotoSizeBytes = parseInt(formData.get('maxPhotoSizeBytes') as string, 10);
     const maxTotalPhotos = parseInt(formData.get('maxTotalPhotos') as string, 10);
@@ -128,6 +137,10 @@ export async function POST(req: NextRequest) {
         moderationEnabled,
         guestNameRequired,
         guestMessageEnabled,
+        locationVerificationEnabled,
+        latitude,
+        longitude,
+        geofenceRadiusMeters,
         maxPhotosPerGuest,
         maxPhotoSizeBytes,
         maxTotalPhotos,

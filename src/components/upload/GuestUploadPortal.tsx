@@ -14,7 +14,10 @@ import {
   RefreshCw, 
   ArrowRight,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  MapPin,
+  Navigation,
+  ShieldCheck
 } from 'lucide-react';
 
 interface EventData {
@@ -36,6 +39,8 @@ interface EventData {
   guestMessageEnabled: boolean;
   maxPhotosPerGuest: number;
   maxPhotoSizeBytes: number;
+  locationVerificationEnabled?: boolean;
+  geofenceRadiusMeters?: number | null;
 }
 
 interface GuestUploadPortalProps {
@@ -63,12 +68,86 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   
+  // Geofence location verification states
+  const [locationVerified, setLocationVerified] = useState<boolean>(!event.locationVerificationEnabled);
+  const [verifyingLocation, setVerifyingLocation] = useState<boolean>(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [locationErrorType, setLocationErrorType] = useState<'outside' | 'denied' | 'poor_accuracy' | null>(null);
+  const [approximateDistanceKm, setApproximateDistanceKm] = useState<string | null>(null);
+  const [locationToken, setLocationToken] = useState<string | null>(null);
+
   const [filesQueue, setFilesQueue] = useState<UploadFileItem[]>([]);
   const [consentError, setConsentError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const displayName = getEventDisplayName(event);
   const landingUrl = `/etkinlik/${event.shortCode}`;
+
+  // Geofence browser location request handler
+  const handleVerifyLocation = () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      setLocationError('Tarayıcınız konum servisini desteklemiyor.');
+      return;
+    }
+
+    setVerifyingLocation(true);
+    setLocationError(null);
+    setLocationErrorType(null);
+    setApproximateDistanceKm(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude, accuracy } = position.coords;
+
+          const res = await fetch(`/api/event/${event.shortCode}/verify-location`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude, accuracy }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.success) {
+            setLocationVerified(true);
+            if (data.locationToken) {
+              setLocationToken(data.locationToken);
+            }
+          } else if (data.code === 'POOR_GPS_ACCURACY') {
+            setLocationErrorType('poor_accuracy');
+            setLocationError('Konumunuz yeterli hassasiyetle belirlenemedi. Lütfen GPS/konum servislerinizi açıp tekrar deneyin.');
+          } else if (data.code === 'OUTSIDE_EVENT_AREA') {
+            setLocationErrorType('outside');
+            const km = (data.distanceMeters / 1000).toFixed(1);
+            setApproximateDistanceKm(km);
+            setLocationError(`Etkinlik alanının dışındasınız. Fotoğraf paylaşımı yalnızca etkinlik alanı içerisinden yapılabilir. (Etkinlik alanına yaklaşık ${km} km uzaktasınız)`);
+          } else {
+            setLocationError(data.error || 'Konum doğrulaması başarısız oldu.');
+          }
+        } catch (err) {
+          setLocationError('Sunucu ile bağlantı kurulamadı.');
+        } finally {
+          setVerifyingLocation(false);
+        }
+      },
+      (geoErr) => {
+        setVerifyingLocation(false);
+        if (geoErr.code === geoErr.PERMISSION_DENIED) {
+          setLocationErrorType('denied');
+          setLocationError('Fotoğraf paylaşımı için konum izni gereklidir. Lütfen cihaz/tarayıcı ayarlarınızdan konum erişimine izin verin.');
+        } else if (geoErr.code === geoErr.TIMEOUT) {
+          setLocationError('Konum alma isteği zaman aşımına uğradı. Lütfen tekrar deneyin.');
+        } else {
+          setLocationError('Konum bilginiz alınamadı. Lütfen GPS ve konum servislerinizin açık olduğundan emin olun.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0,
+      }
+    );
+  };
 
   // Step 1: Submit Consent & Create Session
   const handleProceedToUpload = async (e: React.FormEvent) => {
@@ -166,11 +245,15 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     formData.append('sessionToken', sessionToken);
     formData.append('clientUploadId', item.clientUploadId);
     if (guestMessage) formData.append('guestMessage', guestMessage);
+    if (locationToken) formData.append('locationToken', locationToken);
 
     try {
       const uploadRes = await new Promise<{ success: boolean; error?: string }>((resolve) => {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/event/upload');
+        if (locationToken) {
+          xhr.setRequestHeader('x-location-token', locationToken);
+        }
 
         xhr.upload.onprogress = (event) => {
           if (event.lengthComputable) {
@@ -282,6 +365,50 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
             <Link href={landingUrl} className="palm-btn-primary">
               Etkinlik Sayfasına Dön
             </Link>
+          </div>
+        ) : !locationVerified ? (
+          <div className="palm-card" style={{ textAlign: 'center', backgroundColor: '#ffffff', padding: '36px 28px' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(24, 61, 53, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto', color: '#183D35' }}>
+              <MapPin size={32} />
+            </div>
+
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.7rem', fontWeight: 700, color: '#183D35', marginBottom: '12px' }}>
+              Etkinlik Konum Doğrulaması
+            </h2>
+
+            <p style={{ color: '#4a5568', fontSize: '0.98rem', lineHeight: '1.6', maxWidth: '480px', margin: '0 auto 24px auto' }}>
+              Etkinlik alanını doğrulamak için konumunuza erişmemiz gerekiyor. Konum bilginiz yalnızca etkinlik alanında olup olmadığınızı kontrol etmek için kullanılır.
+            </p>
+
+            {locationError && (
+              <div style={{ padding: '14px 18px', backgroundColor: 'rgba(239, 68, 68, 0.08)', border: '1px solid #fca5a5', borderRadius: '12px', color: '#991b1b', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '24px', textAlign: 'left' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                  <AlertCircle size={20} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    {locationError}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleVerifyLocation}
+              disabled={verifyingLocation}
+              className="palm-btn-primary"
+              style={{ width: '100%', padding: '16px', fontSize: '1.05rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              {verifyingLocation ? (
+                <>
+                  <RefreshCw size={20} className="animate-spin" />
+                  <span>Konumunuz Kontrol Ediliyor...</span>
+                </>
+              ) : (
+                <>
+                  <Navigation size={20} />
+                  <span>{locationError ? 'Konumumu Tekrar Kontrol Et' : 'Konumumu Doğrula'}</span>
+                </>
+              )}
+            </button>
           </div>
         ) : (
           <>

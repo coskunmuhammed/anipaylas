@@ -80,6 +80,8 @@ export default async function EventUploadPage({ params }: PageProps) {
     guestMessageEnabled: event.guestMessageEnabled,
     maxPhotosPerGuest: event.maxPhotosPerGuest,
     maxPhotoSizeBytes: event.maxPhotoSizeBytes,
+    locationVerificationEnabled: event.locationVerificationEnabled,
+    geofenceRadiusMeters: event.geofenceRadiusMeters,
   };
 
   return (
