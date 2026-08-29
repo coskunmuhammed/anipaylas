@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MapPin, Globe, CheckCircle2 } from 'lucide-react';
+import { Globe, CheckCircle2 } from 'lucide-react';
 
-// City node data representation: 1 Hub (Didim) + 7 representative cities
 export interface ServiceCity {
   id: string;
   name: string;
@@ -13,16 +12,18 @@ export interface ServiceCity {
   isHub?: boolean;
 }
 
-// 1 Didim Hub + 7 Representative Cities (Geographically accurate on 1000x500 SVG grid)
+// Exact cities from Image 2 (Didim Hub + 9 Cities)
 const SERVICE_CITIES: ServiceCity[] = [
-  { id: 'didim', name: 'Didim', label: '📍 Didim Merkez', x: 135, y: 352, isHub: true },
-  { id: 'istanbul', name: 'İstanbul', label: 'İstanbul', x: 235, y: 115 },
-  { id: 'izmir', name: 'İzmir', label: 'İzmir', x: 132, y: 285 },
-  { id: 'ankara', name: 'Ankara', label: 'Ankara', x: 410, y: 195 },
-  { id: 'antalya', name: 'Antalya', label: 'Antalya', x: 310, y: 395 },
-  { id: 'adana', name: 'Adana', label: 'Adana', x: 535, y: 385 },
-  { id: 'samsun', name: 'Samsun', label: 'Samsun', x: 575, y: 98 },
-  { id: 'diyarbakir', name: 'Diyarbakır', label: 'Diyarbakır', x: 770, y: 325 },
+  { id: 'didim', name: 'Didim', label: '📍 Didim Merkez', x: 95, y: 352, isHub: true },
+  { id: 'izmir', name: 'İzmir', label: 'İzmir', x: 98, y: 285 },
+  { id: 'bursa', name: 'Bursa', label: 'Bursa', x: 220, y: 175 },
+  { id: 'istanbul', name: 'İstanbul', label: 'İstanbul', x: 205, y: 120 },
+  { id: 'ankara', name: 'Ankara', label: 'Ankara', x: 400, y: 200 },
+  { id: 'samsun', name: 'Samsun', label: 'Samsun', x: 565, y: 110 },
+  { id: 'erzurum', name: 'Erzurum', label: 'Erzurum', x: 815, y: 195 },
+  { id: 'diyarbakir', name: 'Diyarbakır', label: 'Diyarbakır', x: 775, y: 320 },
+  { id: 'adana', name: 'Adana', label: 'Adana', x: 530, y: 380 },
+  { id: 'antalya', name: 'Antalya', label: 'Antalya', x: 300, y: 395 },
 ];
 
 const DIDIM_HUB = SERVICE_CITIES[0];
@@ -60,16 +61,16 @@ export default function ServiceAreaSection() {
         overflow: 'hidden',
       }}
     >
-      {/* Background Radial Glow Accent */}
+      {/* Background Lighting Glow */}
       <div
         style={{
           position: 'absolute',
           top: '35%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '800px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(201, 170, 103, 0.07) 0%, transparent 70%)',
+          width: '850px',
+          height: '520px',
+          background: 'radial-gradient(circle, rgba(201, 170, 103, 0.08) 0%, transparent 70%)',
           filter: 'blur(90px)',
           pointerEvents: 'none',
         }}
@@ -77,7 +78,7 @@ export default function ServiceAreaSection() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 2 }}>
         
-        {/* Eyebrow & Main Title */}
+        {/* Eyebrow & Title */}
         <div 
           style={{ 
             fontFamily: 'var(--font-sans)',
@@ -118,21 +119,21 @@ export default function ServiceAreaSection() {
           {cmsData.description}
         </p>
 
-        {/* Turkey Map Container */}
+        {/* 3D Realistic Turkey Map Card Container (Identical to Image 2) */}
         <div
           style={{
-            backgroundColor: '#14100c',
-            border: '1px solid rgba(201, 170, 103, 0.22)',
+            backgroundColor: '#130e0a',
+            border: '1px solid rgba(216, 180, 92, 0.28)',
             borderRadius: '24px',
             padding: '24px 16px 28px 16px',
             maxWidth: '1100px',
             margin: '0 auto 40px auto',
             position: 'relative',
-            boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
             overflow: 'hidden',
           }}
         >
-          {/* Top Bar Legend */}
+          {/* Top Bar Legend (Matching Image 2 top right) */}
           <div
             style={{
               display: 'flex',
@@ -142,10 +143,10 @@ export default function ServiceAreaSection() {
               borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
               marginBottom: '16px',
               flexWrap: 'wrap',
-              gap: '12px',
+              gap: '14px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.82rem', color: 'var(--palm-muted, #a39585)', fontFamily: 'var(--font-sans)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '18px', fontSize: '0.82rem', color: 'var(--palm-muted, #a39585)', fontFamily: 'var(--font-sans)' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#ffd700', boxShadow: '0 0 10px #ffd700' }} />
                 <strong style={{ color: '#ffffff' }}>Didim Merkez</strong>
@@ -157,153 +158,122 @@ export default function ServiceAreaSection() {
             </div>
           </div>
 
-          {/* SVG Map Canvas */}
+          {/* SVG Canvas */}
           <div style={{ position: 'relative', width: '100%', height: 'auto', aspectRatio: '1000 / 500' }}>
             <svg
               viewBox="0 0 1000 500"
               style={{ width: '100%', height: '100%', display: 'block' }}
             >
               <defs>
-                {/* Map Land Surface Gradient */}
-                <linearGradient id="turkeyMapFill" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#2e2318" />
-                  <stop offset="40%" stopColor="#453523" />
-                  <stop offset="100%" stopColor="#634c31" />
+                {/* 3D Realistic Land Surface Gradient */}
+                <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#2c2014" />
+                  <stop offset="45%" stopColor="#4a3721" />
+                  <stop offset="100%" stopColor="#694e2e" />
                 </linearGradient>
 
-                {/* Map Border Stroke Gradient */}
-                <linearGradient id="turkeyMapStroke" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#c9aa67" stopOpacity="0.75" />
-                  <stop offset="50%" stopColor="#ffe6a3" stopOpacity="0.95" />
-                  <stop offset="100%" stopColor="#aa8846" stopOpacity="0.75" />
+                {/* Land Border Stroke Gradient */}
+                <linearGradient id="landBorderGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#c9aa67" stopOpacity="0.85" />
+                  <stop offset="50%" stopColor="#ffe4a0" stopOpacity="0.95" />
+                  <stop offset="100%" stopColor="#b59146" stopOpacity="0.85" />
                 </linearGradient>
 
-                {/* Connection Line Gradient */}
-                <linearGradient id="connectionLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#ffd700" stopOpacity="0.95" />
-                  <stop offset="60%" stopColor="#c9aa67" stopOpacity="0.65" />
-                  <stop offset="100%" stopColor="#8a7243" stopOpacity="0.3" />
+                {/* Glowing Arc Line Gradient */}
+                <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#ffd700" stopOpacity="1" />
+                  <stop offset="70%" stopColor="#e1ba6d" stopOpacity="0.75" />
+                  <stop offset="100%" stopColor="#9e7e42" stopOpacity="0.35" />
                 </linearGradient>
 
-                {/* Drop Shadow for Land silhouette */}
+                {/* Map Drop Shadow */}
                 <filter id="mapShadow" x="-10%" y="-10%" width="130%" height="130%">
-                  <feDropShadow dx="0" dy="16" stdDeviation="14" floodColor="#000000" floodOpacity="0.9" />
+                  <feDropShadow dx="0" dy="18" stdDeviation="16" floodColor="#000000" floodOpacity="0.95" />
                 </filter>
 
                 {/* Node Radial Glow */}
-                <filter id="hubGlow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="4" result="blur" />
+                <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3.5" result="blur" />
                   <feComposite in="SourceGraphic" in2="blur" operator="over" />
                 </filter>
               </defs>
 
-              {/* Background Grid Pattern */}
-              <pattern id="seaGrid" width="50" height="50" patternUnits="userSpaceOnUse">
-                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(201, 170, 103, 0.025)" strokeWidth="0.8" />
+              {/* Background Grid Accent */}
+              <pattern id="seaGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(201, 170, 103, 0.025)" strokeWidth="0.8" />
               </pattern>
               <rect width="1000" height="500" fill="url(#seaGrid)" />
 
-              {/* Real Turkey Outer Silhouette Path */}
+              {/* 3D Extrusion Shadow Layer (3D relief bottom edge) */}
               <path
-                d="M 128,70 
-                   C 142,60 156,66 172,68 
-                   C 188,70 198,80 208,95 
-                   C 214,102 220,105 226,108 
-                   C 240,104 256,102 274,104 
-                   C 304,106 336,104 368,100 
-                   C 400,96 432,86 464,82 
-                   C 482,78 497,60 514,60 
-                   C 530,60 546,78 563,86 
-                   C 585,94 612,104 642,114 
-                   C 672,118 708,116 742,114 
-                   C 778,112 808,108 832,108 
-                   C 848,116 858,130 865,145 
-                   C 880,150 904,152 924,158 
-                   C 938,168 946,182 950,202 
-                   C 953,232 946,260 940,284 
-                   C 933,312 916,338 896,360 
-                   C 878,380 866,404 850,413 
-                   C 833,408 810,400 788,404 
-                   C 756,408 723,406 690,408 
-                   C 653,410 626,408 606,404 
-                   C 586,398 570,400 556,408 
-                   C 546,422 540,442 530,458 
-                   C 524,442 518,422 512,404 
-                   C 486,398 460,404 438,422 
-                   C 416,433 394,441 376,441 
-                   C 356,435 340,422 318,416 
-                   C 286,406 254,400 232,406 
-                   C 210,412 188,420 166,423 
-                   C 146,418 132,407 117,398 
-                   C 102,392 84,386 68,380 
-                   C 59,369 55,357 66,347 
-                   C 77,338 71,329 56,320 
-                   C 45,312 51,297 72,285 
-                   C 83,274 64,262 34,256 
-                   C 22,244 37,229 54,217 
-                   C 65,202 54,187 60,175 
-                   C 35,163 46,147 67,132 
-                   C 79,120 68,104 57,98 
-                   C 69,78 81,56 96,50 
-                   C 110,48 118,57 128,70 Z"
-                fill="url(#turkeyMapFill)"
-                stroke="url(#turkeyMapStroke)"
-                strokeWidth="1.8"
+                d="M 125,75 L 135,60 L 155,62 L 170,72 L 180,82 L 195,85 L 205,100 L 210,110 L 218,102 L 225,108 L 235,115 L 245,112 L 255,105 L 270,105 L 285,108 L 310,106 L 335,105 L 360,102 L 385,98 L 410,95 L 435,92 L 460,88 L 480,85 L 495,65 L 508,68 L 520,78 L 535,85 L 555,92 L 575,98 L 595,104 L 620,112 L 645,118 L 670,122 L 695,120 L 720,118 L 745,116 L 770,114 L 795,112 L 815,112 L 830,118 L 845,130 L 855,145 L 870,152 L 885,155 L 905,158 L 925,165 L 940,178 L 948,195 L 952,215 L 954,235 L 950,255 L 945,275 L 938,295 L 928,315 L 915,335 L 898,355 L 885,372 L 870,390 L 858,405 L 842,415 L 825,410 L 805,405 L 785,408 L 760,412 L 735,410 L 710,412 L 685,415 L 660,415 L 635,412 L 610,408 L 590,405 L 575,410 L 560,422 L 550,438 L 542,455 L 538,470 L 532,455 L 525,438 L 520,422 L 512,408 L 495,402 L 475,408 L 455,420 L 438,430 L 420,438 L 400,440 L 380,438 L 360,432 L 342,422 L 325,415 L 305,410 L 285,408 L 265,412 L 245,418 L 225,425 L 205,428 L 185,425 L 165,418 L 148,410 L 132,402 L 118,395 L 105,388 L 95,378 L 88,368 L 98,358 L 105,350 L 98,342 L 88,335 L 80,325 L 72,312 L 80,300 L 92,290 L 85,280 L 75,270 L 68,258 L 60,248 L 70,238 L 82,228 L 75,218 L 68,208 L 75,198 L 85,188 L 78,175 L 68,162 L 78,150 L 88,138 L 78,125 L 68,112 L 78,98 L 88,85 L 102,75 L 115,68 Z"
+                transform="translate(0, 8)"
+                fill="#120c07"
+                stroke="#281a0e"
+                strokeWidth="2"
+              />
+
+              {/* Main Detailed Turkey Silhouette Path */}
+              <path
+                d="M 125,75 L 135,60 L 155,62 L 170,72 L 180,82 L 195,85 L 205,100 L 210,110 L 218,102 L 225,108 L 235,115 L 245,112 L 255,105 L 270,105 L 285,108 L 310,106 L 335,105 L 360,102 L 385,98 L 410,95 L 435,92 L 460,88 L 480,85 L 495,65 L 508,68 L 520,78 L 535,85 L 555,92 L 575,98 L 595,104 L 620,112 L 645,118 L 670,122 L 695,120 L 720,118 L 745,116 L 770,114 L 795,112 L 815,112 L 830,118 L 845,130 L 855,145 L 870,152 L 885,155 L 905,158 L 925,165 L 940,178 L 948,195 L 952,215 L 954,235 L 950,255 L 945,275 L 938,295 L 928,315 L 915,335 L 898,355 L 885,372 L 870,390 L 858,405 L 842,415 L 825,410 L 805,405 L 785,408 L 760,412 L 735,410 L 710,412 L 685,415 L 660,415 L 635,412 L 610,408 L 590,405 L 575,410 L 560,422 L 550,438 L 542,455 L 538,470 L 532,455 L 525,438 L 520,422 L 512,408 L 495,402 L 475,408 L 455,420 L 438,430 L 420,438 L 400,440 L 380,438 L 360,432 L 342,422 L 325,415 L 305,410 L 285,408 L 265,412 L 245,418 L 225,425 L 205,428 L 185,425 L 165,418 L 148,410 L 132,402 L 118,395 L 105,388 L 95,378 L 88,368 L 98,358 L 105,350 L 98,342 L 88,335 L 80,325 L 72,312 L 80,300 L 92,290 L 85,280 L 75,270 L 68,258 L 60,248 L 70,238 L 82,228 L 75,218 L 68,208 L 75,198 L 85,188 L 78,175 L 68,162 L 78,150 L 88,138 L 78,125 L 68,112 L 78,98 L 88,85 L 102,75 L 115,68 Z"
+                fill="url(#landGradient)"
+                stroke="url(#landBorderGradient)"
+                strokeWidth="1.6"
                 filter="url(#mapShadow)"
               />
 
-              {/* Decorative Compass / Scale Indicator */}
-              <g transform="translate(910, 60)" opacity="0.45">
-                <circle cx="0" cy="0" r="16" fill="none" stroke="var(--palm-gold)" strokeWidth="0.8" />
-                <path d="M 0,-12 L 0,12 M -12,0 L 12,0" stroke="var(--palm-gold)" strokeWidth="0.8" />
-                <text x="0" y="-17" textAnchor="middle" fill="var(--palm-gold)" fontSize="8" fontWeight="700" fontFamily="var(--font-sans)">K</text>
-              </g>
+              {/* Marmara Sea Water Cutout */}
+              <path
+                d="M 185,122 C 200,118 215,122 232,130 C 220,142 205,145 190,140 Z"
+                fill="#130e0a"
+                stroke="rgba(201, 170, 103, 0.3)"
+                strokeWidth="1"
+              />
 
-              {/* 7 Connection Curved Arcs originating from Didim */}
+              {/* Curved Golden Arcs Radiating from Didim Hub */}
               {DESTINATION_CITIES.map((city, idx) => {
                 const dx = city.x - DIDIM_HUB.x;
                 const dy = city.y - DIDIM_HUB.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
                 
-                // Calculate smooth Bezier control point curving towards top
+                // Curve upwards towards map top
                 const cx = (DIDIM_HUB.x + city.x) / 2;
-                const cy = Math.min(DIDIM_HUB.y, city.y) - Math.max(25, dist * 0.22);
+                const cy = Math.min(DIDIM_HUB.y, city.y) - Math.max(22, dist * 0.22);
 
                 const isActive = activeCityId === city.id;
                 const arcPath = `M ${DIDIM_HUB.x},${DIDIM_HUB.y} Q ${cx},${cy} ${city.x},${city.y}`;
 
                 return (
                   <g key={`arc-${city.id}`}>
-                    {/* Base Subtle Gold Arc */}
+                    {/* Base Golden Arc */}
                     <path
                       d={arcPath}
                       fill="none"
-                      stroke={isActive ? '#ffd700' : 'url(#connectionLineGradient)'}
-                      strokeWidth={isActive ? '2.4' : '1.4'}
-                      strokeOpacity={isActive ? 0.95 : 0.65}
-                      style={{ transition: 'all 0.3s ease' }}
+                      stroke={isActive ? '#ffd700' : 'url(#arcGradient)'}
+                      strokeWidth={isActive ? '2.5' : '1.5'}
+                      strokeOpacity={isActive ? 0.95 : 0.75}
+                      style={{ transition: 'all 0.3s ease', filter: isActive ? 'drop-shadow(0 0 6px #ffd700)' : 'none' }}
                     />
 
-                    {/* Gentle Moving Pulse Light Along Curve */}
+                    {/* Animated Light Pulse */}
                     <path
                       d={arcPath}
                       fill="none"
                       stroke="#ffffff"
                       strokeWidth={isActive ? '3' : '1.8'}
-                      strokeDasharray="12 120"
+                      strokeDasharray="14 120"
                       strokeDashoffset="0"
                       style={{
-                        animation: `flowPulse ${5 + idx * 0.5}s linear infinite`,
-                        animationDelay: `${idx * 0.6}s`,
-                        filter: isActive ? 'drop-shadow(0 0 6px #ffd700)' : 'none',
-                        opacity: isActive ? 1 : 0.7,
+                        animation: `flowPulse ${4.5 + idx * 0.4}s linear infinite`,
+                        animationDelay: `${idx * 0.5}s`,
+                        opacity: isActive ? 1 : 0.75,
                       }}
                     />
                   </g>
                 );
               })}
 
-              {/* 7 Destination Cities (Small Gold Dot + Label Pill) */}
+              {/* Destination City Nodes (Gold Dot + Black Pill Label) */}
               {DESTINATION_CITIES.map((city) => {
                 const isActive = activeCityId === city.id;
 
@@ -315,17 +285,17 @@ export default function ServiceAreaSection() {
                     onClick={() => setActiveCityId(activeCityId === city.id ? null : city.id)}
                     style={{ cursor: 'pointer' }}
                   >
-                    {/* Target Click Area */}
+                    {/* Click Hit Target */}
                     <circle cx={city.x} cy={city.y} r="14" fill="transparent" />
 
-                    {/* Outer Subtle Pulse Ring */}
+                    {/* Glowing Halo Circle */}
                     <circle
                       cx={city.x}
                       cy={city.y}
-                      r={isActive ? '7' : '4.5'}
-                      fill={isActive ? '#ffd700' : '#c9aa67'}
-                      opacity={isActive ? '0.9' : '0.45'}
-                      filter="url(#hubGlow)"
+                      r={isActive ? '7.5' : '5'}
+                      fill={isActive ? '#ffd700' : '#d8b45c'}
+                      opacity={isActive ? '0.95' : '0.7'}
+                      filter="url(#nodeGlow)"
                       style={{ transition: 'all 0.25s ease' }}
                     />
 
@@ -333,30 +303,30 @@ export default function ServiceAreaSection() {
                     <circle
                       cx={city.x}
                       cy={city.y}
-                      r={isActive ? '3.8' : '2.5'}
-                      fill={isActive ? '#ffffff' : '#f0e0c0'}
+                      r={isActive ? '4' : '2.8'}
+                      fill={isActive ? '#ffffff' : '#fff4d6'}
                     />
 
-                    {/* Minimal City Label Badge Pill */}
-                    <g transform={`translate(${city.x}, ${city.y - 13})`}>
+                    {/* City Label Badge Pill (Black background + Gold stroke) */}
+                    <g transform={`translate(${city.x}, ${city.y - 14})`}>
                       <rect
-                        x={-(city.name.length * 3.6 + 9)}
+                        x={-(city.name.length * 3.6 + 10)}
                         y="-11"
-                        width={city.name.length * 7.2 + 18}
-                        height="17"
-                        rx="8.5"
-                        fill="rgba(16, 12, 9, 0.88)"
-                        stroke={isActive ? '#ffd700' : 'rgba(201, 170, 103, 0.38)'}
-                        strokeWidth={isActive ? '1.4' : '0.9'}
-                        style={{ transition: 'all 0.25s ease' }}
+                        width={city.name.length * 7.2 + 20}
+                        height="18"
+                        rx="9"
+                        fill="#0c0907"
+                        stroke={isActive ? '#ffd700' : 'rgba(216, 180, 92, 0.45)'}
+                        strokeWidth={isActive ? '1.5' : '1'}
+                        style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.8))', transition: 'all 0.25s ease' }}
                       />
                       <text
                         x="0"
-                        y="1"
+                        y="1.5"
                         textAnchor="middle"
-                        fill={isActive ? '#ffffff' : '#ebdcc5'}
-                        fontSize="9.5"
-                        fontWeight={isActive ? '700' : '600'}
+                        fill={isActive ? '#ffffff' : '#f0e3cc'}
+                        fontSize="9.8"
+                        fontWeight={isActive ? '800' : '600'}
                         fontFamily="var(--font-sans)"
                         letterSpacing="0.02em"
                       >
@@ -367,37 +337,37 @@ export default function ServiceAreaSection() {
                 );
               })}
 
-              {/* Main Hub: DİDİM MERKEZ */}
+              {/* Didim Main Hub Node */}
               <g transform={`translate(${DIDIM_HUB.x}, ${DIDIM_HUB.y})`}>
-                {/* Radar Ring Glow Animation */}
-                <circle cx="0" cy="0" r="10" fill="none" stroke="#ffd700" strokeWidth="1.8" opacity="0.7">
-                  <animate attributeName="r" values="6;16;6" dur="3s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.8;0.1;0.8" dur="3s" repeatCount="indefinite" />
+                {/* Pulsing Radar Aura */}
+                <circle cx="0" cy="0" r="10" fill="none" stroke="#ffd700" strokeWidth="2" opacity="0.8">
+                  <animate attributeName="r" values="6;18;6" dur="2.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.9;0.1;0.9" dur="2.8s" repeatCount="indefinite" />
                 </circle>
 
-                {/* Didim Core Circle */}
-                <circle cx="0" cy="0" r="6" fill="#ffd700" filter="url(#hubGlow)" />
-                <circle cx="0" cy="0" r="3" fill="#ffffff" />
+                {/* Didim Glowing Core */}
+                <circle cx="0" cy="0" r="6.5" fill="#ffd700" filter="url(#nodeGlow)" />
+                <circle cx="0" cy="0" r="3.2" fill="#ffffff" />
 
-                {/* Didim Hub Badge Pill */}
-                <g transform="translate(0, -23)">
+                {/* Didim Main Hub Badge Pill (Identical to Image 2) */}
+                <g transform="translate(0, -24)">
                   <rect
-                    x="-54"
+                    x="-55"
                     y="-13"
-                    width="108"
-                    height="23"
-                    rx="11.5"
-                    fill="#120e0a"
+                    width="110"
+                    height="24"
+                    rx="12"
+                    fill="#0f0c08"
                     stroke="#ffd700"
                     strokeWidth="1.8"
-                    style={{ filter: 'drop-shadow(0 4px 14px rgba(255, 215, 0, 0.45))' }}
+                    style={{ filter: 'drop-shadow(0 4px 16px rgba(255, 215, 0, 0.55))' }}
                   />
                   <text
                     x="0"
-                    y="2"
+                    y="2.5"
                     textAnchor="middle"
                     fill="#ffffff"
-                    fontSize="10.5"
+                    fontSize="10.8"
                     fontWeight="800"
                     fontFamily="var(--font-sans)"
                     letterSpacing="0.03em"
@@ -454,11 +424,11 @@ export default function ServiceAreaSection() {
 
       </div>
 
-      {/* Global Animation Styles */}
+      {/* Animation Style */}
       <style jsx global>{`
         @keyframes flowPulse {
           0% {
-            stroke-dashoffset: 132;
+            stroke-dashoffset: 134;
           }
           100% {
             stroke-dashoffset: 0;
