@@ -26,10 +26,8 @@ services:
     depends_on:
       - postgres
     networks:
-      default:
-      shared_proxy:
-        aliases:
-          - anipaylas_app
+      - default
+      - shared_proxy
 
 volumes:
   postgres_data:
