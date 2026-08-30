@@ -200,6 +200,7 @@ export default function PhotoModerator({
                 applyFilters({ status: e.target.value });
               }}
             >
+              <option value="ALL">Tüm Fotoğraflar (Hepsi)</option>
               <option value="PENDING_APPROVAL">Onay Bekleyenler</option>
               <option value="APPROVED">Onaylananlar (Albüme eklenebilir)</option>
               <option value="REJECTED">Reddedilenler</option>

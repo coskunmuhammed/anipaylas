@@ -11,7 +11,7 @@ import crypto from 'crypto';
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const file = formData.get('photo') as File | null;
+    const file = (formData.get('file') || formData.get('photo')) as File | null;
     const sessionToken = formData.get('sessionToken') as string | null;
     const guestMessage = formData.get('guestMessage') as string | null;
     const clientUploadId = formData.get('clientUploadId') as string | null;

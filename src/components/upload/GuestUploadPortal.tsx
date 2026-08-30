@@ -277,6 +277,7 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
 
     const formData = new FormData();
     formData.append('file', item.file);
+    formData.append('photo', item.file);
     formData.append('sessionToken', sessionToken);
     formData.append('clientUploadId', item.clientUploadId);
     if (locationToken) {
@@ -302,7 +303,16 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
 
         xhr.onload = () => {
           if (xhr.status === 200) {
-            resolve({ success: true });
+            try {
+              const parsed = JSON.parse(xhr.responseText);
+              if (parsed.success) {
+                resolve({ success: true });
+              } else {
+                resolve({ success: false, error: parsed.error || 'Yükleme başarısız' });
+              }
+            } catch {
+              resolve({ success: true });
+            }
           } else {
             try {
               const parsed = JSON.parse(xhr.responseText);
@@ -344,12 +354,14 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     const pendingItems = filesQueue.filter((item) => item.status !== 'success');
     const CONCURRENCY = 3;
     let index = 0;
+    let hasFailure = false;
 
     const worker = async () => {
       while (index < pendingItems.length) {
         const item = pendingItems[index++];
         if (item) {
-          await uploadSingleFile(item);
+          const ok = await uploadSingleFile(item);
+          if (!ok) hasFailure = true;
         }
       }
     };
@@ -357,7 +369,11 @@ export default function GuestUploadPortal({ event, isBlocked, statusMessage }: G
     const workers = Array.from({ length: Math.min(CONCURRENCY, pendingItems.length) }, () => worker());
     await Promise.all(workers);
 
-    setStage('complete');
+    if (!hasFailure) {
+      setStage('complete');
+    } else {
+      setStage('select');
+    }
   };
 
   return (

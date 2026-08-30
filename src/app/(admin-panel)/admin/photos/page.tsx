@@ -18,7 +18,7 @@ export default async function AdminPhotosPage({ searchParams }: PageProps) {
   await requireAdmin();
   const resolvedParams = await searchParams;
   const eventId = resolvedParams.eventId;
-  const status = resolvedParams.status || 'PENDING_APPROVAL';
+  const status = resolvedParams.status || 'ALL';
   const search = resolvedParams.search || '';
   const sortBy = resolvedParams.sortBy || 'newest';
 
@@ -37,8 +37,10 @@ export default async function AdminPhotosPage({ searchParams }: PageProps) {
 
   if (status === 'DELETED') {
     whereClause.deletedAt = { not: null };
-  } else {
+  } else if (status !== 'ALL') {
     whereClause.status = status;
+    whereClause.deletedAt = null;
+  } else {
     whereClause.deletedAt = null;
   }
 
