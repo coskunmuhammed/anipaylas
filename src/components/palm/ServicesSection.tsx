@@ -59,30 +59,21 @@ export const servicesList = [
   },
 ];
 
-export default function ServicesSection() {
-  const verifiedStats = businessConfig.stats.filter((s) => s.verified);
-  const [cmsData, setCmsData] = useState({
-    eyebrow: 'HİZMETLERİMİZ',
-    title: 'A’dan Z’ye Etkinlik & Çekim Çözümleri',
-    items: servicesList,
-  });
+interface ServicesSectionProps {
+  initialData?: {
+    eyebrow?: string;
+    title?: string;
+    items?: typeof servicesList;
+  };
+}
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.services) {
-          setCmsData({
-            eyebrow: json.data.services.eyebrow || 'HİZMETLERİMİZ',
-            title: json.data.services.title || 'A’dan Z’ye Etkinlik & Çekim Çözümleri',
-            items: json.data.services.items && json.data.services.items.length > 0 ? json.data.services.items : servicesList,
-          });
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+export default function ServicesSection({ initialData }: ServicesSectionProps) {
+  const verifiedStats = businessConfig.stats.filter((s) => s.verified);
+  const cmsData = {
+    eyebrow: initialData?.eyebrow || 'HİZMETLERİMİZ',
+    title: initialData?.title || 'A’dan Z’ye Etkinlik & Çekim Çözümleri',
+    items: initialData?.items && initialData.items.length > 0 ? initialData.items : servicesList,
+  };
 
   const activeServices = cmsData.items && cmsData.items.length > 0 ? cmsData.items : servicesList;
 

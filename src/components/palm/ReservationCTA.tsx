@@ -4,25 +4,20 @@ import React, { useState, useEffect } from 'react';
 import GoldButton from './GoldButton';
 import { ArrowRight } from 'lucide-react';
 
-export default function ReservationCTA() {
-  const [cmsData, setCmsData] = useState({
-    eyebrow: 'REZERVASYON & İLETİŞİM',
-    title: 'Hayalinizdeki Çekimi Birlikte Planlayalım',
-    description: 'Etkinlik tarihinizin uygunluğunu sorgulamak, konsept önerisi almak ve özel fiyat teklifimizi öğrenmek için bizimle anında iletişime geçin.',
-  });
+interface ReservationCTAProps {
+  initialData?: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+  };
+}
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.contact) {
-          setCmsData(json.data.contact);
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+export default function ReservationCTA({ initialData }: ReservationCTAProps) {
+  const cmsData = {
+    eyebrow: initialData?.eyebrow || 'REZERVASYON & İLETİŞİM',
+    title: initialData?.title || 'Hayalinizdeki Çekimi Birlikte Planlayalım',
+    description: initialData?.description || 'Etkinlik tarihinizin uygunluğunu sorgulamak, konsept önerisi almak ve özel fiyat teklifimizi öğrenmek için bizimle anında iletişime geçin.',
+  };
 
   return (
     <section

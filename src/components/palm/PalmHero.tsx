@@ -7,23 +7,12 @@ import GoldButton from './GoldButton';
 import { HomepageContent, DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
 import { getMediaUrl } from '@/lib/mediaUrl';
 
-export default function PalmHero() {
-  const [heroData, setHeroData] = useState<HomepageContent['hero']>(DEFAULT_HOMEPAGE_CONTENT.hero);
+interface PalmHeroProps {
+  initialHeroData?: HomepageContent['hero'];
+}
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.hero) {
-          setHeroData(json.data.hero);
-        }
-      } catch (e) {
-        // Fallback to default content silently
-      }
-    }
-    loadContent();
-  }, []);
+export default function PalmHero({ initialHeroData }: PalmHeroProps) {
+  const heroData = initialHeroData || DEFAULT_HOMEPAGE_CONTENT.hero;
 
   const callHref = siteConfig.phone ? `tel:${siteConfig.phone}` : siteConfig.getWhatsAppLink();
   const bgPhotos = heroData.backgroundPhotos && heroData.backgroundPhotos.length > 0 

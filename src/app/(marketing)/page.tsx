@@ -12,6 +12,7 @@ import TestimonialsSection from '@/components/palm/TestimonialsSection';
 import StoriesSection from '@/components/palm/StoriesSection';
 import ReservationCTA from '@/components/palm/ReservationCTA';
 import PalmFooter from '@/components/palm/PalmFooter';
+import { getHomepageContent } from '@/services/siteContent.service';
 
 export const metadata = {
   title: 'Palm Stüdyo | Didim Düğün Fotoğrafçısı ve Dijital Anı Albümü Stüdyosu',
@@ -19,22 +20,24 @@ export const metadata = {
     'Palm Stüdyo; Didim’de düğün fotoğrafçılığı, video çekimi, konsept çekim, saç & makyaj, gelinlik, organizasyon ve dijital anı albümü (QR fotoğraf paylaşımı) hizmetleri sunar.',
 };
 
-export default function MarketingHomePage() {
+export default async function MarketingHomePage() {
+  const content = await getHomepageContent();
+
   return (
     <div style={{ backgroundColor: 'var(--palm-black)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PalmHeader />
       <main style={{ flex: 1 }}>
-        <PalmHero />
+        <PalmHero initialHeroData={content.hero} />
         <TrustBar />
-        <MemoryStatement />
+        <MemoryStatement initialData={content.memoryStatement} />
         <ValueComparison />
-        <ServicesSection />
+        <ServicesSection initialData={content.services} />
         <DigitalMemoryShowcase />
-        <ServiceAreaSection />
-        <SignatureConcepts />
-        <TestimonialsSection />
-        <StoriesSection />
-        <ReservationCTA />
+        <ServiceAreaSection initialData={content.serviceArea} />
+        <SignatureConcepts initialData={content.concepts} />
+        <TestimonialsSection initialData={content.testimonials} />
+        <StoriesSection initialData={content.stories} />
+        <ReservationCTA initialData={content.contact} />
       </main>
       <PalmFooter />
     </div>

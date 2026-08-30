@@ -4,31 +4,22 @@ import React, { useState, useEffect } from 'react';
 import { Star, MapPin, Quote } from 'lucide-react';
 import { DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
 
-export default function TestimonialsSection() {
-  const [cmsData, setCmsData] = useState({
-    eyebrow: 'MUTLU ÇİFTLERİMİZ',
-    title: 'Hikâyelerine Tanık Olduğumuz Çiftler Ne Diyor?',
-    description: 'Türkiye’nin dört bir yanından Didim’e gelen çiftlerimizin unutulmaz çekim deneyimleri ve geri bildirimleri.',
-    items: DEFAULT_HOMEPAGE_CONTENT.testimonials.items,
-  });
+interface TestimonialsSectionProps {
+  initialData?: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+    items?: typeof DEFAULT_HOMEPAGE_CONTENT.testimonials.items;
+  };
+}
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.testimonials) {
-          setCmsData({
-            eyebrow: json.data.testimonials.eyebrow || 'MUTLU ÇİFTLERİMİZ',
-            title: json.data.testimonials.title || 'Hikâyelerine Tanık Olduğumuz Çiftler Ne Diyor?',
-            description: json.data.testimonials.description || 'Türkiye’nin dört bir yanından Didim’e gelen çiftlerimizin unutulmaz çekim deneyimleri ve geri bildirimleri.',
-            items: json.data.testimonials.items && json.data.testimonials.items.length > 0 ? json.data.testimonials.items : DEFAULT_HOMEPAGE_CONTENT.testimonials.items,
-          });
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+export default function TestimonialsSection({ initialData }: TestimonialsSectionProps) {
+  const cmsData = {
+    eyebrow: initialData?.eyebrow || 'MUTLU ÇİFTLERİMİZ',
+    title: initialData?.title || 'Hikâyelerine Tanık Olduğumuz Çiftler Ne Diyor?',
+    description: initialData?.description || 'Türkiye’nin dört bir yanından Didim’e gelen çiftlerimizin unutulmaz çekim deneyimleri ve geri bildirimleri.',
+    items: initialData?.items && initialData.items.length > 0 ? initialData.items : DEFAULT_HOMEPAGE_CONTENT.testimonials.items,
+  };
 
   const activeReviews = cmsData.items && cmsData.items.length > 0 ? cmsData.items : DEFAULT_HOMEPAGE_CONTENT.testimonials.items;
 

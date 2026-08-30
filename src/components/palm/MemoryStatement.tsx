@@ -6,25 +6,15 @@ import { Calendar } from 'lucide-react';
 import { DEFAULT_HOMEPAGE_CONTENT } from '@/types/siteContent';
 import PalmImage from './PalmImage';
 
-export default function MemoryStatement() {
+interface MemoryStatementProps {
+  initialData?: typeof DEFAULT_HOMEPAGE_CONTENT.memoryStatement;
+}
+
+export default function MemoryStatement({ initialData }: MemoryStatementProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [photos, setPhotos] = useState(DEFAULT_HOMEPAGE_CONTENT.memoryStatement);
-
-  // Fetch CMS content
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.memoryStatement) {
-          setPhotos(json.data.memoryStatement);
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+  const photos = initialData || DEFAULT_HOMEPAGE_CONTENT.memoryStatement;
 
   // Track scroll progress as section passes through viewport
   useEffect(() => {

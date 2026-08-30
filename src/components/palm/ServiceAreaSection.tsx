@@ -204,28 +204,25 @@ const PROVINCE_PATHS: string[] = [
   "path162"
 ];
 
-export default function ServiceAreaSection() {
-  const [activeCityId, setActiveCityId] = useState<string | null>(null);
-  const [cmsData, setCmsData] = useState({
-    eyebrow: 'NEREDEN GELİYORLAR?',
-    title: 'Didim’deyiz, hikâyeleriniz Türkiye’nin 81 ilinden geliyor.',
-    description: 'Didim merkezimizden Türkiye’nin 81 iline ışınlanan anılar ve yurt dışından gelen çiftlerimiz için çekim, konsept ve organizasyon süreçlerini tek çatı altında planlıyoruz.',
-    studioGuaranteeTitle: 'Tüm çekimler ve organizasyon detayları merkezimiz koordinasyonunda yönetilir.',
-    studioGuaranteeText: 'Türkiye’nin 81 ilinden veya yurt dışından gelen tüm çiftlerimiz için Didim merkezimizde çekim, gelinlik, saç & makyaj, konaklama ve ulaşım planlamasını tek güne sığdırarak stresi sıfıra indiriyoruz.',
-  });
+interface ServiceAreaSectionProps {
+  initialData?: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+    studioGuaranteeTitle?: string;
+    studioGuaranteeText?: string;
+  };
+}
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.serviceArea) {
-          setCmsData(json.data.serviceArea);
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+export default function ServiceAreaSection({ initialData }: ServiceAreaSectionProps) {
+  const [activeCityId, setActiveCityId] = useState<string | null>(null);
+  const cmsData = {
+    eyebrow: initialData?.eyebrow || 'NEREDEN GELİYORLAR?',
+    title: initialData?.title || 'Didim’deyiz, hikâyeleriniz Türkiye’nin 81 ilinden geliyor.',
+    description: initialData?.description || 'Didim merkezimizden Türkiye’nin 81 iline ışınlanan anılar ve yurt dışından gelen çiftlerimiz için çekim, konsept ve organizasyon süreçlerini tek çatı altında planlıyoruz.',
+    studioGuaranteeTitle: initialData?.studioGuaranteeTitle || 'Tüm çekimler ve organizasyon detayları merkezimiz koordinasyonunda yönetilir.',
+    studioGuaranteeText: initialData?.studioGuaranteeText || 'Türkiye’nin 81 ilinden veya yurt dışından gelen tüm çiftlerimiz için Didim merkezimizde çekim, gelinlik, saç & makyaj, konaklama ve ulaşım planlamasını tek güne sığdırarak stresi sıfıra indiriyoruz.',
+  };
 
   return (
     <section

@@ -36,32 +36,23 @@ export const storiesList: StoryItem[] = [
   },
 ];
 
-export default function StoriesSection() {
-  const [activeVideo, setActiveVideo] = useState<{ title: string; url: string } | null>(null);
-  const [cmsData, setCmsData] = useState({
-    eyebrow: 'HİKÂYELER',
-    title: 'Gerçek Hikâyeler',
-    description: 'Çiftlerin highlight videoları; seçtikleri paket ve konseptle birlikte.',
-    items: storiesList,
-  });
+interface StoriesSectionProps {
+  initialData?: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+    items?: typeof storiesList;
+  };
+}
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.stories) {
-          setCmsData({
-            eyebrow: json.data.stories.eyebrow || 'HİKÂYELER',
-            title: json.data.stories.title || 'Gerçek Hikâyeler',
-            description: json.data.stories.description || 'Çiftlerin highlight videoları; seçtikleri paket ve konseptle birlikte.',
-            items: json.data.stories.items && json.data.stories.items.length > 0 ? json.data.stories.items : storiesList,
-          });
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+export default function StoriesSection({ initialData }: StoriesSectionProps) {
+  const [activeVideo, setActiveVideo] = useState<{ title: string; url: string } | null>(null);
+  const cmsData = {
+    eyebrow: initialData?.eyebrow || 'HİKÂYELER',
+    title: initialData?.title || 'Gerçek Hikâyeler',
+    description: initialData?.description || 'Çiftlerin highlight videoları; seçtikleri paket ve konseptle birlikte.',
+    items: initialData?.items && initialData.items.length > 0 ? initialData.items : storiesList,
+  };
 
   const activeStories = cmsData.items && cmsData.items.length > 0 ? cmsData.items : storiesList;
 

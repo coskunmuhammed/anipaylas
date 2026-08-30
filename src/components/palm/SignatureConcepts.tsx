@@ -57,33 +57,24 @@ export const signatureConceptsList: Concept[] = [
   },
 ];
 
-export default function SignatureConcepts() {
+interface SignatureConceptsProps {
+  initialData?: {
+    eyebrow?: string;
+    title?: string;
+    description?: string;
+    items?: typeof signatureConceptsList;
+  };
+}
+
+export default function SignatureConcepts({ initialData }: SignatureConceptsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
-  const [cmsData, setCmsData] = useState({
-    eyebrow: 'İMZA KONSEPTLER',
-    title: 'Aşkınızı Sanata Dönüştüren Temalar',
-    description: 'Aşk Bahçeleri, Antik Kentsel Miras, Ege Gün Batımı ve Minimal Lüks Stüdyo konseptlerimizle hayalinizdeki kareleri ölümsüzleştiriyoruz.',
-    items: signatureConceptsList,
-  });
-
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const res = await fetch('/api/content/homepage');
-        const json = await res.json();
-        if (json.success && json.data?.concepts) {
-          setCmsData({
-            eyebrow: json.data.concepts.eyebrow || 'İMZA KONSEPTLER',
-            title: json.data.concepts.title || 'Aşkınızı Sanata Dönüştüren Temalar',
-            description: json.data.concepts.description || 'Aşk Bahçeleri, Antik Kentsel Miras, Ege Gün Batımı ve Minimal Lüks Stüdyo konseptlerimizle hayalinizdeki kareleri ölümsüzleştiriyoruz.',
-            items: json.data.concepts.items && json.data.concepts.items.length > 0 ? json.data.concepts.items : signatureConceptsList,
-          });
-        }
-      } catch (e) {}
-    }
-    loadContent();
-  }, []);
+  const cmsData = {
+    eyebrow: initialData?.eyebrow || 'İMZA KONSEPTLER',
+    title: initialData?.title || 'Aşkınızı Sanata Dönüştüren Temalar',
+    description: initialData?.description || 'Aşk Bahçeleri, Antik Kentsel Miras, Ege Gün Batımı ve Minimal Lüks Stüdyo konseptlerimizle hayalinizdeki kareleri ölümsüzleştiriyoruz.',
+    items: initialData?.items && initialData.items.length > 0 ? initialData.items : signatureConceptsList,
+  };
 
   const scrollLeft = () => {
     if (scrollRef.current) {
